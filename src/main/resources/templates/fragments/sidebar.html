@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="sidebar" class="sidebar">
+    <div class="logo">CRMS.</div>
+
+    <ul class="nav">
+        <li><a th:href="@{/dashboard}">Dashboard</a></li>
+        <li class="active"><a th:href="@{/jobs}">Job Board</a></li>
+        <li><a th:href="@{/prep}">Preparation Hub</a></li>
+        <li><a th:href="@{/alumni}">Alumni Hub</a></li>
+    </ul>
+
+    <div class="user">
+        <div class="user-profile">
+            <div class="user-avatar" th:text="${username != null ? #strings.substring(username, 0, 1) : 'U'}">N</div>
+            <div class="user-info">
+                <h4 th:text="${username}">User Name</h4>
+                <p>Student</p>
+            </div>
+        </div>
+        <a th:href="@{/logout}">Logout</a>
+    </div>
+</div>
+</body>
+</html>
