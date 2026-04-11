@@ -1,10 +1,7 @@
 package com.crms.placement.repository;
 
-import com.crms.placement.entity.User;
+import com.crms.placement.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import org.springframework.stereotype.Repository;
-
-@Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 }

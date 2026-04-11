@@ -1,0 +1,57 @@
+<div th:fragment="sidebar">
+
+<aside class="sidebar">
+
+    <!-- LOGO -->
+    <div class="logo">
+        <div class="logo-icon">🏢</div>
+        <h1>CRMS<span>.</span></h1>
+    </div>
+
+    <!-- NAVIGATION -->
+    <nav class="nav">
+
+        <a href="/dashboard" class="nav-item">
+            <span>🏠</span> Dashboard
+        </a>
+
+        <a href="/jobs" class="nav-item">
+            <span>💼</span> Job Board
+        </a>
+
+        <a href="/calendar" class="nav-item">
+            <span>📅</span> Calendar
+        </a>
+
+        <a href="/preparation" class="nav-item">
+            <span>📚</span> Preparation Hub
+        </a>
+
+        <a href="/alumni" class="nav-item">
+            <span>👥</span> Alumni Hub
+        </a>
+
+    </nav>
+
+    <!-- USER SECTION -->
+    <div class="user-section">
+
+        <div class="user-info">
+            <div class="avatar"
+                 th:text="${#strings.substring(user.name,0,1)}">U</div>
+
+            <div>
+                <p class="name" th:text="${user.name}">User Name</p>
+                <p class="role" th:text="${user.role}">STUDENT</p>
+            </div>
+        </div>
+
+        <form th:action="@{/logout}" method="post">
+            <button class="logout-btn">Logout</button>
+        </form>
+
+    </div>
+
+</aside>
+
+</div>

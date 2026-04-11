@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Job Board', ~{::content}, ~{::styles})}">
+
+<head>
+    <th:block th:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/job-board.css}">
+    </th:block>
+</head>
+
+<body>
+
+<!-- DEFINE content fragment -->
+<th:block th:fragment="content">
+
+<section>
+
+<!-- HEADER -->
+<div class="header">
+    <div>
+        <h1>Job Board</h1>
+        <p>Discover and apply to top opportunities.</p>
+    </div>
+
+    <div class="controls">
+        <input type="text" placeholder="Search roles, companies...">
+        <button class="filter-btn">Eligible Only</button>
+    </div>
+</div>
+
+<!-- JOB CARDS -->
+<div class="job-grid">
+
+    <div class="job-card" th:each="jobEntry : ${jobs}">
+        <th:block th:with="job=${jobEntry.job}, isApplied=${jobEntry.isApplied}">
+
+        <!-- TOP -->
+        <div class="job-top">
+            <div class="company">
+                <div>
+                    <h3 th:text="${job.name}">Title</h3>
+                    <p th:text="${job.company.name}">Company</p>
+                </div>
+            </div>
+
+            <div class="salary" th:if="${job.type == 'INTERNSHIP'}" th:text="${#numbers.formatDecimal(job.stipend / 1000, 0, 1)} + ' K'">10 K</div>
+            <div class="salary" th:if="${job.type == 'FTE' || job.type == 'BOTH'}"
+                 th:text="${(job.ctc % 100000 == 0) ?
+                   (#numbers.formatDecimal(job.ctc / 100000, 0, 0)) :
+                   (#numbers.formatDecimal(job.ctc / 100000, 0, 1))} + ' LPA'">LPA</div>
+        </div>
+
+        <!-- DESCRIPTION -->
+        <p class="desc" th:text="${job.description}">
+            Description
+        </p>
+
+        <!-- DETAILS -->
+        <div class="details">
+            <span th:text="${job.location}">Location</span>
+            <span th:text="${job.role}">Role</span>
+            <span>Min CGPA: <span th:text="${job.minCgpa}"></span></span>
+            <span th:text="${#temporals.format(job.applicationDeadline, 'd MMM yyyy')}">Deadline</span>
+        </div>
+
+        <!-- BUTTON -->
+        <div class="actions">
+            <button class="apply-btn" type="button"
+                    th:if="${!isApplied}"
+                    th:onclick="'window.location.href=\'' + @{/job/{id}(id=${job.opportunity_id})} + '\''"
+                    th:attr="data-job-id=${job.opportunity_id}">
+                Apply Now
+            </button>
+
+            <button class="apply-btn applied-status" type="button" disabled
+                    th:if="${isApplied}">
+                ✓ Applied Successfully
+            </button>
+
+            <button class="view-more-btn" type="button"
+                    th:onclick="'window.location.href=\'' + @{/job/{id}(id=${job.opportunity_id})} + '\''"
+                    th:attr="data-job-id=${job.opportunity_id}">
+                View More
+            </button>
+        </div>
+
+        </th:block>
+    </div>
+
+</div>
+
+</section>
+
+</th:block>
+
+</body>
+</html>
