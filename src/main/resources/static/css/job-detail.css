@@ -609,3 +609,22 @@
     background: #e68a00;
     transform: translateY(-1px);
 }
+
+/* FINAL STATE: Already Applied (GREY PERMANENT) */
+.apply-btn.applied-final,
+.apply-btn-large.applied-final {
+    background: #d1d5db !important;
+    color: #6b7280 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+/* Optional hover safety override */
+.apply-btn.applied-final:hover,
+.apply-btn-large.applied-final:hover {
+    background: #d1d5db !important;
+    transform: none !important;
+}
