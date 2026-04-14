@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Preparation Hub', ~{::content}, ~{::styles})}">
+
+<head>
+    <th:block th:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/preparation-hub.css}">
+    </th:block>
+</head>
+
+<body>
+
+<!-- DEFINE content fragment -->
+<th:block th:fragment="content">
+
+<section class="prep">
+
+<!-- HEADER BANNER -->
+<div class="header-banner">
+    <div class="banner-content">
+        <h1>📖 Preparation Hub</h1>
+        <p>Access past online assessment questions and interview experiences shared by alumni.</p>
+    </div>
+</div>
+
+<!-- COMPANIES SECTION -->
+<div class="companies-container">
+
+    <div class="company-section" th:each="companyEntry, iterStat : ${companies}">
+
+        <!-- COMPANY HEADER -->
+        <div class="company-header" th:attr="data-company-id=${iterStat.index}"
+             onclick="this.nextElementSibling.classList.toggle('expanded'); this.querySelector('.chevron').style.transform = this.nextElementSibling.classList.contains('expanded') ? 'rotate(180deg)' : 'rotate(0deg)';">
+            <h2 th:text="${companyEntry.value.name}">Google</h2>
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+        </div>
+
+        <!-- COMPANY CONTENT -->
+        <div class="company-content" th:classappend="${iterStat.first} ? 'expanded' : ''">
+            <div class="content-row">
+
+                <!-- PAST OA QUESTIONS -->
+                <div class="category-section">
+                    <div class="category-header">
+                        <h3 class="section-header"
+                            th:data-company="${companyEntry.value.name}"
+                            data-type="oa"
+                            style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin: 0;">
+                            <span>📋 Past OA Questions</span>
+                            <span style="font-size: 12px; font-weight: 400;">View All →</span>
+                        </h3>
+                    </div>
+
+                    <div class="cards-container">
+                        <!-- Show only first question -->
+                        <div class="card" th:if="${!companyEntry.value.questions.isEmpty()}">
+                            <th:block th:with="question=${companyEntry.value.questions.get(0)}">
+                                <div class="card-header">
+                                    <h4 th:text="${question.title}">Two Sum (LeetCode)</h4>
+                                </div>
+                                <div class="card-body">
+                                    <p th:text="${
+    question.description != null && question.description.length() > 150
+    ? question.description.substring(0, 150) + '...'
+    : question.description
+}">
+                                </div>
+                                <div class="card-footer">
+                                    <span class="batch" th:text="${question.batch}">Batch 2023</span>
+                                    <span class="date" th:text="${#temporals.format(question.addedDate, 'd MMM yyyy')}">29 Mar 2026</span>
+                                </div>
+                            </th:block>
+                        </div>
+
+                        <!-- NO DATA MESSAGE -->
+                        <div class="no-data" th:if="${companyEntry.value.questions.isEmpty()}">
+                            <p>No past OA questions available yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INTERVIEW EXPERIENCES -->
+                <div class="category-section">
+                    <div class="category-header">
+                        <h3 class="section-header"
+                            th:data-company="${companyEntry.value.name}"
+                            data-type="interview"
+                            style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin: 0;">
+                            <span>💬 Interview Experiences</span>
+                            <span style="font-size: 12px; font-weight: 400;">View All →</span>
+                        </h3>
+                    </div>
+
+                    <div class="cards-container">
+                        <!-- Show only first experience -->
+                        <div class="card" th:if="${!companyEntry.value.experiences.isEmpty()}">
+                            <th:block th:with="experience=${companyEntry.value.experiences.get(0)}">
+                                <div class="card-header">
+                                    <h4 th:text="${experience.title}">Google SWE Interview 2023 - CS Batch</h4>
+                                </div>
+                                <div class="card-body">
+                                    <p th:text="${experience.description != null && #strings.length(experience.description) > 150? #strings.substring(experience.description, 0, 150) + '...': experience.description}">
+                                </div>
+                                <div class="card-footer">
+                                    <span class="author" th:text="'by ' + ${experience.applicantName}">by Rahul Sharma</span>
+                                    <span class="date" th:text="${#temporals.format(experience.experienceDate, 'd MMM yyyy')}">29 Mar 2026</span>
+                                </div>
+                            </th:block>
+                        </div>
+
+                        <!-- NO DATA MESSAGE -->
+                        <div class="no-data" th:if="${companyEntry.value.experiences.isEmpty()}">
+                            <p>No interview experiences shared yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+</section>
+
+</th:block>
+
+<script>
+// Handle section header clicks
+document.querySelectorAll('.section-header').forEach(header => {
+    header.addEventListener('click', function() {
+        const company = this.getAttribute('data-company');
+        const type = this.getAttribute('data-type');
+
+        let url;
+        if (type === 'oa') {
+            url = '/oa-questions?company=' + encodeURIComponent(company);
+        } else if (type === 'interview') {
+            url = '/interview-experiences?company=' + encodeURIComponent(company);
+        }
+
+        if (url) {
+            window.location.href = url;
+        }
+    });
+});
+</script>
+
+</body>
+</html>

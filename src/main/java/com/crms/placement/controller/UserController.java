@@ -1,6 +1,6 @@
 package com.crms.placement.controller;
 
-import com.crms.placement.repository.UserRepository;
+import com.crms.placement.repository.StudentRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,16 +8,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class UserController {
 
-    private final UserRepository userRepository;
+    private final StudentRepository studentRepository;
 
-    public UserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserController(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
     }
 
     @GetMapping("/users")
 public String getUsers(Model model) {
     System.out.println("🔥 USERS CONTROLLER HIT");
-    model.addAttribute("users", userRepository.findAll());
+    model.addAttribute("users", studentRepository.findAll());
     return "pages/users";
 }
 }

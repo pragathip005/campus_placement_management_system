@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Interview Experiences', ~{::content}, ~{::styles})}">
+
+<head>
+    <th:block th:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/prep-details.css}">
+    </th:block>
+</head>
+
+<body>
+
+<!-- DEFINE content fragment -->
+<th:block th:fragment="content">
+
+<section class="prep-details">
+
+<!-- HEADER -->
+<div class="header">
+    <button class="back-btn" onclick="window.history.back()">← Back</button>
+    <h1>💬 Interview Experiences</h1>
+    <p class="company-name" th:text="${companyName}">Google</p>
+</div>
+
+<!-- EXPERIENCES LIST -->
+<div class="experiences-container">
+
+    <div class="experience-card" th:each="experience : ${experiences}">
+        <div class="experience-header">
+            <h2 th:text="${experience.title}">Google SWE Interview 2023 - CS Batch</h2>
+            <span class="author-name" th:text="'by ' + ${experience.applicantName}">by Rahul Sharma</span>
+        </div>
+
+        <div class="experience-body">
+            <p th:text="${experience.description}">Round 1: Two coding questions on arrays and dynamic programming. Round 2: System design for URL shortener...</p>
+        </div>
+
+        <div class="experience-footer">
+            <span class="date-shared" th:text="'Shared: ' + ${#temporals.format(experience.experienceDate, 'd MMM yyyy')}">Shared: 29 Mar 2026</span>
+        </div>
+    </div>
+
+    <!-- NO DATA MESSAGE -->
+    <div class="no-data" th:if="${experiences.isEmpty()}">
+        <div class="no-data-content">
+            <p>💬 No interview experiences shared for this company yet.</p>
+            <p class="text-muted">Be the first to share your experience!</p>
+        </div>
+    </div>
+
+</div>
+
+</section>
+
+</th:block>
+
+</body>
+</html>
