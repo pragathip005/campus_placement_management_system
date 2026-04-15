@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('OA Questions', ~{::content}, ~{::styles})}">
+
+<head>
+    <th:block th:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/prep-details.css}">
+    </th:block>
+</head>
+
+<body>
+
+<!-- DEFINE content fragment -->
+<th:block th:fragment="content">
+
+<section class="prep-details">
+
+<!-- HEADER -->
+<div class="header">
+    <button class="back-btn" onclick="window.history.back()">← Back</button>
+    <h1>📋 Past OA Questions</h1>
+    <p class="company-name" th:text="${companyName}">Google</p>
+</div>
+
+<!-- QUESTIONS LIST -->
+<div class="questions-container">
+
+    <div class="question-card" th:each="question : ${questions}">
+        <div class="question-header">
+            <h2 th:text="${question.title}">Two Sum (LeetCode)</h2>
+            <span class="batch" th:text="${question.batch}">Batch 2023</span>
+        </div>
+
+        <div class="question-body">
+            <p th:text="${question.description}">Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target...</p>
+        </div>
+
+        <div class="question-footer">
+            <span class="date-added" th:text="'Added: ' + ${#temporals.format(question.addedDate, 'd MMM yyyy')}">Added: 29 Mar 2026</span>
+        </div>
+    </div>
+
+    <!-- NO DATA MESSAGE -->
+    <div class="no-data" th:if="${questions.isEmpty()}">
+        <div class="no-data-content">
+            <p>📝 No OA questions available for this company yet.</p>
+            <p class="text-muted">Check back soon for updates!</p>
+        </div>
+    </div>
+
+</div>
+
+</section>
+
+</th:block>
+
+</body>
+</html>
