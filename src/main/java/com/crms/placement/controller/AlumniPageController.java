@@ -4,7 +4,9 @@ import com.crms.placement.dto.AlumniHubView;
 import com.crms.placement.entity.Alumni;
 import com.crms.placement.entity.CareerHistory;
 import com.crms.placement.entity.OAPrepHistory;
+import com.crms.placement.model.Student;
 import com.crms.placement.service.AlumniService;
+import com.crms.placement.repository.StudentRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,17 +17,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class AlumniPageController {
 
     private final AlumniService alumniService;
+    private final StudentRepository studentRepository;
 
-    public AlumniPageController(AlumniService alumniService) {
+    public AlumniPageController(AlumniService alumniService, StudentRepository studentRepository) {
         this.alumniService = alumniService;
+        this.studentRepository = studentRepository;
     }
 
     @GetMapping("/alumni-hub")
     public String alumniHub(Model model) {
-        // For now, using hardcoded student. In production, get from session/auth
-        // Assume student is placed at "Google" for demo
-        String currentStudentCompany = "Google"; // TODO: Get from session
-        boolean isStudentPlaced = true; // TODO: Get from session
+        Student currentStudent = studentRepository.findById(1L).orElse(null);
+        boolean isStudentPlaced = currentStudent != null && Boolean.TRUE.equals(currentStudent.getIsPlaced());
+        String currentStudentCompany = (isStudentPlaced && currentStudent.getPlacedCompany() != null) 
+                                        ? currentStudent.getPlacedCompany().getName() : "";
 
         var alumniDetails = alumniService.getAllAlumni().stream()
                 .map(alumni -> {

@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{fragments/layout :: layout('Alumni Hub', ~{::content}, ~{::styles})}">
+      th:replace="~{fragments/layout :: layout('Alumni Hub', ~{::content}, ~{::styles}, ~{::scripts})}">
 
 <head>
     <th:block th:fragment="styles">
         <link rel="stylesheet" th:href="@{/css/alumni.css}">
+    </th:block>
+    <th:block th:fragment="scripts">
     </th:block>
 </head>
 

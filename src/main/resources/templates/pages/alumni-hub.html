@@ -1,10 +1,31 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{fragments/layout :: layout('Alumni Hub', ~{::content}, ~{::styles})}">
+      th:replace="~{fragments/layout :: layout('Alumni Hub', ~{::content}, ~{::styles}, ~{::scripts})}">
 
 <head>
     <th:block th:fragment="styles">
         <link rel="stylesheet" th:href="@{/css/alumni-hub.css}">
+    </th:block>
+    <th:block th:fragment="scripts">
+        <script>
+            // Simple search functionality
+            document.getElementById('searchInput').addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const alumniCards = document.querySelectorAll('.alumni-card');
+
+                alumniCards.forEach(card => {
+                    const name = card.querySelector('h3').textContent.toLowerCase();
+                    const company = card.querySelector('.career-company')?.textContent.toLowerCase() || '';
+                    const role = card.querySelector('.career-role')?.textContent.toLowerCase() || '';
+
+                    if (name.includes(searchTerm) || company.includes(searchTerm) || role.includes(searchTerm)) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        </script>
     </th:block>
 </head>
 
@@ -150,25 +171,6 @@
         </div>
     </section>
 
-    <script>
-        // Simple search functionality
-        document.getElementById('searchInput').addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            const alumniCards = document.querySelectorAll('.alumni-card');
-
-            alumniCards.forEach(card => {
-                const name = card.querySelector('h3').textContent.toLowerCase();
-                const company = card.querySelector('.career-company')?.textContent.toLowerCase() || '';
-                const role = card.querySelector('.career-role')?.textContent.toLowerCase() || '';
-
-                if (name.includes(searchTerm) || company.includes(searchTerm) || role.includes(searchTerm)) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        });
-    </script>
 </th:block>
 </body>
 </html>
