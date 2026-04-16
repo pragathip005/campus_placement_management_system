@@ -7,13 +7,6 @@ import com.crms.placement.repository.OpportunityRepository;
 import com.crms.placement.repository.StudentRepository;
 import org.springframework.stereotype.Component;
 
-/**
- * GRASP: Information Expert - Expert in eligibility checking
- * SOLID: Single Responsibility - Only checks eligibility
- *
- * Validates if a student is eligible to apply for an opportunity
- * based on CGPA, backlogs, and prior applications.
- */
 @Component
 public class EligibilityChecker {
 
@@ -29,10 +22,6 @@ public class EligibilityChecker {
         this.applicationRepository = applicationRepository;
     }
 
-    /**
-     * Check if student is eligible for opportunity
-     * Returns detailed eligibility result with reason if ineligible
-     */
     public EligibilityResult checkEligibility(Integer studentId, Integer opportunityId) {
         Student student = studentRepository.findById((long) studentId).orElse(null);
         Opportunity opportunity = opportunityRepository.findById(opportunityId).orElse(null);
@@ -45,11 +34,17 @@ public class EligibilityChecker {
             return EligibilityResult.ineligible("Already applied to this opportunity");
         }
 
+        EligibilityResult placementResult = checkPlacementEligibility(student);
+        if (!placementResult.isEligible()) return placementResult;
+
         EligibilityResult cgpaResult = checkCgpaEligibility(student, opportunity);
         if (!cgpaResult.isEligible()) return cgpaResult;
 
         EligibilityResult backlogResult = checkBacklogEligibility(student, opportunity);
         if (!backlogResult.isEligible()) return backlogResult;
+
+        EligibilityResult branchResult = checkBranchEligibility(student, opportunity);
+        if (!branchResult.isEligible()) return branchResult;
 
         return EligibilityResult.eligible();
     }
@@ -67,6 +62,13 @@ public class EligibilityChecker {
         return EligibilityResult.eligible();
     }
 
+    private EligibilityResult checkPlacementEligibility(Student student) {
+        if (Boolean.TRUE.equals(student.getIsPlaced())) {
+            return EligibilityResult.ineligible("Student is already placed");
+        }
+        return EligibilityResult.eligible();
+    }
+
     private EligibilityResult checkBacklogEligibility(Student student, Opportunity opportunity) {
         Integer studentBacklogs = student.getBacklogCount() != null ?
             student.getBacklogCount() : 0;
@@ -80,6 +82,26 @@ public class EligibilityChecker {
             );
         }
         return EligibilityResult.eligible();
+    }
+
+    private EligibilityResult checkBranchEligibility(Student student, Opportunity opportunity) {
+        String studentBranch = student.getBranch();
+        var eligibleBranches = opportunity.getEligibleBranches();
+
+        // If no branch restrictions, student is eligible
+        if (eligibleBranches == null || eligibleBranches.isEmpty()) {
+            return EligibilityResult.eligible();
+        }
+
+        // Check if student's branch is in the eligible branches list
+        if (studentBranch != null && eligibleBranches.contains(studentBranch)) {
+            return EligibilityResult.eligible();
+        }
+
+        return EligibilityResult.ineligible(
+            String.format("Branch %s is not eligible. Eligible branches: %s",
+                studentBranch, String.join(", ", eligibleBranches))
+        );
     }
 
     private boolean hasPreviouslyApplied(Integer studentId, Integer opportunityId) {

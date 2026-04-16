@@ -2,6 +2,7 @@ package com.crms.placement.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "opportunities")
@@ -35,6 +36,11 @@ public class Opportunity {
     @Column(name = "shortlisting_success_rate")
     private Double shortlistingSuccessRate;
 
+    @ElementCollection
+    @CollectionTable(name = "opportunity_eligible_branches", joinColumns = @JoinColumn(name = "opportunity_id"))
+    @Column(name = "branch")
+    private List<String> eligibleBranches;
+
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
@@ -66,6 +72,7 @@ public class Opportunity {
     public Integer getMaxBacklogs() { return maxBacklogs; }
     public Integer getVacancies() { return vacancies; }
     public Double getShortlistingSuccessRate() { return shortlistingSuccessRate; }
+    public List<String> getEligibleBranches() { return eligibleBranches; }
 
     // Setters (for builder pattern)
     public void setName(String name) { this.name = name; }
@@ -82,4 +89,5 @@ public class Opportunity {
     public void setMaxBacklogs(Integer maxBacklogs) { this.maxBacklogs = maxBacklogs; }
     public void setVacancies(Integer vacancies) { this.vacancies = vacancies; }
     public void setShortlistingSuccessRate(Double shortlistingSuccessRate) { this.shortlistingSuccessRate = shortlistingSuccessRate; }
+    public void setEligibleBranches(List<String> eligibleBranches) { this.eligibleBranches = eligibleBranches; }
 }

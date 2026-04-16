@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{fragments/layout :: layout('Preparation Hub', ~{::content}, ~{::styles})}">
+      th:replace="~{fragments/layout :: layout('Preparation Hub', ~{::content}, ~{::styles}, ~{::scripts})}">
 
 <head>
     <th:block th:fragment="styles">
         <link rel="stylesheet" th:href="@{/css/preparation-hub.css}">
+    </th:block>
+    <th:block th:fragment="scripts">
     </th:block>
 </head>
 
