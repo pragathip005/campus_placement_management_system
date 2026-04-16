@@ -14,6 +14,20 @@ public class LoginService {
     public LoginService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
+    public void register(User user) {
+
+    // convert role to uppercase (IMPORTANT for your DB match)
+    user.setRole(user.getRole().toUpperCase());
+
+    // optional: basic validation
+    if (userRepository.findByEmailAndRole(user.getEmail(), user.getRole()).isPresent()) {
+        throw new RuntimeException("User already exists");
+    }
+
+    userRepository.save(user);
+
+    System.out.println("✅ USER REGISTERED");
+}
 
     public User login(String email, String password, String role) {
 

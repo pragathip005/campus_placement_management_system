@@ -1,0 +1,138 @@
+/* Background */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #fff7ed, #ffe0b2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Card */
+.card {
+    width: 420px;
+    background: #ffffff;
+    padding: 35px;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(255, 140, 0, 0.2);
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Title */
+.card h2 {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 26px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #777;
+    margin-bottom: 20px;
+}
+
+/* Inputs */
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 10px;
+    border: 2px solid #eee;
+    transition: 0.2s;
+    font-size: 14px;
+}
+
+input:focus {
+    outline: none;
+    border-color: orange;
+    box-shadow: 0 0 8px rgba(255,140,0,0.2);
+}
+
+/* Role buttons */
+.role-btns {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.role-btns button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    background: #f2f2f2;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.role-btns button:hover {
+    background: #ffe0b2;
+}
+
+/* Active role */
+.active {
+    background: linear-gradient(to right, #ff7a18, #ffb347) !important;
+    color: white;
+    box-shadow: 0 5px 15px rgba(255, 140, 0, 0.3);
+}
+
+/* Submit button */
+.submit-btn {
+    width: 100%;
+    padding: 14px;
+    margin-top: 15px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(to right, #ff7a18, #ffb347);
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(255, 140, 0, 0.4);
+}
+
+/* Error */
+.error {
+    background: #ffe5e5;
+    color: #cc0000;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+/* Footer link */
+.footer {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.footer a {
+    color: #ff7a18;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
