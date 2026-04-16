@@ -125,36 +125,23 @@
 
                     <!-- Contact Details / Locked Message Container -->
                     <div class="contact-wrapper mt-auto">
-                        <!-- Contact Details (Conditional) -->
-                        <div class="section contact-section mb-0" th:if="${alum.canSeeContact}">
-                            <h4>
-                                <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                                Contact Details
-                            </h4>
-                            <div class="contact-details">
-                                <div class="contact-item" th:if="${alum.alumni.email != null}">
-                                    <span class="contact-label">Email:</span>
-                                    <a th:href="'mailto:' + ${alum.alumni.email}" th:text="${alum.alumni.email}">email@example.com</a>
-                                </div>
-                                <div class="contact-item" th:if="${alum.alumni.phone != null}">
-                                    <span class="contact-label">Phone:</span>
-                                    <a th:href="'tel:' + ${alum.alumni.phone}" th:text="${alum.alumni.phone}">+91-XXXXXXXXXX</a>
-                                </div>
-                                <div class="contact-item" th:if="${alum.alumni.linkedinUrl != null}">
-                                    <span class="contact-label">LinkedIn:</span>
-                                    <a th:href="${alum.alumni.linkedinUrl}" target="_blank" th:text="${alum.alumni.linkedinUrl}">LinkedIn Profile</a>
-                                </div>
-                            </div>
+                        <!-- Unlocked State -->
+                        <div class="mt-auto" th:if="${alum.canSeeContact}">
+                            <a th:href="${alum.alumni.linkedinUrl != null ? alum.alumni.linkedinUrl : (alum.alumni.email != null ? 'mailto:' + alum.alumni.email : '#')}" 
+                               target="_blank" class="btn-connect-unlocked">
+                                <svg th:if="${alum.alumni.linkedinUrl != null}" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+                                <svg th:if="${alum.alumni.linkedinUrl == null}" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                                Connect
+                            </a>
                         </div>
 
-                        <!-- Contact Locked Message -->
-                        <div class="section contact-locked mb-0" th:if="${!alum.canSeeContact}">
-                            <div class="locked-message">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lock-icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                                <p>Contact details are private.</p>
-                                <p class="unlock-hint" th:if="${!isStudentPlaced}">Get placed first to unlock alumni contacts!</p>
-                                <p class="unlock-hint" th:if="${isStudentPlaced}">Join <span th:text="${alum.alumni.currentCompany ?: 'their company'}">this company</span> to connect.</p>
-                            </div>
+                        <!-- Locked State -->
+                        <div class="contact-locked mt-auto" th:if="${!alum.canSeeContact}" 
+                             th:title="${isStudentPlaced ? 'Join ' + (alum.alumni.currentCompany ?: 'their company') + ' to connect.' : 'Get placed first to unlock contacts!'}">
+                            <button class="btn-connect-locked">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                Unlock after placement
+                            </button>
                         </div>
                     </div>
                 </div>

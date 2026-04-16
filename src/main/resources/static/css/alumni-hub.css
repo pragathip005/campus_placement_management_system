@@ -1,46 +1,52 @@
-/* Alumni Hub Page */
 .alumni-hub-page {
-    width: 100%;
-    margin-bottom: 40px;
+    flex: 1;
+    background: #f8fafc;
+    height: 100vh;
+    overflow-y: auto;
 }
 
 .page-header {
+    background: radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.15) 0%, transparent 50%), linear-gradient(135deg, #f97316 0%, #ea580c 100%);
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 32px;
+    align-items: center;
+    margin: 0;
+    padding: 48px 64px;
+    min-height: 140px;
     gap: 24px;
+    box-shadow: 0 4px 20px rgba(234, 88, 12, 0.15);
 }
 
 .page-header h1 {
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 700;
-    color: #0d1b2a;
-    margin-bottom: 8px;
-    letter-spacing: -0.5px;
+    color: white;
+    margin: 0 0 8px 0;
 }
 
 .page-header p {
-    color: #64748b;
-    font-size: 16px;
+    color: rgba(255, 255, 255, 0.60);
+    font-size: 15px;
     max-width: 720px;
+    margin: 0;
+    line-height: 1.6;
 }
 
 .student-status {
     margin-top: 20px;
-    background: linear-gradient(to right, #f0fdf4, #ecfdf5);
-    border: 1px solid #a7f3d0;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 12px;
     padding: 16px 20px;
     display: flex;
     flex-direction: column;
     gap: 6px;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.05);
+    color: white;
 }
 
 .alert-badge {
-    background: #10b981;
-    color: white;
+    background: white;
+    color: #ff7e00;
     padding: 6px 12px;
     border-radius: 20px;
     font-size: 13px;
@@ -57,7 +63,7 @@
 
 .status-note {
     font-size: 14px;
-    color: #047857;
+    color: rgba(255, 255, 255, 0.9);
     margin-top: 2px;
     font-weight: 500;
 }
@@ -83,31 +89,36 @@
 .search-input {
     width: 100%;
     padding: 12px 16px 12px 42px;
-    border: 1px solid #e2e8f0;
+    border: none;
     border-radius: 12px;
     font-size: 15px;
     background: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
+}
+
+.search-input::placeholder {
+    color: #94a3b8;
 }
 
 .search-input:focus {
     outline: none;
-    border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
 .alumni-directory {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-    gap: 28px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
     align-items: stretch;
+    padding: 48px 64px 64px 64px;
+    margin: 0;
 }
 
 .alumni-card {
     background: white;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(13, 27, 42, 0.05);
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     display: flex;
@@ -117,27 +128,27 @@
 
 .alumni-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 20px 40px rgba(13, 27, 42, 0.08);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
 }
 
 .card-header {
-    background: #0f172a;
-    color: white;
-    padding: 24px 28px;
+    background: transparent;
+    color: #0f172a;
+    padding: 24px 24px 16px 24px;
     display: flex;
-    gap: 18px;
+    gap: 16px;
     align-items: center;
 }
 
 .alumni-avatar {
-    width: 64px;
-    height: 64px;
+    width: 50px;
+    height: 50px;
     background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 26px;
+    font-size: 22px;
     font-weight: 700;
     color: white;
     flex-shrink: 0;
@@ -145,16 +156,16 @@
 }
 
 .alumni-info h3 {
-    margin: 0 0 4px 0;
-    font-size: 21px;
+    margin: 0 0 2px 0;
+    font-size: 18px;
     font-weight: 600;
-    letter-spacing: -0.3px;
+    color: #0f172a;
 }
 
 .graduation {
     color: #94a3b8;
-    font-size: 14px;
-    margin: 0 0 10px 0;
+    font-size: 13px;
+    margin: 0 0 6px 0;
     font-weight: 500;
 }
 
@@ -164,116 +175,123 @@
 }
 
 .status-badge {
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 13px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
     font-weight: 600;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
 }
 
 .status-badge.placed {
-    background: rgba(16, 185, 129, 0.15);
-    color: #10b981;
+    background: #dcfce7;
+    color: #16a34a;
 }
 
 .status-badge.studies {
-    background: rgba(59, 130, 246, 0.15);
-    color: #3b82f6;
+    background: #eff6ff;
+    color: #2563eb;
 }
 
 .status-badge.not-placed {
-    background: rgba(245, 158, 11, 0.15);
-    color: #f59e0b;
+    background: #fef3c7;
+    color: #d97706;
 }
 
 .card-content {
-    padding: 28px;
+    padding: 16px 24px 24px 24px;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    border-top: 1px solid #f1f5f9;
 }
 
 .section {
-    margin-bottom: 28px;
+    margin-bottom: 20px;
 }
 
 .section h4 {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
-    color: #1e293b;
-    margin-bottom: 16px;
+    color: #0f172a;
+    margin-bottom: 12px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .section-icon {
-    color: #64748b;
+    color: #94a3b8;
 }
 
 .career-timeline {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 10px;
 }
 
 .career-item {
-    background: #f8fafc;
-    padding: 18px;
-    border-radius: 12px;
-    border-left: 4px solid #3b82f6;
-    transition: background 0.2s;
+    background: transparent;
+    padding: 0 0 0 12px;
+    border-radius: 0;
+    border-left: 3px solid #3b82f6;
+    margin-bottom: 12px;
 }
 
 .career-item:hover {
-    background: #f1f5f9;
+    background: transparent;
 }
 
 .career-company {
     font-weight: 600;
-    color: #0f172a;
-    font-size: 16px;
-    margin-bottom: 2px;
+    color: #1e293b;
+    font-size: 14px;
+    margin-bottom: 4px;
 }
 
 .career-role {
-    color: #475569;
-    font-size: 14px;
-    margin: 0;
+    color: #64748b;
+    font-size: 13px;
+    margin: 0 0 4px 0;
 }
 
 .career-ctc {
-    color: #10b981;
+    color: #2563eb;
     font-weight: 600;
-    font-size: 14px;
-    margin: 6px 0 0 0;
+    font-size: 13px;
+    margin: 0 0 4px 0;
 }
 
 .career-dates {
-    color: #64748b;
-    font-size: 13px;
-    margin-top: 8px;
+    color: #94a3b8;
+    font-size: 12px;
+    margin-top: 4px;
     display: flex;
-    gap: 6px;
+    gap: 4px;
+    align-items: center;
 }
 
 .current-tag {
+    background: #eff6ff;
     color: #3b82f6;
+    font-size: 11px;
+    border-radius: 4px;
+    padding: 1px 6px;
     font-weight: 600;
+    margin-left: 6px;
 }
 
 .oa-tips {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 10px;
 }
 
 .oa-item {
     background: #f8fafc;
-    padding: 18px;
-    border-radius: 12px;
+    padding: 12px 16px;
+    border-radius: 10px;
     border-left: 4px solid #8b5cf6;
 }
 
@@ -286,8 +304,8 @@
 
 .oa-difficulty {
     color: #64748b;
-    font-size: 14px;
-    margin-bottom: 12px;
+    font-size: 13px;
+    margin-bottom: 8px;
     display: inline-block;
     background: #f1f5f9;
     padding: 2px 8px;
@@ -298,9 +316,9 @@
 .oa-tips-content,
 .oa-experience {
     color: #334155;
-    font-size: 14px;
-    line-height: 1.6;
-    margin-bottom: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 6px;
 }
 
 .oa-experience {
@@ -326,23 +344,26 @@
     margin-bottom: 0 !important;
 }
 
-.contact-section {
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
-    border-radius: 12px;
-    padding: 20px 24px;
-}
-
-.contact-details {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
-
-.contact-item {
+.btn-connect-unlocked {
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    text-decoration: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    width: 100%;
+    margin-top: 16px;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.btn-connect-unlocked:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
 }
 
 .contact-label {
@@ -366,37 +387,34 @@
 }
 
 .contact-locked {
-    background: #fefce8;
-    border: 1px dashed #fde047;
-    border-radius: 12px;
-    padding: 24px;
-    text-align: center;
+    margin-top: 16px;
+}
+
+.btn-connect-locked {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 8px;
+    background: #f8fafc;
+    border: 2px dashed #cbd5e1;
+    color: #94a3b8;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    width: 100%;
+    cursor: help;
+    transition: all 0.2s ease;
 }
 
-.locked-message {
-    color: #854d0e;
+.btn-connect-locked:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    color: #64748b;
 }
 
-.lock-icon {
-    display: block;
-    margin: 0 auto 12px auto;
-    color: #eab308;
-}
-
-.locked-message p {
-    margin: 4px 0;
-    font-size: 15px;
-    font-weight: 500;
-}
-
-.locked-message .unlock-hint {
-    font-size: 13px;
-    color: #a16207;
-    font-weight: 400;
-    margin-top: 6px;
+.unlock-hint {
+    display: none;
 }
 
 .no-alumni {
@@ -429,9 +447,14 @@
     font-size: 16px;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1024px) {
     .alumni-directory {
-        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        grid-template-columns: repeat(2, 1fr);
+        padding: 40px 48px;
+    }
+    
+    .page-header {
+        padding: 40px 48px;
     }
 }
 
@@ -448,9 +471,16 @@
     .search-input-wrapper {
         width: 100%;
     }
+}
 
+@media (max-width: 640px) {
     .alumni-directory {
         grid-template-columns: 1fr;
+        padding: 32px 24px;
+    }
+
+    .page-header {
+        padding: 32px 24px;
     }
 
     .card-header {
