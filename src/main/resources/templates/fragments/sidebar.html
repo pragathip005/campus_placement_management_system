@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-<div th:fragment="sidebar" class="sidebar">
+<div th:fragment="sidebar(activePage)" class="sidebar">
     <div class="logo">CRMS.</div>
 
     <ul class="nav">
-        <li><a th:href="@{/dashboard}">Dashboard</a></li>
-        <li class="active"><a th:href="@{/jobs}">Job Board</a></li>
-        <li><a th:href="@{/prep}">Preparation Hub</a></li>
-        <li><a th:href="@{/alumni}">Alumni Hub</a></li>
+        <li th:class="${activePage == 'Dashboard' ? 'active' : ''}"><a th:href="@{/dashboard}">Dashboard</a></li>
+        <li th:class="${activePage == 'Job Board' ? 'active' : ''}"><a th:href="@{/jobs}">Job Board</a></li>
+        <li th:class="${activePage == 'Calendar' ? 'active' : ''}"><a th:href="@{/calendar}">Calendar</a></li>
+        <li th:class="${activePage == 'Preparation Hub' ? 'active' : ''}"><a th:href="@{/prep}">Preparation Hub</a></li>
+        <li th:class="${activePage == 'Alumni Hub' ? 'active' : ''}"><a th:href="@{/alumni-hub}">Alumni Hub</a></li>
     </ul>
 
     <div class="user">
