@@ -1,31 +1,48 @@
-package com.crms.placement.service;
-
-/**
- * Data Transfer Object for application statistics
- * Represents statistics snapshot for an opportunity
- */
 public class ApplicationStatisticsDTO {
     private final long totalApplications;
-    private final long acceptedApplications;
-    private final long rejectedApplications;
     private final long pendingApplications;
+    private final long selectedApplications;
+    private final long offerAcceptedApplications;
+    private final long offerRejectedApplications;  // ← new
+    private final long rejectedApplications;
 
-    public ApplicationStatisticsDTO(long totalApplications, long acceptedApplications,
-                                  long rejectedApplications, long pendingApplications) {
+    public ApplicationStatisticsDTO(long totalApplications,
+                                    long pendingApplications,
+                                    long selectedApplications,
+                                    long offerAcceptedApplications,
+                                    long offerRejectedApplications,
+                                    long rejectedApplications) {
         this.totalApplications = totalApplications;
-        this.acceptedApplications = acceptedApplications;
-        this.rejectedApplications = rejectedApplications;
         this.pendingApplications = pendingApplications;
+        this.selectedApplications = selectedApplications;
+        this.offerAcceptedApplications = offerAcceptedApplications;
+        this.offerRejectedApplications = offerRejectedApplications;
+        this.rejectedApplications = rejectedApplications;
     }
 
-    public long getTotalApplications() { return totalApplications; }
-    public long getAcceptedApplications() { return acceptedApplications; }
-    public long getRejectedApplications() { return rejectedApplications; }
-    public long getPendingApplications() { return pendingApplications; }
+    public long getTotalApplications()         { return totalApplications; }
+    public long getPendingApplications()       { return pendingApplications; }
+    public long getSelectedApplications()      { return selectedApplications; }
+    public long getOfferAcceptedApplications() { return offerAcceptedApplications; }
+    public long getOfferRejectedApplications() { return offerRejectedApplications; }
+    public long getRejectedApplications()      { return rejectedApplications; }
 
-    public double getAcceptanceRate() {
+    // % of all applicants the company shortlisted
+    public double getSelectionRate() {
         if (totalApplications == 0) return 0;
-        return (acceptedApplications * 100.0) / totalApplications;
+        return (selectedApplications * 100.0) / totalApplications;
+    }
+
+    // % of selected students who accepted — did the offer land?
+    public double getOfferAcceptanceRate() {
+        if (selectedApplications == 0) return 0;
+        return (offerAcceptedApplications * 100.0) / selectedApplications;
+    }
+
+    // % of selected students who declined — useful for company feedback
+    public double getOfferRejectionRate() {
+        if (selectedApplications == 0) return 0;
+        return (offerRejectedApplications * 100.0) / selectedApplications;
     }
 
     public double getRejectionRate() {

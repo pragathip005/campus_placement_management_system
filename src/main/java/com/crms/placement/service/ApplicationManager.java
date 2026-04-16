@@ -3,6 +3,7 @@ package com.crms.placement.service;
 import com.crms.placement.model.Application;
 import com.crms.placement.repository.ApplicationRepository;
 import org.springframework.stereotype.Component;
+import com.crms.placement.model.ApplicationStatus;
 
 /**
  * GRASP: Creator + Information Expert
@@ -27,7 +28,7 @@ public class ApplicationManager {
      * GRASP: Creator - Responsible for creating Application objects
      */
     public Application submitApplication(Integer studentId, Integer opportunityId) {
-        Application application = new Application(studentId, opportunityId, "APPLIED");
+        Application application = new Application(studentId, opportunityId, ApplicationStatus.APPLIED);
         return applicationRepository.save(application);
     }
 
