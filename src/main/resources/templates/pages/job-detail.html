@@ -1,11 +1,120 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{fragments/layout :: layout('Job Details', ~{::content}, ~{::styles})}">
+      th:replace="~{fragments/layout :: layout('Job Details', ~{::content}, ~{::styles}, ~{::scripts})}">
 
 <head>
     <th:block th:fragment="styles">
         <link rel="stylesheet" th:href="@{/css/job-detail.css}">
     </th:block>
+    <th:block th:fragment="scripts">
+<script>
+console.log("🔥 Job Detail JS Loaded");
+
+let currentOpportunityId = null;
+let currentButton = null;
+
+document.addEventListener('DOMContentLoaded', function () {
+    console.log("🔥 Job Detail DOM Loaded");
+
+    const applyBtn = document.querySelector('.apply-job-btn-detail');
+
+    console.log("🔍 Apply button found:", applyBtn);
+
+    if (applyBtn) {
+        applyBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            currentOpportunityId = this.getAttribute('data-opportunity-id');
+            currentButton = this;
+
+            console.log("🔥 Apply clicked for ID:", currentOpportunityId);
+
+            showApplyModal();
+        });
+    }
+});
+
+function showApplyModal() {
+    console.log("📍 Opening modal");
+    const modal = document.getElementById('applyModal');
+    modal.style.display = 'block';
+}
+
+function closeApplyModal() {
+    console.log("📍 Closing modal");
+    document.getElementById('applyModal').style.display = 'none';
+}
+
+function confirmApply() {
+    console.log("✅ Confirming apply");
+    if (currentOpportunityId) {
+        applyToJob(currentOpportunityId);
+    }
+}
+
+function applyToJob(opportunityId) {
+    console.log('🔥 Sending apply request for opportunity:', opportunityId);
+
+    fetch('/job/' + opportunityId + '/apply', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => {
+        console.log('📡 Response status:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('📦 Response data:', data);
+
+        closeApplyModal();
+
+        if (data.success) {
+            console.log('✅ Application successful! ID:', data.applicationId);
+
+            // Update the button immediately
+            if (currentButton) {
+                console.log('🔄 Updating button...');
+                currentButton.classList.add('applied');
+                currentButton.textContent = '✓ Applied Successfully';
+                currentButton.disabled = true;
+                currentButton.onclick = null;
+                console.log('✅ Button updated successfully');
+            } else {
+                console.log('❌ currentButton is null, finding button by selector');
+                const applyBtn = document.querySelector('.apply-job-btn-detail');
+
+                if (applyBtn) {
+                    applyBtn.classList.add('applied');
+                    applyBtn.textContent = '✓ Applied Successfully';
+                    applyBtn.disabled = true;
+                    applyBtn.onclick = null;
+                    console.log('✅ Button updated by selector');
+                }
+            }
+
+            alert('Application submitted successfully!');
+        } else {
+            console.log('❌ Application failed:', data.message);
+            alert(data.message || 'Failed to apply');
+        }
+    })
+    .catch(error => {
+        console.error('❌ Error:', error);
+        closeApplyModal();
+        alert('Error: ' + error.message);
+    });
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('applyModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+}
+</script>
+</th:block>
 </head>
 
 <body>
@@ -26,7 +135,7 @@
                         <p class="company-label" th:text="${job.company.name}">GOOGLE</p>
                         <h1 th:text="${job.name}">Software Engineer (Full-Stack)</h1>
                         <p class="job-meta">
-                            📍 <span th:text="${job.location}">Bangalore</span>
+                            📍 <span th:text="${job.location != null ? job.location : 'Not specified'}">Bangalore</span>
                             | 💼 <span th:text="${job.role}">Software Engineer</span>
                             | 📅 Deadline: <span class="deadline" th:text="${#temporals.format(job.applicationDeadline, 'd MMM yyyy')}">28 Apr 2026</span>
                         </p>
@@ -69,7 +178,10 @@
             <div class="stat-icon">📊</div>
             <div class="stat-content">
                 <p class="stat-label">SHORTLIST SUCCESS</p>
-                <h3 class="stat-value" th:text="${#numbers.formatDecimal(shortlistSuccessRate, 0, 1)} + '%'">20%</h3>
+                <h3 class="stat-value" th:text="${job.shortlistingSuccessRate != null 
+              ? #numbers.formatDecimal(job.shortlistingSuccessRate, 0, 1) + '%' 
+              : '0%'}">
+    20%</h3>
                 <p class="stat-desc">of applicants usually shortlisted</p>
             </div>
         </div>
@@ -144,7 +256,7 @@
                         <div class="criteria-icon">📌</div>
                         <div class="criteria-content">
                             <p class="criteria-label">Location</p>
-                            <p class="criteria-value" th:text="${job.location}">Bangalore</p>
+                            <p class="criteria-value" th:text="${job.location != null ? job.location : 'Not specified'}">Bangalore</p>
                         </div>
                     </div>
                 </div>
@@ -165,7 +277,9 @@
                             <p class="alumni-role" th:text="${alum.currentJobRole}">SDE</p>
                             <p class="alumni-batch" th:text="'Batch ' + ${alum.graduationYear}">2021</p>
                         </div>
-                        <a th:if="${alum.linkedinUrl}" th:href="${alum.linkedinUrl}" target="_blank" class="alumni-link">
+                        <a th:if="${alum.linkedinUrl}"
+                           th:href="${alum.linkedinUrl.startsWith('http') ? alum.linkedinUrl : 'https://www.linkedin.com/in/' + alum.linkedinUrl}"
+                           target="_blank" class="alumni-link">
                             🔗 Link
                         </a>
                     </div>
@@ -183,7 +297,11 @@
 
                 <div class="quick-info-row">
                     <span class="quick-label">Status</span>
-                    <span class="quick-value status-open">OPEN</span>
+                    <span class="quick-value"
+                        th:classappend="${isOpen} ? 'status-open' : 'status-closed'"
+                        th:text="${isOpen} ? 'OPEN' : 'CLOSED'">
+                        OPEN
+                    </span>
                 </div>
 
                 <div class="quick-info-row">
@@ -202,10 +320,9 @@
                 </div>
 
                 <!-- APPLY BUTTON -->
-                <button class="apply-btn-large"
+                <button class="apply-btn-large apply-job-btn-detail"
                         th:if="${isEligible}"
-                        type="button"
-                        onclick="showApplyModal()">
+                        th:attr="data-opportunity-id=${job.opportunity_id}">
                     Apply Now
                 </button>
 
@@ -254,62 +371,6 @@
 
 </body>
 
-<script>
-let currentOpportunityId = null;
-
-function showApplyModal() {
-    const modal = document.getElementById('applyModal');
-    currentOpportunityId = modal.getAttribute('data-opportunity-id');
-    modal.style.display = 'block';
-}
-
-function closeApplyModal() {
-    document.getElementById('applyModal').style.display = 'none';
-}
-
-function confirmApply() {
-    if (currentOpportunityId) {
-        applyToJob(currentOpportunityId);
-    }
-}
-
-function applyToJob(opportunityId) {
-    fetch('/job/' + opportunityId + '/apply', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        closeApplyModal();
-
-        if (data.success) {
-            // Update button state to "Applied Successfully"
-            const applyBtn = document.querySelector('.apply-btn-large:not(.disabled):not(.applied)');
-            if (applyBtn) {
-                applyBtn.classList.add('applied');
-                applyBtn.textContent = '✓ Applied Successfully';
-                applyBtn.disabled = true;
-            }
-        } else {
-            alert('Error: ' + (data.message || 'Failed to apply'));
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        closeApplyModal();
-        alert('An error occurred while applying');
-    });
-}
-
-// Close modal when clicking outside
-window.onclick = function(event) {
-    const modal = document.getElementById('applyModal');
-    if (event.target === modal) {
-        modal.style.display = 'none';
-    }
-}
-</script>
 
 </html>
+

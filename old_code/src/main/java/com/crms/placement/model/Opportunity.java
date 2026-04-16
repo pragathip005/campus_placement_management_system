@@ -2,8 +2,29 @@ package com.crms.placement.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
+/**
+ * ORIGINAL CODE - Before Builder Pattern Implementation
+ * =====================================================
+ *
+ * VIOLATIONS:
+ * ❌ GRASP Creator Pattern
+ *    - Public default constructor creates uninitialized objects
+ *    - Would need multiple constructors for different field combinations
+ *    - "Telescoping Constructor Problem"
+ *
+ * PROBLEMS:
+ * - 11 fields, but default constructor doesn't initialize any
+ * - Can create incomplete/invalid Opportunity objects
+ * - No validation at construction time
+ * - Hard to know which fields are required vs optional
+ * - Would need many overloaded constructors if expanded
+ *   Example would become:
+ *   - Opportunity(String name, Company company)
+ *   - Opportunity(String name, Company company, String role)
+ *   - Opportunity(String name, Company company, String role, Double ctc)
+ *   - ... and so on (constructor hell)
+ */
 @Entity
 @Table(name = "opportunities")
 public class Opportunity {
@@ -26,35 +47,25 @@ public class Opportunity {
     private String jdUrl;
     private Integer maxBacklogs;
     private Integer vacancies;
-
     @Column(name = "min_cgpa")
     private Double minCgpa;
 
     @Column(name = "application_deadline")
     private LocalDateTime applicationDeadline;
 
-    @Column(name = "shortlisting_success_rate")
-    private Double shortlistingSuccessRate;
-
-    @ElementCollection
-    @CollectionTable(name = "opportunity_eligible_branches", joinColumns = @JoinColumn(name = "opportunity_id"))
-    @Column(name = "branch")
-    private List<String> eligibleBranches;
-
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
 
-    // Private constructor to enforce Builder Pattern
-    protected Opportunity() {}
-
     /**
-     * Static builder method for fluent object construction.
-     * @return New OpportunityBuilder instance
+     * ❌ PROBLEMATIC - Default constructor creates uninitialized object
+     *
+     * Issues:
+     * - No validation
+     * - Can't tell which fields are required
+     * - All fields are null initially
      */
-    public static OpportunityBuilder builder() {
-        return new OpportunityBuilder();
-    }
+    public Opportunity() {}
 
     // Getters
     public Integer getOpportunity_id() { return opportunity_id; }
@@ -71,10 +82,8 @@ public class Opportunity {
     public String getJdUrl() { return jdUrl; }
     public Integer getMaxBacklogs() { return maxBacklogs; }
     public Integer getVacancies() { return vacancies; }
-    public Double getShortlistingSuccessRate() { return shortlistingSuccessRate; }
-    public List<String> getEligibleBranches() { return eligibleBranches; }
 
-    // Setters (for builder pattern)
+    // Setters (for builder pattern) - Note: Builder pattern wasn't used before
     public void setName(String name) { this.name = name; }
     public void setRole(String role) { this.role = role; }
     public void setType(String type) { this.type = type; }
@@ -88,6 +97,4 @@ public class Opportunity {
     public void setJdUrl(String jdUrl) { this.jdUrl = jdUrl; }
     public void setMaxBacklogs(Integer maxBacklogs) { this.maxBacklogs = maxBacklogs; }
     public void setVacancies(Integer vacancies) { this.vacancies = vacancies; }
-    public void setShortlistingSuccessRate(Double shortlistingSuccessRate) { this.shortlistingSuccessRate = shortlistingSuccessRate; }
-    public void setEligibleBranches(List<String> eligibleBranches) { this.eligibleBranches = eligibleBranches; }
 }
