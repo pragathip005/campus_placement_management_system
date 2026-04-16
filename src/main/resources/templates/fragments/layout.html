@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      th:fragment="layout(title, content, styles)">
+      th:fragment="layout(title, content, styles, scripts)">
 <head>
-    <!-- FIX: use th:text, NOT th:replace -->
+
     <title th:text="${title}">Page</title>
 
     <!-- Global CSS -->
@@ -10,6 +10,7 @@
 
     <!-- Page-specific CSS -->
     <th:block th:replace="${styles}"></th:block>
+
 </head>
 
 <body>
@@ -19,10 +20,12 @@
     <div th:replace="~{fragments/sidebar :: sidebar(activePage=${title})}"></div>
 
     <!-- Main Content -->
-    <div class="main-content" th:replace="${content}">
-        <!-- content injected here -->
-    </div>
+    <div class="main-content" th:replace="${content}"></div>
 
 </div>
+
+<!-- ✅ GLOBAL SCRIPTS SLOT (IMPORTANT) -->
+<th:block th:replace="${scripts}"></th:block>
+
 </body>
 </html>

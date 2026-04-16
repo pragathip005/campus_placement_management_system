@@ -1,11 +1,213 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{fragments/layout :: layout('Job Board', ~{::content}, ~{::styles})}">
+      th:replace="~{fragments/layout :: layout('Job Board', ~{::content}, ~{::styles}, ~{::scripts})}">
 
 <head>
     <th:block th:fragment="styles">
         <link rel="stylesheet" th:href="@{/css/job-board.css}">
     </th:block>
+    <th:block th:fragment="scripts">
+<script>
+console.log("🔥 Job Board JS Loaded");
+
+let currentOpportunityId = null;
+let currentButton = null;
+
+document.addEventListener('DOMContentLoaded', function () {
+    console.log("🔥 DOM Content Loaded");
+
+    // Setup apply button listeners
+    const applyBtns = document.querySelectorAll('.apply-job-btn');
+    console.log("🔍 Apply buttons found:", applyBtns.length);
+
+    applyBtns.forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            console.log("🔥 APPLY CLICKED");
+
+            currentOpportunityId = this.getAttribute('data-opportunity-id');
+            currentButton = this;
+
+            console.log("ID:", currentOpportunityId, "Button:", currentButton);
+
+            document.getElementById('applyModal').style.display = 'block';
+        });
+    });
+
+    // Setup filter panel toggle
+    const filterMenuBtn = document.getElementById('filterMenuBtn');
+    const filterPanel = document.getElementById('filterPanel');
+
+    if (filterMenuBtn) {
+        filterMenuBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            filterPanel.classList.toggle('active');
+        });
+    }
+
+    // Close filter panel when clicking outside
+    document.addEventListener('click', function (e) {
+        if (filterPanel && !filterPanel.contains(e.target) && e.target !== filterMenuBtn) {
+            filterPanel.classList.remove('active');
+        }
+    });
+
+    // Setup search and filter listeners
+    const searchInput = document.getElementById('searchInput');
+    const typeFilter = document.getElementById('typeFilter');
+    const ctcFilter = document.getElementById('ctcFilter');
+    const ctcLabel = document.getElementById('ctcLabel');
+    const eligibleOnlyCheckbox = document.getElementById('eligibleOnlyCheckbox');
+    const resetBtn = document.getElementById('resetBtn');
+
+    function applyFilters() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const selectedType = typeFilter.value;
+        const minCtcLPA = parseInt(ctcFilter.value); // This is in LPA
+        const eligibleOnly = eligibleOnlyCheckbox.checked;
+
+        const cards = document.querySelectorAll('.job-card');
+
+        cards.forEach(card => {
+            const title = card.getAttribute('data-title');
+            const company = card.getAttribute('data-company');
+            const type = card.getAttribute('data-type');
+            const ctcRaw = parseInt(card.getAttribute('data-ctc')); // This is in actual currency
+            const isEligible = card.getAttribute('data-eligible') === 'true';
+
+            // Search filter
+            const matchesSearch = !searchTerm ||
+                title.includes(searchTerm) ||
+                company.includes(searchTerm);
+
+            // Type filter
+            const matchesType = !selectedType || type === selectedType;
+
+            // CTC filter - convert raw CTC to LPA for comparison
+            // If CTC is very large (millions), it's in actual currency, divide by 100000 to get LPA
+            const ctcInLPA = ctcRaw > 10000 ? ctcRaw / 100000 : ctcRaw;
+            const matchesCTC = minCtcLPA === 0 || ctcInLPA >= minCtcLPA;
+
+            // Eligible filter
+            const matchesEligible = !eligibleOnly || isEligible;
+
+            // Show card if all filters match
+            const shouldShow = matchesSearch && matchesType && matchesCTC && matchesEligible;
+            card.style.display = shouldShow ? "block" : "none";
+        });
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', applyFilters);
+    }
+
+    if (typeFilter) {
+        typeFilter.addEventListener('change', applyFilters);
+    }
+
+    if (ctcFilter) {
+        ctcFilter.addEventListener('input', function () {
+            const value = this.value;
+            ctcLabel.textContent = value === '0' ? 'All' : value + ' LPA+';
+            applyFilters();
+        });
+    }
+
+    if (eligibleOnlyCheckbox) {
+        eligibleOnlyCheckbox.addEventListener('change', applyFilters);
+    }
+
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function () {
+            searchInput.value = '';
+            typeFilter.value = '';
+            ctcFilter.value = '0';
+            ctcLabel.textContent = 'All';
+            eligibleOnlyCheckbox.checked = false;
+            applyFilters();
+        });
+    }
+});
+
+function toggleFilterPanel() {
+    const filterPanel = document.getElementById('filterPanel');
+    filterPanel.classList.toggle('active');
+}
+
+function closeApplyModal() {
+    console.log("📍 Closing modal");
+    document.getElementById('applyModal').style.display = 'none';
+}
+
+function confirmApply() {
+    console.log("✅ Confirming apply");
+    if (currentOpportunityId) {
+        applyToJob(currentOpportunityId);
+    }
+}
+
+function applyToJob(opportunityId) {
+    console.log('🔥 Sending apply request for opportunity:', opportunityId);
+
+    fetch('/job/' + opportunityId + '/apply', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => {
+        console.log('📡 Response status:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('📦 Response data:', data);
+        closeApplyModal();
+
+        if (data.success) {
+            console.log('✅ Application successful! ID:', data.applicationId);
+
+            // Update the button immediately
+            if (currentButton) {
+                console.log('🔄 Updating button...');
+                currentButton.classList.add('applied-status');
+                currentButton.textContent = '✓ Applied Successfully';
+                currentButton.disabled = true;
+                currentButton.onclick = null;
+                console.log('✅ Button updated successfully');
+            } else {
+                console.log('❌ currentButton is null, finding button by selector');
+                const btn = document.querySelector(`.apply-job-btn[data-opportunity-id="${opportunityId}"]`);
+                if (btn) {
+                    btn.classList.add('applied-status');
+                    btn.textContent = '✓ Applied Successfully';
+                    btn.disabled = true;
+                    btn.onclick = null;
+                    console.log('✅ Button updated by selector');
+                }
+            }
+
+            alert('Application submitted successfully!');
+        } else {
+            console.log('❌ Application failed:', data.message);
+            alert('Error: ' + (data.message || 'Failed to apply'));
+        }
+    })
+    .catch(error => {
+        console.error('❌ Error:', error);
+        closeApplyModal();
+        alert('An error occurred while applying: ' + error.message);
+    });
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('applyModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+}
+</script>
+</th:block>
 </head>
 
 <body>
@@ -13,7 +215,7 @@
 <!-- DEFINE content fragment -->
 <th:block th:fragment="content">
 
-<section>
+<section class="job-board-container">
 
 <!-- HEADER -->
 <div class="header">
@@ -23,16 +225,66 @@
     </div>
 
     <div class="controls">
-        <input type="text" placeholder="Search roles, companies...">
-        <button class="filter-btn">Eligible Only</button>
+        <input type="text" id="searchInput" placeholder="Search by job title or company..." class="search-box">
+
+        <div class="filter-container">
+            <button class="filter-btn" id="filterMenuBtn">🔍 Filter</button>
+
+            <!-- Filter Dropdown Panel -->
+            <div class="filter-panel" id="filterPanel">
+                <div class="filter-panel-header">
+                    <h3>Filters</h3>
+                    <button class="close-filter-btn" onclick="toggleFilterPanel()">&times;</button>
+                </div>
+
+                <div class="filter-panel-content">
+                    <!-- Job Type Filter -->
+                    <div class="filter-option">
+                        <label for="typeFilter" class="filter-label">Job Type</label>
+                        <select id="typeFilter" class="filter-dropdown">
+                            <option value="">All Types</option>
+                            <option value="INTERNSHIP">Internship</option>
+                            <option value="FTE">Full Time</option>
+                            <option value="BOTH">Both</option>
+                        </select>
+                    </div>
+
+                    <!-- CTC Filter -->
+                    <div class="filter-option">
+                        <label for="ctcFilter" class="filter-label">Minimum CTC</label>
+                        <div class="ctc-filter-group">
+                            <input type="range" id="ctcFilter" min="0" max="100" value="0" class="ctc-slider">
+                            <span id="ctcLabel" class="ctc-value">All</span>
+                        </div>
+                    </div>
+
+                    <!-- Eligible Only -->
+                    <div class="filter-option">
+                        <label class="filter-label">
+                            <input type="checkbox" id="eligibleOnlyCheckbox" class="filter-checkbox">
+                            Eligible Only
+                        </label>
+                    </div>
+                </div>
+
+                <div class="filter-panel-footer">
+                    <button class="reset-btn" id="resetBtn">Reset All</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <!-- JOB CARDS -->
 <div class="job-grid">
 
-    <div class="job-card" th:each="jobEntry : ${jobs}">
-        <th:block th:with="job=${jobEntry.job}, isApplied=${jobEntry.isApplied}">
+    <div class="job-card" th:each="jobEntry : ${jobs}"
+         th:attr="data-eligible=${jobEntry.isEligible},
+                  data-type=${jobEntry.job.type},
+                  data-ctc=${jobEntry.job.ctc != null ? jobEntry.job.ctc : 0},
+                  data-title=${jobEntry.job.name.toLowerCase()},
+                  data-company=${jobEntry.job.company.name.toLowerCase()}">
+        <th:block th:with="job=${jobEntry.job}, isApplied=${jobEntry.isApplied}, isEligible=${jobEntry.isEligible}">
 
         <!-- TOP -->
         <div class="job-top">
@@ -57,7 +309,7 @@
 
         <!-- DETAILS -->
         <div class="details">
-            <span th:text="${job.location}">Location</span>
+            <span th:text="${job.location != null ? job.location : 'Not specified'}" th:classappend="${job.location == null ? 'empty' : ''}">Location</span>
             <span th:text="${job.role}">Role</span>
             <span>Min CGPA: <span th:text="${job.minCgpa}"></span></span>
             <span th:text="${#temporals.format(job.applicationDeadline, 'd MMM yyyy')}">Deadline</span>
@@ -65,11 +317,18 @@
 
         <!-- BUTTON -->
         <div class="actions">
+            <button class="apply-btn apply-job-btn"
+        type="button"
+        th:if="${isEligible && !isApplied}"
+        th:attr="data-opportunity-id=${job.opportunity_id}">
+    Apply Now
+</button>
+
             <button class="apply-btn" type="button"
-                    th:if="${!isApplied}"
-                    th:onclick="'window.location.href=\'' + @{/job/{id}(id=${job.opportunity_id})} + '\''"
-                    th:attr="data-job-id=${job.opportunity_id}">
-                Apply Now
+                    th:if="${!isEligible && !isApplied}"
+                    disabled
+                    title="You don't meet the eligibility criteria">
+                Not Eligible
             </button>
 
             <button class="apply-btn applied-status" type="button" disabled
@@ -79,7 +338,7 @@
 
             <button class="view-more-btn" type="button"
                     th:onclick="'window.location.href=\'' + @{/job/{id}(id=${job.opportunity_id})} + '\''"
-                    th:attr="data-job-id=${job.opportunity_id}">
+                    th:attr="data-opportunity-id=${job.opportunity_id}">
                 View More
             </button>
         </div>
@@ -91,7 +350,102 @@
 
 </section>
 
+<!-- APPLY CONFIRMATION MODAL -->
+<div id="applyModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Confirm Application</h2>
+            <button class="close-btn" onclick="closeApplyModal()">&times;</button>
+        </div>
+
+        <div class="modal-body">
+            <p>Do you want to apply for <strong id="jobTitle">this job</strong>?</p>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-cancel" onclick="closeApplyModal()">Cancel</button>
+            <button class="btn btn-confirm" type="button" onclick="confirmApply()">Confirm Apply</button>
+        </div>
+    </div>
+</div>
+
 </th:block>
 
 </body>
+
+<!-- <script>
+let currentOpportunityId = null;
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const applyBtn = document.querySelector('.apply-job-btn-detail');
+
+    if (applyBtn) {
+        applyBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            currentOpportunityId = this.getAttribute('data-opportunity-id');
+
+            console.log("🔥 Apply clicked for ID:", currentOpportunityId);
+
+            showApplyModal();
+        });
+    }
+});
+
+function showApplyModal() {
+    const modal = document.getElementById('applyModal');
+    modal.style.display = 'block';
+}
+
+function closeApplyModal() {
+    document.getElementById('applyModal').style.display = 'none';
+}
+
+function confirmApply() {
+    if (currentOpportunityId) {
+        applyToJob(currentOpportunityId);
+    }
+}
+
+function applyToJob(opportunityId) {
+    fetch('/job/' + opportunityId + '/apply', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+
+        closeApplyModal();
+
+        if (data.success) {
+            const applyBtn = document.querySelector('.apply-job-btn-detail');
+
+            if (applyBtn) {
+                applyBtn.classList.add('applied');
+                applyBtn.textContent = '✓ Applied Successfully';
+                applyBtn.disabled = true;
+            }
+
+            alert('Application submitted successfully!');
+        } else {
+            alert(data.message || 'Failed to apply');
+        }
+    })
+    .catch(error => {
+        closeApplyModal();
+        alert('Error: ' + error.message);
+    });
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('applyModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+}
+</script> -->
+
 </html>
