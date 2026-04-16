@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Alumni Hub', ~{::content}, ~{::styles}, ~{::scripts})}">
+
+<head>
+    <th:block th:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/alumni.css}">
+    </th:block>
+    <th:block th:fragment="scripts">
+    </th:block>
+</head>
+
+<body>
+<th:block th:fragment="content">
+    <section class="alumni-page">
+        <div class="page-header">
+            <div>
+                <h1>Alumni Hub</h1>
+                <p>Share your journey, career history and OA prep experience for the companies you joined.</p>
+            </div>
+        </div>
+
+        <div class="alumni-grid">
+            <div class="card card-large">
+                <h2>Alumni Profile</h2>
+                <form th:action="@{/alumni/save}" method="post" class="form-card">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="text" id="name" name="name" placeholder="Enter full name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" placeholder="Enter email" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="text" id="phone" name="phone" placeholder="Enter phone number">
+                        </div>
+                        <div class="form-group">
+                            <label for="graduationYear">Graduation Year</label>
+                            <input type="number" id="graduationYear" name="graduationYear" placeholder="2024">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="placementStatus">Placement Status</label>
+                            <select id="placementStatus" name="placementStatus">
+                                <option value="PLACED">PLACED</option>
+                                <option value="NOT_PLACED">NOT PLACED</option>
+                                <option value="HIGHER_STUDIES">HIGHER STUDIES</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="linkedinUrl">LinkedIn URL</label>
+                            <input type="url" id="linkedinUrl" name="linkedinUrl" placeholder="https://linkedin.com/...">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="currentCompany">Current Company</label>
+                            <input type="text" id="currentCompany" name="currentCompany" placeholder="e.g. Google">
+                        </div>
+                        <div class="form-group">
+                            <label for="currentJobRole">Current Role</label>
+                            <input type="text" id="currentJobRole" name="currentJobRole" placeholder="e.g. Software Engineer">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="higherStudiesUniversity">Higher Studies University</label>
+                            <input type="text" id="higherStudiesUniversity" name="higherStudiesUniversity" placeholder="e.g. IIT Madras">
+                        </div>
+                        <div class="form-group">
+                            <label for="higherStudiesCourse">Higher Studies Course</label>
+                            <input type="text" id="higherStudiesCourse" name="higherStudiesCourse" placeholder="e.g. M.Tech">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="primary-btn">Save Alumni Profile</button>
+                </form>
+            </div>
+
+            <div class="card card-small">
+                <h2>Career History</h2>
+                <form th:action="@{/alumni/career/save}" method="post" class="form-card">
+                    <div class="form-group">
+                        <label for="careerAlumniId">Select Alumni</label>
+                        <select id="careerAlumniId" name="alumniId" required>
+                            <option value="" disabled selected>Select alumni</option>
+                            <option th:each="alum : ${alumniList}"
+                                    th:value="${alum.id}"
+                                    th:text="${alum.name + ' (' + alum.email + ')'}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="company">Company</label>
+                        <input type="text" id="company" name="company" placeholder="Company name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="role">Role</label>
+                        <input type="text" id="role" name="role" placeholder="Job title" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ctc">CTC (LPA)</label>
+                            <input type="number" step="0.01" id="ctc" name="ctc" placeholder="e.g. 12.50">
+                        </div>
+                        <div class="form-group">
+                            <label for="isCurrent">Current Role</label>
+                            <input type="checkbox" id="isCurrent" name="isCurrent" value="true">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="startDate">Start Date</label>
+                            <input type="date" id="startDate" name="startDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate">End Date</label>
+                            <input type="date" id="endDate" name="endDate">
+                        </div>
+                    </div>
+                    <button type="submit" class="secondary-btn">Add Career History</button>
+                </form>
+
+                <h2>OA Prep Experience</h2>
+                <form th:action="@{/alumni/prep/save}" method="post" class="form-card">
+                    <div class="form-group">
+                        <label for="prepAlumniId">Select Alumni</label>
+                        <select id="prepAlumniId" name="alumniId" required>
+                            <option value="" disabled selected>Select alumni</option>
+                            <option th:each="alum : ${alumniList}"
+                                    th:value="${alum.id}"
+                                    th:text="${alum.name + ' (' + alum.email + ')'}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="company">Company</label>
+                        <input type="text" id="company" name="company" placeholder="Company name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="oaDifficulty">OA Difficulty</label>
+                        <input type="text" id="oaDifficulty" name="oaDifficulty" placeholder="Hard, Medium, Easy">
+                    </div>
+                    <div class="form-group">
+                        <label for="questions">Key Questions</label>
+                        <textarea id="questions" name="questions" rows="3" placeholder="Short summary of questions"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="tips">Preparation Tips</label>
+                        <textarea id="tips" name="tips" rows="3" placeholder="What helped you prepare"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="interviewExperience">Interview Experience</label>
+                        <textarea id="interviewExperience" name="interviewExperience" rows="3" placeholder="Describe rounds and experience"></textarea>
+                    </div>
+                    <button type="submit" class="secondary-btn">Add OA Prep</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="alumni-list-section">
+            <h2>Existing Alumni Profiles</h2>
+            <div class="alumni-table-wrapper">
+                <table class="alumni-table">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Company</th>
+                        <th>Role</th>
+                        <th>Graduation</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="alum : ${alumniList}">
+                        <td th:text="${alum.name}"></td>
+                        <td th:text="${alum.email}"></td>
+                        <td th:text="${alum.currentCompany}"></td>
+                        <td th:text="${alum.currentJobRole}"></td>
+                        <td th:text="${alum.graduationYear}"></td>
+                    </tr>
+                    <tr th:if="${alumniList == null or #lists.isEmpty(alumniList)}">
+                        <td colspan="5">No alumni profiles available yet.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</th:block>
+</body>
+</html>

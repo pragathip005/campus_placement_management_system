@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Alumni Dashboard', ~{::content}, ~{::styles}, ~{::scripts})}">
+
+<head>
+    <th:block th:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/alumni-portal.css}">
+    </th:block>
+    <th:block th:fragment="scripts">
+        <script>
+            // Client-side interactions
+            document.addEventListener('DOMContentLoaded', () => {
+                const tabs = document.querySelectorAll('.tab-btn');
+                const sections = document.querySelectorAll('.dashboard-section');
+
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        tabs.forEach(t => t.classList.remove('active'));
+                        sections.forEach(s => s.classList.remove('active'));
+                        
+                        tab.classList.add('active');
+                        document.getElementById(tab.dataset.target).classList.add('active');
+                    });
+                });
+            });
+        </script>
+    </th:block>
+</head>
+
+<body>
+<th:block th:fragment="content">
+    <div class="alumni-dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="dashboard-sidebar">
+            <div class="profile-summary">
+                <div class="avatar"><span th:text="${alumni.name != null ? #strings.substring(alumni.name, 0, 1) : 'A'}">A</span></div>
+                <h3 th:text="${alumni.name != null ? alumni.name : 'Alumni Name'}">Name</h3>
+                <p class="role-desc" th:text="${alumni.currentJobRole != null ? alumni.currentJobRole : 'Not Provided'} + ' @ ' + ${alumni.currentCompany != null ? alumni.currentCompany : 'No Company'}"></p>
+                <a th:href="@{/alumni-hub}" class="btn-link">View Hub</a>
+            </div>
+
+            <nav class="dashboard-nav">
+                <button class="tab-btn active" data-target="personal-section">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    Profile Setup
+                </button>
+                <button class="tab-btn" data-target="career-section">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                    Career History
+                </button>
+                <button class="tab-btn" data-target="oa-section">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    OA & Interviews
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="dashboard-main">
+            <!-- Section: Personal Setup -->
+            <section id="personal-section" class="dashboard-section active">
+                <div class="section-header">
+                    <h2>Personal & Professional Setup</h2>
+                    <p>Update your details so that students know who you are and where you work.</p>
+                </div>
+                
+                <form th:action="@{/alumni/portal/save}" method="post" class="styled-form card">
+                    <input type="hidden" name="id" th:value="${alumni.id}" />
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" name="name" th:value="${alumni.name}" placeholder="John Doe" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" name="email" th:value="${alumni.email}" readonly class="readonly-input" />
+                            <small>Sourced from your login account.</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="text" name="phone" th:value="${alumni.phone}" placeholder="Optional" />
+                        </div>
+                        <div class="form-group">
+                            <label>Graduation Year</label>
+                            <input type="number" name="graduationYear" th:value="${alumni.graduationYear}" placeholder="e.g., 2024" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Placement Status</label>
+                            <select name="placementStatus">
+                                <option value="PLACED" th:selected="${alumni.placementStatus == 'PLACED'}">Placed</option>
+                                <option value="NOT_PLACED" th:selected="${alumni.placementStatus == 'NOT_PLACED'}">Seeking Jobs</option>
+                                <option value="HIGHER_STUDIES" th:selected="${alumni.placementStatus == 'HIGHER_STUDIES'}">Higher Studies</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>LinkedIn URL</label>
+                            <input type="url" name="linkedinUrl" th:value="${alumni.linkedinUrl}" placeholder="https://linkedin.com/in/username" />
+                        </div>
+                        <div class="form-group full-width">
+                            <h4>Current Job</h4>
+                        </div>
+                        <div class="form-group">
+                            <label>Current Company</label>
+                            <input type="text" name="currentCompany" th:value="${alumni.currentCompany}" placeholder="Google, Microsoft, etc." />
+                        </div>
+                        <div class="form-group">
+                            <label>Current Role</label>
+                            <input type="text" name="currentJobRole" th:value="${alumni.currentJobRole}" placeholder="Software Engineer" />
+                        </div>
+                        <div class="form-group full-width">
+                            <h4>Higher Studies (If applicable)</h4>
+                        </div>
+                        <div class="form-group">
+                            <label>University Name</label>
+                            <input type="text" name="higherStudiesUniversity" th:value="${alumni.higherStudiesUniversity}" placeholder="MIT" />
+                        </div>
+                        <div class="form-group">
+                            <label>Course Name</label>
+                            <input type="text" name="higherStudiesCourse" th:value="${alumni.higherStudiesCourse}" placeholder="MS Computer Science" />
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Profile Setup</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Section: Career History -->
+            <section id="career-section" class="dashboard-section">
+                <div class="section-header">
+                    <h2>Career Journey</h2>
+                    <p>Share your previous and current roles. This helps students understand career progression.</p>
+                </div>
+
+                <div class="list-container">
+                    <div class="history-item card" th:each="career : ${careerHistoryList}">
+                        <div class="item-header">
+                            <h4 th:text="${career.company}">Company</h4>
+                            <span class="badge" th:if="${career.isCurrent}">Current</span>
+                        </div>
+                        <p class="role-title" th:text="${career.role}">Role</p>
+                        <p class="dates" th:text="${career.startDate != null ? #temporals.format(career.startDate, 'MMM yyyy') : ''} + ' - ' + ${career.endDate != null ? #temporals.format(career.endDate, 'MMM yyyy') : (career.isCurrent ? 'Present' : '')}"></p>
+                    </div>
+                    <div class="no-items" th:if="${#lists.isEmpty(careerHistoryList)}">No career history entries yet.</div>
+                </div>
+
+                <form th:action="@{/alumni/portal/career/save}" method="post" class="styled-form card new-entry">
+                    <h3>Add New Role</h3>
+                    <input type="hidden" name="alumniId" th:value="${alumni.id}" />
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Company</label>
+                            <input type="text" name="company" placeholder="e.g. Amazon" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Role</label>
+                            <input type="text" name="role" placeholder="e.g. SDE-1" required />
+                        </div>
+                        <div class="form-group">
+                            <label>CTC (in LPA)</label>
+                            <input type="number" step="0.01" name="ctc" placeholder="e.g. 15.5" />
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="isCurrent" value="true" />
+                                This is my current role
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Start Date</label>
+                            <input type="date" name="startDate" required />
+                        </div>
+                        <div class="form-group">
+                            <label>End Date</label>
+                            <input type="date" name="endDate" />
+                            <small>Leave blank if currently working here.</small>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-secondary">Add Career History</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Section: OA & Interviews -->
+            <section id="oa-section" class="dashboard-section">
+                <div class="section-header">
+                    <h2>OA Preparation & Interviews</h2>
+                    <p>Post your online assessment (OA) questions, interview difficulty, and tips.</p>
+                </div>
+
+                <div class="list-container">
+                    <div class="history-item card" th:each="oa : ${oaPrepHistoryList}">
+                        <div class="item-header">
+                            <h4 th:text="${oa.company}">Company</h4>
+                            <span class="badge diff" th:text="${oa.oaDifficulty}">Difficulty</span>
+                        </div>
+                        <div th:if="${oa.questions != null and !#strings.isEmpty(oa.questions)}">
+                            <strong>Key Questions:</strong> <p th:text="${oa.questions}"></p>
+                        </div>
+                        <div th:if="${oa.tips != null and !#strings.isEmpty(oa.tips)}">
+                            <strong>Tips:</strong> <p th:text="${oa.tips}"></p>
+                        </div>
+                    </div>
+                    <div class="no-items" th:if="${#lists.isEmpty(oaPrepHistoryList)}">No OA/Interview entries yet.</div>
+                </div>
+
+                <form th:action="@{/alumni/portal/prep/save}" method="post" class="styled-form card new-entry">
+                    <h3>Add Interview Experience</h3>
+                    <input type="hidden" name="alumniId" th:value="${alumni.id}" />
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Company</label>
+                            <input type="text" name="company" placeholder="e.g. Microsoft" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Overall Difficulty</label>
+                            <select name="oaDifficulty" required>
+                                <option value="Easy">Easy</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Hard">Hard</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>OA Questions</label>
+                            <textarea name="questions" rows="3" placeholder="Describe the coding questions or MCQs..."></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Interview Experience</label>
+                            <textarea name="interviewExperience" rows="4" placeholder="How many rounds? What was asked?"></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>General Tips</label>
+                            <textarea name="tips" rows="2" placeholder="Any tricks for this company?"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-secondary">Publish Experience</button>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </div>
+</th:block>
+</body>
+</html>

@@ -36,3 +36,15 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+tasks.named('bootRun') {
+	// Automatically load .env file into the environment during bootRun
+	if (file('.env').exists()) {
+		file('.env').readLines().each { String line ->
+			if (line.trim() && !line.startsWith("#") && line.contains("=")) {
+				def parts = line.split("=", 2)
+				environment(parts[0].trim(), parts[1].trim())
+			}
+		}
+	}
+}

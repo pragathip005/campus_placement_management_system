@@ -32,16 +32,13 @@ public class OpportunityService {
     private final OpportunityRepository opportunityRepository;
     private final EligibilityChecker eligibilityChecker;
     private final ApplicationManager applicationManager;
-    private final OpportunityStatistics opportunityStatistics;
 
     public OpportunityService(OpportunityRepository opportunityRepository,
                             EligibilityChecker eligibilityChecker,
-                            ApplicationManager applicationManager,
-                            OpportunityStatistics opportunityStatistics) {
+                            ApplicationManager applicationManager) {
         this.opportunityRepository = opportunityRepository;
         this.eligibilityChecker = eligibilityChecker;
         this.applicationManager = applicationManager;
-        this.opportunityStatistics = opportunityStatistics;
     }
 
     // ===== Job/Opportunity Retrieval =====

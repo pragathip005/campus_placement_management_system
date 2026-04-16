@@ -11,51 +11,107 @@
 console.log("🔥 Job Detail JS Loaded");
 
 let currentOpportunityId = null;
+let currentButton = null;
 
 document.addEventListener('DOMContentLoaded', function () {
+    console.log("🔥 Job Detail DOM Loaded");
 
     const applyBtn = document.querySelector('.apply-job-btn-detail');
 
-    console.log("Apply button:", applyBtn);
+    console.log("🔍 Apply button found:", applyBtn);
 
-    if (!applyBtn) return;
+    if (applyBtn) {
+        applyBtn.addEventListener('click', function (e) {
+            e.preventDefault();
 
-    applyBtn.addEventListener('click', function () {
+            currentOpportunityId = this.getAttribute('data-opportunity-id');
+            currentButton = this;
 
-        currentOpportunityId = this.getAttribute('data-opportunity-id');
+            console.log("🔥 Apply clicked for ID:", currentOpportunityId);
 
-        console.log("Applying for:", currentOpportunityId);
-
-        document.getElementById('applyModal').style.display = 'block';
-    });
+            showApplyModal();
+        });
+    }
 });
 
+function showApplyModal() {
+    console.log("📍 Opening modal");
+    const modal = document.getElementById('applyModal');
+    modal.style.display = 'block';
+}
+
 function closeApplyModal() {
+    console.log("📍 Closing modal");
     document.getElementById('applyModal').style.display = 'none';
 }
 
 function confirmApply() {
-    fetch('/job/' + currentOpportunityId + '/apply', {
-        method: 'POST'
+    console.log("✅ Confirming apply");
+    if (currentOpportunityId) {
+        applyToJob(currentOpportunityId);
+    }
+}
+
+function applyToJob(opportunityId) {
+    console.log('🔥 Sending apply request for opportunity:', opportunityId);
+
+    fetch('/job/' + opportunityId + '/apply', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
     })
-    .then(r => r.json())
+    .then(response => {
+        console.log('📡 Response status:', response.status);
+        return response.json();
+    })
     .then(data => {
-        alert(data.message);
+        console.log('📦 Response data:', data);
+
         closeApplyModal();
 
         if (data.success) {
-        const btn = document.querySelector(
-            `.apply-job-btn[data-opportunity-id="${currentOpportunityId}"]`
-        );
+            console.log('✅ Application successful! ID:', data.applicationId);
 
-        if (btn) {
-            btn.textContent = "Applied";
-            btn.disabled = true;
-            btn.classList.add("applied-disabled");
+            // Update the button immediately
+            if (currentButton) {
+                console.log('🔄 Updating button...');
+                currentButton.classList.add('applied');
+                currentButton.textContent = '✓ Applied Successfully';
+                currentButton.disabled = true;
+                currentButton.onclick = null;
+                console.log('✅ Button updated successfully');
+            } else {
+                console.log('❌ currentButton is null, finding button by selector');
+                const applyBtn = document.querySelector('.apply-job-btn-detail');
+
+                if (applyBtn) {
+                    applyBtn.classList.add('applied');
+                    applyBtn.textContent = '✓ Applied Successfully';
+                    applyBtn.disabled = true;
+                    applyBtn.onclick = null;
+                    console.log('✅ Button updated by selector');
+                }
+            }
+
+            alert('Application submitted successfully!');
+        } else {
+            console.log('❌ Application failed:', data.message);
+            alert(data.message || 'Failed to apply');
         }
-    }
     })
-    .catch(console.error);
+    .catch(error => {
+        console.error('❌ Error:', error);
+        closeApplyModal();
+        alert('Error: ' + error.message);
+    });
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('applyModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
 }
 </script>
 </th:block>
@@ -221,7 +277,9 @@ function confirmApply() {
                             <p class="alumni-role" th:text="${alum.currentJobRole}">SDE</p>
                             <p class="alumni-batch" th:text="'Batch ' + ${alum.graduationYear}">2021</p>
                         </div>
-                        <a th:if="${alum.linkedinUrl}" th:href="${alum.linkedinUrl}" target="_blank" class="alumni-link">
+                        <a th:if="${alum.linkedinUrl}"
+                           th:href="${alum.linkedinUrl.startsWith('http') ? alum.linkedinUrl : 'https://www.linkedin.com/in/' + alum.linkedinUrl}"
+                           target="_blank" class="alumni-link">
                             🔗 Link
                         </a>
                     </div>
@@ -313,79 +371,6 @@ function confirmApply() {
 
 </body>
 
-<!-- <script>
-let currentOpportunityId = null;
-
-document.addEventListener('DOMContentLoaded', function () {
-
-    const applyBtn = document.querySelector('.apply-job-btn-detail');
-
-    if (applyBtn) {
-        applyBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-
-            currentOpportunityId = this.getAttribute('data-opportunity-id');
-
-            console.log("🔥 Apply clicked for ID:", currentOpportunityId);
-
-            showApplyModal();
-        });
-    }
-});
-
-function showApplyModal() {
-    const modal = document.getElementById('applyModal');
-    modal.style.display = 'block';
-}
-
-function closeApplyModal() {
-    document.getElementById('applyModal').style.display = 'none';
-}
-
-function confirmApply() {
-    if (currentOpportunityId) {
-        applyToJob(currentOpportunityId);
-    }
-}
-
-function applyToJob(opportunityId) {
-    fetch('/job/' + opportunityId + '/apply', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-
-        closeApplyModal();
-
-        if (data.success) {
-            const applyBtn = document.querySelector('.apply-job-btn-detail');
-
-            if (applyBtn) {
-                applyBtn.classList.add('applied');
-                applyBtn.textContent = '✓ Applied Successfully';
-                applyBtn.disabled = true;
-            }
-
-            alert('Application submitted successfully!');
-        } else {
-            alert(data.message || 'Failed to apply');
-        }
-    })
-    .catch(error => {
-        closeApplyModal();
-        alert('Error: ' + error.message);
-    });
-}
-
-window.onclick = function(event) {
-    const modal = document.getElementById('applyModal');
-    if (event.target === modal) {
-        modal.style.display = 'none';
-    }
-}
-</script> -->
 
 </html>
+
