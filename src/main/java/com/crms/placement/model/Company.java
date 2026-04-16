@@ -12,15 +12,10 @@ public class Company {
 
     private String name;
 
-    // Private constructors to enforce Builder Pattern
-    protected Company() {}
+    public Company() {}
 
-    /**
-     * Static builder method for fluent object construction.
-     * @return New CompanyBuilder instance
-     */
-    public static CompanyBuilder builder() {
-        return new CompanyBuilder();
+    public Company(String name) {
+        this.name = name;
     }
 
     // Getters and Setters
