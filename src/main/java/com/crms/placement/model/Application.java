@@ -20,7 +20,7 @@ public class Application {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private ApplicationStatus status;// APPLIED, ACCEPTED, REJECTED, OFFERED
+    private ApplicationStatus status;// // APPLIED, OA_SENT, OA_COMPLETED, INTERVIEW, SELECTED, OFFER_ACCEPTED, REJECTED, OFFER_REJECTED
 
     @Column(name = "applied_date")
     private LocalDateTime appliedDate;

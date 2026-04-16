@@ -1,3 +1,5 @@
+package com.crms.placement.dto;
+
 public class ApplicationStatisticsDTO {
     private final long totalApplications;
     private final long pendingApplications;

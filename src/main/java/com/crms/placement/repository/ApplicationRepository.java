@@ -5,15 +5,15 @@ import com.crms.placement.model.ApplicationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface ApplicationRepository extends JpaRepository<Application, Integer> {
 
-    Optional<Application> findByStudentIdAndOpportunityId(Integer studentId, Integer opportunityId);
+    // 🔥 FIX: return List instead of Optional
+    List<Application> findByStudentIdAndOpportunityId(Integer studentId, Integer opportunityId);
 
     long countByOpportunityId(Integer opportunityId);
 
-    // ✅ FIXED (String → ApplicationStatus)
     long countByOpportunityIdAndStatus(Integer opportunityId, ApplicationStatus status);
 }
