@@ -25,7 +25,7 @@ public class ApplicationManager {
      */
     public Application submitApplication(Integer studentId, Integer opportunityId) {
 
-        // 🔥 FIX 1: Prevent duplicate applications
+        // ✅ Prevent duplicate applications (CORRECT PLACE)
         if (hasApplied(studentId, opportunityId)) {
             throw new RuntimeException("Already applied to this opportunity");
         }
@@ -56,7 +56,6 @@ public class ApplicationManager {
         List<Application> applications =
                 applicationRepository.findByStudentIdAndOpportunityId(studentId, opportunityId);
 
-        // 🔥 FIX 2: Handle list properly
         return applications.isEmpty() ? null : applications.get(0);
     }
 }
