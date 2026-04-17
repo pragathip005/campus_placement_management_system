@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard – CRMS</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════
+     SIDEBAR — update fragment path to match your file
+════════════════════════════════════════════════════════ -->
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<!-- ════════════════════════════════════════════════════════
+     MAIN CONTENT
+════════════════════════════════════════════════════════ -->
+<main class="crms-main">
+
+    <!-- ── Placed Banner ──────────────────────────────────
+         Uses ${placed} boolean from model — avoids
+         Thymeleaf's Boolean wrapper getter ambiguity
+         with getIsPlaced() on a Boolean field.
+    ─────────────────────────────────────────────────── -->
+    <div th:if="${placed}" class="placed-banner">
+        <div class="placed-inner">
+            <h2 class="placed-title">
+                Congratulations, <span th:text="${student.name}">Name</span>! 🎉
+            </h2>
+            <p class="placed-sub">
+                You have been successfully placed at
+                <strong th:text="${placedCompanyName}">Company</strong>.
+            </p>
+        </div>
+    </div>
+
+    <!-- ── Two-column grid ───────────────────────────── -->
+    <div class="dash-grid">
+
+        <!-- ══════════════════════════════════════════
+             LEFT: Profile card + Stats card
+        ══════════════════════════════════════════ -->
+        <aside class="dash-left">
+
+            <!-- Profile Card -->
+            <div class="card profile-card">
+                <div class="profile-header">
+                    <div class="avatar-box">
+                        <i data-lucide="graduation-cap" class="avatar-icon"></i>
+                    </div>
+                    <div>
+                        <h3 class="profile-name" th:text="${student.name}">Nishita Singh</h3>
+                        <p class="profile-meta">
+                            <span th:text="${student.branch}">CSE</span>
+                            &bull;
+                            <span th:text="${student.srn}">PES1UG22CS000</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- CGPA + Status pills -->
+                <div class="stat-pills">
+                    <div class="stat-pill">
+                        <span class="pill-label">CGPA</span>
+                        <span class="pill-value"
+                              th:text="${student.cgpa != null}
+                                ? ${#numbers.formatDecimal(student.cgpa, 1, 2)}
+                                : 'N/A'">
+                            9.29
+                        </span>
+                    </div>
+                    <div class="stat-pill">
+                        <span class="pill-label">Status</span>
+                        <span class="pill-value"
+                              th:classappend="${placed} ? 'status-placed' : 'status-eligible'"
+                              th:text="${placed} ? 'Placed' : 'Eligible'">
+                            Eligible
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Resume upload -->
+                <form th:action="@{/student/resume/upload}" method="post"
+                      enctype="multipart/form-data" class="resume-form">
+                    <label for="resumeFile" class="resume-btn">
+                        <i data-lucide="upload" class="btn-icon"></i>
+                        <span th:text="${student.resumeUrl != null}
+                            ? 'Replace Resume' : 'Upload Resume'">
+                            Upload Resume
+                        </span>
+                    </label>
+                    <input id="resumeFile" type="file" name="resume" accept=".pdf"
+                           style="display:none" onchange="this.form.submit()" />
+                </form>
+            </div>
+
+            <!-- Stats Card -->
+            <div class="card stats-card">
+                <h3 class="card-title">
+                    <i data-lucide="file-text" class="card-title-icon"></i>
+                    Stats
+                </h3>
+                <ul class="stats-list">
+                    <li class="stats-row">
+                        <span>Applications</span>
+                        <span class="stats-val" th:text="${totalApplications}">0</span>
+                    </li>
+                    <li class="stats-row">
+                        <span>Shortlisted</span>
+                        <span class="stats-val green" th:text="${shortlistedCount}">0</span>
+                    </li>
+                    <li class="stats-row last">
+                        <span>OA Pending</span>
+                        <span class="stats-val orange" th:text="${oaPendingCount}">0</span>
+                    </li>
+                </ul>
+            </div>
+
+        </aside>
+
+        <!-- ══════════════════════════════════════════
+             RIGHT: Application Tracker
+        ══════════════════════════════════════════ -->
+        <section class="dash-right">
+            <h2 class="section-title">Application Tracker</h2>
+
+            <!-- Empty state -->
+            <div th:if="${#lists.isEmpty(applications)}" class="empty-state">
+                <div class="empty-icon-wrap">
+                    <i data-lucide="inbox" class="empty-icon"></i>
+                </div>
+                <h3>No applications yet</h3>
+                <p>Head over to the Job Board to find opportunities matching your profile.</p>
+                <a th:href="@{/jobs}" class="browse-btn">Browse Jobs</a>
+            </div>
+
+            <!-- Application cards -->
+            <div th:unless="${#lists.isEmpty(applications)}" class="app-list">
+
+                <div th:each="app : ${applications}" class="app-card">
+
+                    <!-- Card header -->
+                    <div class="app-header">
+                        <div>
+                            <h3 class="app-company"
+                                th:text="${app.companyName != null ? app.companyName : 'Unknown Company'}">
+                                Google
+                            </h3>
+                            <p class="app-meta">
+                                <span th:text="${app.opportunityName != null ? app.opportunityName : ''}">
+                                    Software Engineer
+                                </span>
+                                <th:block th:if="${app.salaryDisplay != 'N/A'}">
+                                    &bull; <span th:text="${app.salaryDisplay}">45.0 LPA</span>
+                                </th:block>
+                            </p>
+                        </div>
+                        <div class="app-date">
+                            <span class="date-label">Applied On</span>
+                            <span class="date-val"
+                                  th:text="${app.appliedDate != null}
+                                    ? ${#temporals.format(app.appliedDate, 'dd MMM yyyy')}
+                                    : '—'">
+                                29 Mar 2026
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- ── Status Timeline ──────────────────────── -->
+                    <div class="timeline-wrap">
+                        <div class="timeline-track">
+                            <div class="timeline-fill"
+                                 th:style="'width:' + ${app.progressPercent} + '%'"></div>
+                        </div>
+
+                        <div class="timeline-steps">
+
+                            <!-- Step 0: Applied — always done for any existing application -->
+                            <div th:class="'step done'
+                                + (${app.statusIndex == 0 and !app.rejected} ? ' current' : '')">
+                                <div class="step-dot">
+                                    <i data-lucide="check" class="step-check"></i>
+                                </div>
+                                <span class="step-label">Applied</span>
+                            </div>
+
+                            <!-- Step 1: Shortlisted -->
+                            <div th:class="'step'
+                                + (${app.statusIndex >= 1} ? ' done' : '')
+                                + (${app.statusIndex == 1 and !app.rejected} ? ' current' : '')">
+                                <div class="step-dot">
+                                    <i data-lucide="check" class="step-check"></i>
+                                </div>
+                                <span class="step-label">Shortlisted</span>
+                            </div>
+
+                            <!-- Step 2: Offered -->
+                            <div th:class="'step'
+                                + (${app.statusIndex >= 2} ? ' done' : '')
+                                + (${app.statusIndex == 2 and !app.rejected} ? ' current' : '')">
+                                <div class="step-dot">
+                                    <i data-lucide="check" class="step-check"></i>
+                                </div>
+                                <span class="step-label">Offered</span>
+                            </div>
+
+                            <!-- Step 3a: Placed (normal) -->
+                            <div th:if="${!app.rejected}"
+                                 th:class="'step'
+                                    + (${app.statusIndex >= 3} ? ' done' : '')
+                                    + (${app.statusIndex == 3} ? ' current' : '')">
+                                <div class="step-dot">
+                                    <i data-lucide="check" class="step-check"></i>
+                                </div>
+                                <span class="step-label">Placed</span>
+                            </div>
+
+                            <!-- Step 3b: Rejected (red X) -->
+                            <div th:if="${app.rejected}" class="step">
+                                <div class="step-dot rejected-dot">
+                                    <i data-lucide="x" class="step-check"></i>
+                                </div>
+                                <span class="step-label rejected-label">Rejected</span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div><!-- /app-card -->
+            </div><!-- /app-list -->
+
+        </section>
+    </div><!-- /dash-grid -->
+</main>
+
+<!-- Confetti only when placed -->
+<th:block th:if="${placed}">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script>
+        confetti({
+            particleCount: 500, spread: 120, origin: { y: 0.3 },
+            colors: ['#FF8C00', '#FFA500', '#FFD700', '#FFFFFF']
+        });
+    </script>
+</th:block>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

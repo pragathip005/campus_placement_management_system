@@ -102,13 +102,14 @@
     padding: 10px;
     border-radius: 10px;
     border: none;
-    background: transparent;
-    color: #9ca3af;
+    background: #ef4444;
+    color: white;
     cursor: pointer;
     transition: 0.2s;
+    font-weight: 500;
 }
 
 .logout-btn:hover {
-    background: rgba(255,0,0,0.1);
-    color: #ef4444;
+    background: #dc2626;
+    color: white;
 }

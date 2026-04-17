@@ -20,7 +20,9 @@
     <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
     <!-- Main Content -->
-    <div class="main-content" th:replace="${content}"></div>
+    <div class="main-content">
+        <th:block th:replace="${content}"></th:block>
+    </div>
 
 </div>
 

@@ -90,4 +90,6 @@ public class Opportunity {
     public void setVacancies(Integer vacancies) { this.vacancies = vacancies; }
     public void setShortlistingSuccessRate(Double shortlistingSuccessRate) { this.shortlistingSuccessRate = shortlistingSuccessRate; }
     public void setEligibleBranches(List<String> eligibleBranches) { this.eligibleBranches = eligibleBranches; }
+
+    
 }

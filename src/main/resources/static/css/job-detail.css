@@ -2,7 +2,7 @@
 
 .job-detail-container {
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 0;
     padding: 40px 20px;
 }
 
@@ -394,8 +394,8 @@
     padding: 24px;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    position: sticky;
-    top: 100px;
+    position: static;
+    top: auto;
 }
 
 .quick-info-card h3 {

@@ -23,11 +23,7 @@ public class PreparationHubController {
     public String preparationHub(Model model) {
         // Get all preparation data grouped by company
         var preparationData = preparationHubService.getPreparationHubData();
-        Student student = studentRepository.findById(1L).orElse(null);
-
         model.addAttribute("companies", preparationData);
-        model.addAttribute("user", student);
-
         return "pages/preparation-hub";
     }
 
@@ -43,8 +39,6 @@ public class PreparationHubController {
             model.addAttribute("companyName", "All Companies");
         }
 
-        Student student = studentRepository.findById(1L).orElse(null);
-        model.addAttribute("user", student);
         return "pages/oa-questions";
     }
 
@@ -60,8 +54,6 @@ public class PreparationHubController {
             model.addAttribute("companyName", "All Companies");
         }
 
-        Student student = studentRepository.findById(1L).orElse(null);
-        model.addAttribute("user", student);
         return "pages/interview-experiences";
     }
 }

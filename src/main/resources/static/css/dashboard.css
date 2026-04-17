@@ -1,0 +1,262 @@
+/* ============================================================
+   dashboard.css — CRMS Student Dashboard
+   Location: src/main/resources/static/css/dashboard.css
+   ============================================================ */
+
+:root {
+    --primary:        #F97316;
+    --primary-light:  #FFF7ED;
+    --primary-shadow: rgba(249, 115, 22, .25);
+    --bg:             #F4F5F7;
+    --card:           #FFFFFF;
+    --border:         #E8E9EC;
+    --text:           #111827;
+    --muted:          #6B7280;
+    --green:          #16A34A;
+    --red:            #DC2626;
+    --radius-lg:      14px;
+    --radius-xl:      20px;
+    --shadow-card:    0 2px 12px rgba(0, 0, 0, .07);
+    --sidebar-w:      240px;   /* ← match your sidebar's actual width */
+}
+
+/* ── Base ────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: var(--bg);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    color: var(--text);
+}
+
+/* ── Layout ──────────────────────────────────────────────── */
+.crms-main {
+    margin-left: var(--sidebar-w);
+    padding: 36px 40px;
+    min-height: 100vh;
+}
+
+.dash-grid {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 32px;
+    align-items: start;
+}
+
+@media (max-width: 1024px) {
+    .crms-main   { margin-left: 0; padding: 24px 20px; }
+    .dash-grid   { grid-template-columns: 1fr; }
+}
+
+/* ── Placed Banner ───────────────────────────────────────── */
+.placed-banner {
+    background: linear-gradient(135deg, #F97316, #F59E0B);
+    border-radius: var(--radius-xl);
+    padding: 32px 40px;
+    margin-bottom: 32px;
+    color: #fff;
+    box-shadow: 0 8px 32px var(--primary-shadow);
+    overflow: hidden;
+    position: relative;
+}
+.placed-title { font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; }
+.placed-sub   { font-size: 1rem; margin: 0; opacity: .92; }
+
+/* ── Card base ───────────────────────────────────────────── */
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    box-shadow: var(--shadow-card);
+}
+
+.dash-left { display: flex; flex-direction: column; gap: 24px; }
+
+/* ── Profile card ────────────────────────────────────────── */
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+.avatar-box {
+    width: 56px; height: 56px;
+    background: var(--primary-light);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.avatar-icon  { width: 28px; height: 28px; color: var(--primary); }
+.profile-name { font-size: 1.1rem; font-weight: 700; margin: 0 0 4px; }
+.profile-meta { font-size: .85rem; color: var(--muted); margin: 0; }
+
+/* CGPA / Status pills */
+.stat-pills {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.stat-pill {
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+}
+.pill-label  {
+    display: block;
+    font-size: .7rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .05em;
+    color: var(--muted); margin-bottom: 6px;
+}
+.pill-value          { font-size: 1.4rem; font-weight: 800; color: var(--text); }
+.status-eligible     { color: var(--primary) !important; font-size: 1.1rem !important; }
+.status-placed       { color: var(--green)   !important; font-size: 1.1rem !important; }
+
+/* Resume button */
+.resume-form { margin: 0; }
+.resume-btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 12px;
+    background: var(--primary-light); color: var(--primary);
+    border-radius: 12px; font-weight: 600; font-size: .9rem;
+    cursor: pointer; border: none;
+    transition: background .2s, color .2s;
+}
+.resume-btn:hover { background: var(--primary); color: #fff; }
+.btn-icon { width: 16px; height: 16px; }
+
+/* ── Stats card ──────────────────────────────────────────── */
+.card-title {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 1rem; font-weight: 700; margin: 0 0 16px;
+}
+.card-title-icon { width: 18px; height: 18px; color: var(--primary); }
+
+.stats-list { list-style: none; margin: 0; padding: 0; }
+.stats-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: .9rem; color: var(--muted);
+}
+.stats-row.last   { border-bottom: none; }
+.stats-val        { font-weight: 700; color: var(--text); font-size: 1rem; }
+.stats-val.green  { color: var(--green); }
+.stats-val.orange { color: var(--primary); }
+
+/* ── Section heading ─────────────────────────────────────── */
+.section-title { font-size: 1.5rem; font-weight: 800; margin: 0 0 20px; }
+
+/* ── Empty state ─────────────────────────────────────────── */
+.empty-state {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius-xl); padding: 56px 32px;
+    text-align: center; box-shadow: var(--shadow-card);
+}
+.empty-icon-wrap { margin-bottom: 20px; }
+.empty-icon      { width: 56px; height: 56px; color: var(--border); }
+.empty-state h3  { font-size: 1.2rem; font-weight: 700; margin: 0 0 8px; }
+.empty-state p   { color: var(--muted); margin: 0 0 24px; font-size: .9rem; }
+.browse-btn {
+    display: inline-block; padding: 12px 28px;
+    background: var(--primary); color: #fff;
+    border-radius: 12px; font-weight: 600; font-size: .9rem;
+    text-decoration: none;
+    box-shadow: 0 4px 16px var(--primary-shadow);
+    transition: transform .2s;
+}
+.browse-btn:hover { transform: translateY(-2px); }
+
+/* ── Application cards ───────────────────────────────────── */
+.app-list { display: flex; flex-direction: column; gap: 20px; }
+
+.app-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    box-shadow: var(--shadow-card);
+    transition: box-shadow .2s;
+}
+.app-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.1); }
+
+.app-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 24px; gap: 16px;
+}
+.app-company { font-size: 1.1rem; font-weight: 700; margin: 0 0 4px; }
+.app-meta    { font-size: .85rem; color: var(--muted); margin: 0; }
+.app-date    { text-align: right; flex-shrink: 0; }
+.date-label  {
+    display: block; font-size: .7rem;
+    text-transform: uppercase; letter-spacing: .06em;
+    color: var(--muted); margin-bottom: 4px;
+}
+.date-val { font-weight: 600; font-size: .9rem; }
+
+/* ── Timeline ────────────────────────────────────────────── */
+.timeline-wrap { position: relative; padding-top: 4px; }
+
+.timeline-track {
+    position: absolute;
+    top: 16px; left: 11px; right: 11px;
+    height: 3px;
+    background: var(--border);
+    border-radius: 99px;
+    z-index: 0;
+}
+.timeline-fill {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 99px;
+    transition: width .4s ease;
+}
+
+.timeline-steps {
+    position: relative; z-index: 1;
+    display: flex; justify-content: space-between;
+}
+
+/* Individual step */
+.step {
+    display: flex; flex-direction: column;
+    align-items: center; width: 72px;
+}
+
+.step-dot {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 8px;
+    box-shadow: 0 0 0 4px var(--card);
+    transition: background .3s, transform .3s;
+}
+.step-check { width: 12px; height: 12px; color: transparent; }
+
+/* Completed step */
+.step.done .step-dot  { background: var(--primary); }
+.step.done .step-check { color: #fff; }
+
+/* Current (active) step */
+.step.current .step-dot {
+    transform: scale(1.25);
+    box-shadow: 0 0 0 4px var(--card), 0 0 0 7px rgba(249,115,22,.2);
+}
+.step.current .step-label { color: var(--primary); font-weight: 700; }
+
+.step-label {
+    font-size: .7rem; font-weight: 600;
+    color: var(--muted); text-align: center;
+    white-space: nowrap;
+}
+
+/* Rejected step */
+.rejected-dot {
+    background: var(--red) !important;
+    box-shadow: 0 0 0 4px var(--card), 0 0 0 7px rgba(220,38,38,.15) !important;
+}
+.rejected-label { color: var(--red) !important; font-weight: 700 !important; }

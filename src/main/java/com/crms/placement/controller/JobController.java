@@ -1,6 +1,7 @@
 package com.crms.placement.controller;
 
 import com.crms.placement.service.OpportunityService;
+import com.crms.placement.model.User;
 import com.crms.placement.model.Student;
 import com.crms.placement.model.Opportunity;
 import com.crms.placement.model.Alumni;
@@ -11,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import com.crms.placement.repository.AlumniRepository;
 import com.crms.placement.repository.ApplicationRepository;
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
 
 import java.time.LocalDateTime;
@@ -36,10 +38,37 @@ public class JobController {
         this.applicationRepository = applicationRepository;
     }
 
+    private User getLoggedInUser(HttpSession session) {
+        if (session == null) {
+            return null;
+        }
+        return (User) session.getAttribute("loggedInUser");
+    }
+
+    private Integer resolveStudentId(HttpSession session) {
+        User user = getLoggedInUser(session);
+        if (user == null) {
+            return null;
+        }
+
+        Student student = studentRepository.findByEmail(user.getEmail());
+        if (student != null && student.getStudentId() != null) {
+            return student.getStudentId().intValue();
+        }
+
+        if (user.getUserId() != null) {
+            return user.getUserId().intValue();
+        }
+
+        return null;
+    }
+
     @GetMapping("/job-board")
-    public String jobBoard(Model model) {
-        // For now, using hardcoded student. In production, get from session/auth
-        Integer studentId = 1;
+    public String jobBoard(Model model, HttpSession session) {
+        Integer studentId = resolveStudentId(session);
+        if (studentId == null) {
+            return "redirect:/login";
+        }
 
         var jobs = service.getAllJobs();
         var jobsWithStatus = jobs.stream().map(job -> {
@@ -50,17 +79,19 @@ public class JobController {
             return jobMap;
         }).toList();
 
-        Student student = studentRepository.findById(1L).orElse(null);
-
         model.addAttribute("jobs", jobsWithStatus);
         model.addAttribute("studentId", studentId);
-        model.addAttribute("user", student);
 
         return "pages/job-board";
     }
 
     @GetMapping("/job/{id}")
-    public String jobDetail(@PathVariable Integer id, Model model) {
+    public String jobDetail(@PathVariable Integer id, Model model, HttpSession session) {
+        Integer studentId = resolveStudentId(session);
+        if (studentId == null) {
+            return "redirect:/login";
+        }
+
         Opportunity job = service.getJobById(id);
 
         long applicationsCount = applicationRepository.countByOpportunityId(id);
@@ -81,19 +112,17 @@ public class JobController {
         List<Alumni> alumniList = alumniRepository
                 .findByCurrentCompanyIgnoreCase(job.getCompany().getName());
 
-        // ✅ Student (temporary hardcoded)
-        Student currentStudent = studentRepository.findById(1L).orElse(null);
+        Student currentStudent = studentRepository.findByEmail(getLoggedInUser(session).getEmail());
         if (currentStudent == null) {
-            currentStudent = new Student();
-            currentStudent.setStudentId(1L);
-            currentStudent.setName("Nishita");
-            currentStudent.setCgpa(9.29);
-            currentStudent.setBacklogCount(0);
+            currentStudent = studentRepository.findById(studentId.longValue()).orElse(null);
+        }
+
+        if (currentStudent == null) {
+            return "redirect:/login";
         }
 
         boolean isEligible = service.isEligible(currentStudent.getStudentId().intValue(), id);
         boolean hasApplied = service.isApplied(currentStudent.getStudentId().intValue(), id);
-
 
         // ✅ Add to model
         model.addAttribute("job", job);
@@ -109,12 +138,16 @@ public class JobController {
 
     @PostMapping("/job/{id}/apply")
     @ResponseBody
-    public Map<String, Object> applyToJob(@PathVariable Integer id) {
+    public Map<String, Object> applyToJob(@PathVariable Integer id, HttpSession session) {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            // For now, using hardcoded student ID. In production, get from session/auth
-            Integer studentId = 1;
+            Integer studentId = resolveStudentId(session);
+            if (studentId == null) {
+                response.put("success", false);
+                response.put("message", "Session expired. Please log in again.");
+                return response;
+            }
 
             System.out.println("🔥 APPLY ENDPOINT HIT - studentId: " + studentId + ", opportunityId: " + id);
 

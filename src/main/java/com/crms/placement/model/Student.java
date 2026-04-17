@@ -7,9 +7,13 @@ import jakarta.persistence.*;
 public class Student {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "student_id")
     private Long studentId;
+
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "student_id")
+    private User user;
 
     private String name;
 
@@ -116,4 +120,7 @@ public class Student {
 
     public Company getPlacedCompany() { return placedCompany; }
     public void setPlacedCompany(Company placedCompany) { this.placedCompany = placedCompany; }
+
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 }

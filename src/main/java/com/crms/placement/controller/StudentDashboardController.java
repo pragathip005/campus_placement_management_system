@@ -1,0 +1,76 @@
+package com.crms.placement.controller;
+
+import com.crms.placement.dto.ApplicationDashboardDto;
+import com.crms.placement.model.Student;
+import com.crms.placement.model.User;
+import com.crms.placement.repository.StudentRepository;
+import com.crms.placement.service.StudentDashboardService;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+
+import java.util.List;
+
+@Controller
+public class StudentDashboardController {
+
+    private final StudentRepository       studentRepository;
+    private final StudentDashboardService dashboardService;
+
+    public StudentDashboardController(StudentRepository studentRepository,
+                                      StudentDashboardService dashboardService) {
+        this.studentRepository  = studentRepository;
+        this.dashboardService   = dashboardService;
+    }
+
+    @GetMapping("/dashboard")
+    public String dashboard(HttpSession session, Model model) {
+
+        // ── 1. Get logged-in user from session ────────────────────
+        User user = (User) session.getAttribute("loggedInUser");
+        if (user == null) {
+            System.out.println("❌ [Dashboard] No loggedInUser in session → redirect to login");
+            return "redirect:/login";
+        }
+
+        System.out.println("✅ [Dashboard] loggedInUser: " + user.getEmail()
+                + " | userId: " + user.getUserId());
+
+        // ── 2. Fetch Student by userId (same PK via @MapsId) ──────
+        Student student = studentRepository.findById(user.getUserId()).orElse(null);
+
+        if (student == null) {
+            System.out.println("❌ [Dashboard] No Student row found for userId="
+                    + user.getUserId() + " → redirect to login");
+            return "redirect:/login";
+        }
+
+        System.out.println("✅ [Dashboard] Student found: " + student.getName()
+                + " | placed=" + student.getIsPlaced());
+
+        // ── 3. Load applications ──────────────────────────────────
+        Integer studentId = student.getStudentId().intValue();
+
+        List<ApplicationDashboardDto> applications =
+                dashboardService.getDashboardApplications(studentId);
+
+        long totalApplications = dashboardService.getTotalApplications(studentId);
+        long shortlistedCount  = dashboardService.getShortlistedCount(studentId);
+        long oaPendingCount    = dashboardService.getOaPendingCount(studentId);
+
+        // ── 4. Pass to template ───────────────────────────────────
+        // We pass a wrapper boolean "placed" separately to avoid
+        // Thymeleaf's Boolean wrapper getter ambiguity with getIsPlaced()
+        model.addAttribute("student",           student);
+        model.addAttribute("placed",            Boolean.TRUE.equals(student.getIsPlaced()));
+        model.addAttribute("placedCompanyName",
+                student.getPlacedCompany() != null ? student.getPlacedCompany().getName() : null);
+        model.addAttribute("applications",      applications);
+        model.addAttribute("totalApplications", totalApplications);
+        model.addAttribute("shortlistedCount",  shortlistedCount);
+        model.addAttribute("oaPendingCount",    oaPendingCount);
+
+        return "pages/dashboard";   // → templates/pages/dashboard.html
+    }
+}

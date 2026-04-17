@@ -24,24 +24,116 @@
 
         <input type="hidden" name="role" id="roleInput" value="student">
 
-        <!-- COMMON -->
-        <input type="text" name="name" placeholder="Full Name" required>
-        <input type="email" name="email" placeholder="Email Address" required>
-        <input type="password" name="password" placeholder="Password" required>
+        <!-- PERSONAL INFO -->
+        <div class="section">
+
+    <div class="section-title">Personal Information</div>
+
+    <div class="grid-2 big-inputs">
+        <div class="input-group">
+            <label>Full Name</label>
+            <input type="text" name="name" placeholder="John Doe" required>
+        </div>
+
+        <div class="input-group">
+            <label>Email Address</label>
+            <input type="email" name="email" placeholder="john@example.com" required>
+        </div>
+    </div>
+
+    <div class="input-group">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Min 6 characters" required>
+    </div>
+
+</div>
 
         <!-- STUDENT -->
         <div id="studentFields">
-            <input type="text" name="branch" placeholder="Branch">
-            <input type="number" step="0.01" name="cgpa" placeholder="CGPA">
-            <input type="number" name="backlogCount" placeholder="Backlogs">
+
+            <!-- ACADEMIC -->
+            <div class="section">
+                <h3>Academic Details</h3>
+
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>SRN</label>
+                        <input type="text" name="srn" id="srnField">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Branch</label>
+                        <input type="text" name="branch" id="branchField">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Batch Year</label>
+                        <input type="number" name="batchYear" id="batchYearField" min="2000" max="2099">
+                    </div>
+
+                    <div class="input-group">
+                        <label>CGPA</label>
+                        <input type="number" step="0.01" name="cgpa" id="cgpaField" min="0" max="10">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Backlogs</label>
+                        <input type="number" name="backlogCount" id="backlogCountField" min="0">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SGPA -->
+            <div class="section">
+                <h3>Semester GPA</h3>
+
+                <div class="grid-3">
+                    <div class="input-group"><input type="number" step="0.01" name="sgpaSem1" placeholder="Sem 1" id="sgpaSem1Field"></div>
+                    <div class="input-group"><input type="number" step="0.01" name="sgpaSem2" placeholder="Sem 2" id="sgpaSem2Field"></div>
+                    <div class="input-group"><input type="number" step="0.01" name="sgpaSem3" placeholder="Sem 3" id="sgpaSem3Field"></div>
+                    <div class="input-group"><input type="number" step="0.01" name="sgpaSem4" placeholder="Sem 4" id="sgpaSem4Field"></div>
+                    <div class="input-group"><input type="number" step="0.01" name="sgpaSem5" placeholder="Sem 5" id="sgpaSem5Field"></div>
+                    <div class="input-group"><input type="number" step="0.01" name="sgpaSem6" placeholder="Sem 6" id="sgpaSem6Field"></div>
+                    <div class="input-group"><input type="number" step="0.01" name="sgpaSem7" placeholder="Sem 7" id="sgpaSem7Field"></div>
+                </div>
+            </div>
+
+            <!-- CONTACT -->
+            <div class="section">
+                <h3>Contact Details</h3>
+
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>Phone</label>
+                        <input type="text" name="phone" id="phoneField">
+                    </div>
+
+                    <div class="input-group full-width">
+                        <label>Address</label>
+                        <input type="text" name="address" id="addressField">
+                    </div>
+                </div>
+
+                <div class="input-group full-width">
+                    <label>Resume URL</label>
+                    <input type="text" name="resumeUrl" id="resumeUrlField">
+                </div>
+            </div>
         </div>
 
         <!-- HR -->
         <div id="hrFields" style="display:none;">
-            <input type="text" name="companyName" placeholder="Company Name">
+            <div class="section">
+                <h3>Company Details</h3>
+                <div class="input-group">
+                    <label>Company Name</label>
+                    <input type="text" name="companyName" placeholder="Acme Corp">
+                </div>
+            </div>
         </div>
 
         <button type="submit" class="submit-btn">Create Account</button>
+
     </form>
 
     <div class="footer">
@@ -55,21 +147,34 @@
 function setRole(role) {
     document.getElementById("roleInput").value = role;
 
-    // highlight buttons
     document.getElementById("studentBtn").classList.remove("active");
     document.getElementById("hrBtn").classList.remove("active");
 
     document.getElementById(role + "Btn").classList.add("active");
 
-    // toggle fields
+    const studentFields = document.querySelectorAll("#studentFields input");
+    const hrFields = document.querySelectorAll("#hrFields input");
+
     if (role === "student") {
         document.getElementById("studentFields").style.display = "block";
         document.getElementById("hrFields").style.display = "none";
+        studentFields.forEach(field => {
+            if (field.id === "srnField" || field.id === "branchField" || field.id === "cgpaField") {
+                field.required = true;
+            } else {
+                field.required = false;
+            }
+        });
+        hrFields.forEach(field => field.required = false);
     } else {
         document.getElementById("studentFields").style.display = "none";
         document.getElementById("hrFields").style.display = "block";
+        studentFields.forEach(field => field.required = false);
+        hrFields.forEach(field => field.required = false);
     }
 }
+
+setRole(document.getElementById("roleInput").value);
 </script>
 
 </body>

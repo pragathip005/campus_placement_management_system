@@ -1,0 +1,98 @@
+/* Profile Page Styles */
+
+.profile-page {
+    padding: 30px 28px;
+    background: #ffffff;
+    border-radius: 22px;
+    box-shadow: 0 18px 35px rgba(15, 23, 42, 0.08);
+    width: 100%;
+    max-width: 980px;
+    margin: 16px 0 22px;
+}
+
+.profile-page h2 {
+    font-size: 30px;
+    color: #0f172a;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.profile-page form {
+    display: grid;
+    gap: 18px;
+}
+
+.profile-page .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.profile-page .form-grid > div {
+    display: grid;
+    gap: 10px;
+}
+
+.profile-page .form-grid .full-width {
+    grid-column: 1 / -1;
+}
+
+.profile-page .form-grid label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.profile-page .form-grid input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    font-size: 15px;
+    color: #0f172a;
+    background: #f8fafc;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.profile-page .form-grid input:focus {
+    outline: none;
+    border-color: #fb923c;
+    box-shadow: 0 0 0 4px rgba(251, 146, 60, 0.12);
+}
+
+.profile-page .form-grid input:disabled {
+    background: #f3f4f6;
+    color: #6b7280;
+    cursor: not-allowed;
+}
+
+.profile-page .gpa-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 12px;
+}
+
+.profile-page .gpa-grid input {
+    padding: 12px 14px;
+    text-align: center;
+}
+
+.profile-page button {
+    width: fit-content;
+    background: #f97316;
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    justify-self: end;
+    margin-top: 8px;
+}
+
+.profile-page button:hover {
+    background: #ea580c;
+}

@@ -31,6 +31,10 @@
             <span>👥</span> Alumni Hub
         </a>
 
+        <a href="/profile" class="nav-item">
+            <span>👤</span> Profile
+        </a>
+
     </nav>
 
     <!-- USER SECTION -->
@@ -38,11 +42,11 @@
 
         <div class="user-info">
             <div class="avatar"
-                 th:text="${#strings.substring(user.name,0,1)}">U</div>
+                 th:text="${user != null ? #strings.substring(user.name,0,1) : 'U'}">U</div>
 
             <div>
-                <p class="name" th:text="${user.name}">User Name</p>
-                <p class="role" th:text="${user.role}">STUDENT</p>
+                <p class="name" th:text="${user != null ? user.name : 'Guest'}"></p>
+                <p class="role" th:text="${user != null ? user.role : ''}"></p>
             </div>
         </div>
 
