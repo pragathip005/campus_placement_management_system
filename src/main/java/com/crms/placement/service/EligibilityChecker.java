@@ -15,8 +15,8 @@ public class EligibilityChecker {
     private final ApplicationRepository applicationRepository;
 
     public EligibilityChecker(StudentRepository studentRepository,
-                            OpportunityRepository opportunityRepository,
-                            ApplicationRepository applicationRepository) {
+                              OpportunityRepository opportunityRepository,
+                              ApplicationRepository applicationRepository) {
         this.studentRepository = studentRepository;
         this.opportunityRepository = opportunityRepository;
         this.applicationRepository = applicationRepository;
@@ -88,12 +88,10 @@ public class EligibilityChecker {
         String studentBranch = student.getBranch();
         var eligibleBranches = opportunity.getEligibleBranches();
 
-        // If no branch restrictions, student is eligible
         if (eligibleBranches == null || eligibleBranches.isEmpty()) {
             return EligibilityResult.eligible();
         }
 
-        // Check if student's branch is in the eligible branches list
         if (studentBranch != null && eligibleBranches.contains(studentBranch)) {
             return EligibilityResult.eligible();
         }
@@ -105,7 +103,8 @@ public class EligibilityChecker {
     }
 
     private boolean hasPreviouslyApplied(Integer studentId, Integer opportunityId) {
-        return applicationRepository.findByStudentIdAndOpportunityId(studentId, opportunityId)
-            .isPresent();
+        return !applicationRepository
+                .findByStudentIdAndOpportunityId(studentId, opportunityId)
+                .isEmpty();
     }
 }
