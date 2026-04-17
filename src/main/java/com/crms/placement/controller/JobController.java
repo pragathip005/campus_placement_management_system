@@ -4,7 +4,7 @@ import com.crms.placement.service.OpportunityService;
 import com.crms.placement.model.User;
 import com.crms.placement.model.Student;
 import com.crms.placement.model.Opportunity;
-import com.crms.placement.model.Alumni;
+import com.crms.placement.entity.Alumni;
 import com.crms.placement.model.Application;
 import com.crms.placement.repository.StudentRepository;
 import org.springframework.stereotype.Controller;

@@ -17,7 +17,7 @@ body {
 /* SIDEBAR */
 .sidebar {
     width: 235px;
-    background: #0d1b2a;
+    background: #0f172a;
     color: white;
     position: fixed;
     left: 0;
@@ -55,7 +55,7 @@ body {
 }
 
 .sidebar .nav a {
-    color: #a0aec0;
+    color: #94a3b8;
     text-decoration: none;
     display: flex;
     align-items: center;
@@ -81,12 +81,12 @@ body {
 .sidebar .nav li:nth-child(5) a::before { content: '👤'; }
 
 .sidebar .nav a:hover {
-    background: rgba(255, 165, 0, 0.1);
+    background: #1e293b;
     color: #ffffff;
 }
 
 .sidebar .nav li.active a {
-    background: #ff9500;
+    background: #f97316;
     color: white;
 }
 
@@ -106,7 +106,7 @@ body {
 .sidebar .user-avatar {
     width: 40px;
     height: 40px;
-    background: #ff9500;
+    background: #f97316;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -120,11 +120,12 @@ body {
     font-size: 14px;
     font-weight: 600;
     margin: 0;
+    color: white;
 }
 
 .sidebar .user-info p {
     font-size: 12px;
-    color: #a0aec0;
+    color: #94a3b8;
     margin: 0;
 }
 
@@ -151,6 +152,8 @@ body {
     margin-left: 235px;
     padding: 40px;
     background: #f5f6fa;
+    padding: 32px;
+    background: #f8fafc;
     overflow-y: auto;
     min-height: 100vh;
 }
