@@ -26,6 +26,7 @@
 
             <form method="post" action="/login">
                 <input type="hidden" name="csrfToken" th:value="${csrfToken}">
+                <div th:if="${error}" class="error" th:text="${error}" style="color: red; margin-bottom: 15px; text-align: center; background-color: rgba(255,0,0,0.1); padding: 10px; border-radius: 5px;"></div>
                 <!-- ROLE SELECT -->
                 <div class="role-container">
                     <input type="radio" id="student" name="role" value="student" checked>
