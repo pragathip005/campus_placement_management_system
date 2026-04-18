@@ -2,13 +2,17 @@ package com.crms.placement.service;
 
 import com.crms.placement.model.User;
 import com.crms.placement.repository.UserRepository;
-import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.stereotype.Service;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Optional;
+
 
 @Service
 public class LoginService {
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     private final UserRepository userRepository;
 
@@ -34,7 +38,7 @@ public class LoginService {
 
         // ✅ HASH PASSWORD BEFORE SAVING
         String plainPassword = user.getPassword();
-        String hashedPassword = BCrypt.hashpw(plainPassword, BCrypt.gensalt(12));
+        String hashedPassword = passwordEncoder.encode(plainPassword);
         user.setPassword(hashedPassword);
 
         System.out.println("🔒 [REGISTER] Password hashed successfully");
@@ -77,7 +81,7 @@ public class LoginService {
             + " | Role=" + user.getRole());
 
         // ✅ VERIFY HASHED PASSWORD
-        boolean passwordMatches = BCrypt.checkpw(password, user.getPassword());
+        boolean passwordMatches = passwordEncoder.matches(password, user.getPassword());
 
         if (!passwordMatches) {
             System.out.println("❌ [LOGIN] WRONG PASSWORD for user: " + user.getEmail());

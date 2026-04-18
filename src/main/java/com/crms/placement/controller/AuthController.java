@@ -66,6 +66,7 @@ public String login(
 
         // refresh CSRF safely
         session.setAttribute("csrfToken", UUID.randomUUID().toString());
+        
 
         System.out.println("LOGIN SUCCESS: " + user.getName());
 
