@@ -4,11 +4,13 @@ import com.crms.placement.model.Student;
 import com.crms.placement.model.User;
 import com.crms.placement.repository.StudentRepository;
 import com.crms.placement.service.LoginService;
-
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import com.crms.placement.model.Company;
+import com.crms.placement.repository.CompanyRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-
-import java.util.ArrayList;
-
+import java.util.UUID;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -18,54 +20,83 @@ public class AuthController {
 
     private final LoginService loginService;
     private final StudentRepository studentRepository;
+    private final CompanyRepository companyRepository;
 
-    public AuthController(LoginService loginService, StudentRepository studentRepository) {
+    public AuthController(LoginService loginService,StudentRepository studentRepository,CompanyRepository companyRepository) {
         this.loginService = loginService;
         this.studentRepository = studentRepository;
+        this.companyRepository = companyRepository;
     }
 
     // show login page
-    @GetMapping("/login")
-    public String showLogin() {
+@GetMapping("/login")
+public String showLogin(Model model, HttpSession session) {
+    // Generate CSRF token
+    String csrfToken = UUID.randomUUID().toString();
+    session.setAttribute("csrfToken", csrfToken);
+    model.addAttribute("csrfToken", csrfToken);
+    return "pages/login";
+}
+
+// handle login
+@PostMapping("/login")
+public String login(
+        @RequestParam String email,
+        @RequestParam String password,
+        @RequestParam String role,
+        @RequestParam String csrfToken,
+        HttpSession session,
+        HttpServletRequest request,
+        Model model
+) {
+
+    String sessionToken = (String) session.getAttribute("csrfToken");
+
+    if (sessionToken == null || !sessionToken.equals(csrfToken)) {
+        model.addAttribute("error", "Invalid request");
         return "pages/login";
     }
 
-    // handle login
-    @PostMapping("/login")
-    public String login(
-            @RequestParam String email,
-            @RequestParam String password,
-            @RequestParam String role,
-            HttpSession session,
-            Model model
-    ) {
-        try {
-            User user = loginService.login(email, password, role);
-            System.out.println("LOGGED USER NAME: " + user.getName());
+    try {
+        User user = loginService.login(email, password, role);
 
-            // ✅ STORE IN SESSION (IMPORTANT)
-            session.setAttribute("loggedInUser", user);
+        // ❗ DO NOT invalidate session (THIS WAS THE BUG)
+        session.setAttribute("loggedInUser", user);
+        session.setMaxInactiveInterval(30 * 60);
 
-            return "redirect:/dashboard";
+        // refresh CSRF safely
+        session.setAttribute("csrfToken", UUID.randomUUID().toString());
 
-        } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
-            return "pages/login";
+        System.out.println("LOGIN SUCCESS: " + user.getName());
+
+        if (user.getRole().equalsIgnoreCase("hr")) {
+            return "redirect:/hr/dashboard";
+        } else if (user.getRole().equalsIgnoreCase("student")) {
+            return "redirect:/student/dashboard";
         }
+
+        return "redirect:/dashboard";
+
+    } catch (Exception e) {
+        model.addAttribute("error", e.getMessage());
+        return "pages/login";
     }
+}
 
     @PostMapping("/logout")
     public String logout(HttpSession session) {
 
         session.invalidate(); // ❗ clears everything
-        System.out.println("LOGOUT: session invalidated");
 
         return "redirect:/login";
     }
 
 
     @GetMapping("/register")
-    public String showRegister() {
+    public String showRegister(Model model, HttpSession session) {
+        String csrfToken = UUID.randomUUID().toString();
+        session.setAttribute("csrfToken", csrfToken);
+        model.addAttribute("csrfToken", csrfToken);
         return "pages/register";
     }
 
@@ -75,6 +106,9 @@ public class AuthController {
             @RequestParam String email,
             @RequestParam String password,
             @RequestParam String role,
+            @RequestParam(required = false) String companyName,
+            @RequestParam(required = false) String companyEmail,
+            @RequestParam(required = false) String industry,
             @RequestParam(required = false) String srn,
             @RequestParam(required = false) String phone,
             @RequestParam(required = false) String address,
@@ -90,9 +124,20 @@ public class AuthController {
             @RequestParam(required = false) String resumeUrl,
             @RequestParam(required = false) Double cgpa,
             @RequestParam(required = false) Integer backlogCount,
+            @RequestParam String csrfToken,
             HttpSession session,
             Model model
     ) {
+    String sessionToken = (String) session.getAttribute("csrfToken");
+
+    if (sessionToken == null || !sessionToken.equals(csrfToken)) {
+        model.addAttribute("error", "Invalid request");
+        String newToken = UUID.randomUUID().toString();
+        session.setAttribute("csrfToken", newToken);
+        model.addAttribute("csrfToken", newToken);
+        return "pages/register";
+    }
+
         try {
             User user = new User();
             user.setName(name);
@@ -107,6 +152,16 @@ public class AuthController {
 
             // ✅ save + get saved user
             User savedUser = loginService.register(user);
+
+            if (role.equalsIgnoreCase("hr")) {
+                Company company = new Company();
+                company.setUser(savedUser); // links user_id = company_id
+                company.setName(companyName);
+                company.setEmail(savedUser.getEmail());
+                company.setIndustry(industry);
+
+                companyRepository.save(company);
+            }
 
             // ✅ If student, also create the student table entry
             if (role.equalsIgnoreCase("student")) {
@@ -137,7 +192,13 @@ public class AuthController {
             // ✅ STORE IN SESSION
             session.setAttribute("loggedInUser", savedUser);
 
-            return "redirect:/dashboard";
+            if (savedUser.getRole().equalsIgnoreCase("hr")) {
+                return "redirect:/hr/dashboard";
+            } else if (user.getRole().equalsIgnoreCase("student")) {
+                return "redirect:/student/dashboard";
+            }
+
+            return "redirect:/dashboard"; // ✅ REQUIRED
 
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());

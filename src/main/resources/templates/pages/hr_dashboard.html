@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>HR Dashboard</title>
+</head>
+<body>
+
+<h1>HR Dashboard</h1>
+
+<p>Welcome HR 👋</p>
+
+<p th:text="'Logged in as: ' + ${user.name}"></p>
+<p th:text="'Email: ' + ${user.email}"></p>
+<p th:text="'Role: ' + ${user.role}"></p>
+
+<br>
+
+<form method="post" action="/logout">
+    <button type="submit">Logout</button>
+</form>
+
+</body>
+</html>

@@ -15,6 +15,8 @@ import java.io.IOException;
 @Component
 public class SessionAuthFilter implements Filter {
 
+    private static final int MAX_INACTIVE_INTERVAL = 30 * 60; // 30 minutes
+
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
@@ -28,7 +30,14 @@ public class SessionAuthFilter implements Filter {
         if (requestURI.equals("/") || requestURI.startsWith("/login") || requestURI.startsWith("/register") ||
             requestURI.startsWith("/api") || requestURI.startsWith("/test") ||
             requestURI.startsWith("/css") || requestURI.startsWith("/images") ||
+            requestURI.startsWith("/logout") ||   // ✅ IMPORTANT
             requestURI.startsWith("/js") || requestURI.startsWith("/favicon")) {
+            
+            // ✅ Add security headers
+            httpResponse.setHeader("X-Content-Type-Options", "nosniff");
+            httpResponse.setHeader("X-Frame-Options", "DENY");
+            httpResponse.setHeader("X-XSS-Protection", "1; mode=block");
+            
             chain.doFilter(request, response);
             return;
         }
@@ -36,6 +45,17 @@ public class SessionAuthFilter implements Filter {
         // Check session
         HttpSession session = httpRequest.getSession(false);
         if (session != null && session.getAttribute("loggedInUser") != null) {
+            
+            // ✅ Set session timeout
+            session.setMaxInactiveInterval(MAX_INACTIVE_INTERVAL);
+            
+            // ✅ Add security headers
+            httpResponse.setHeader("X-Content-Type-Options", "nosniff");
+            httpResponse.setHeader("X-Frame-Options", "DENY");
+            httpResponse.setHeader("X-XSS-Protection", "1; mode=block");
+            httpResponse.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+            httpResponse.setHeader("Pragma", "no-cache");
+            
             chain.doFilter(request, response);
         } else {
             httpResponse.sendRedirect("/login");

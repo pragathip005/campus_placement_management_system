@@ -2,6 +2,15 @@
    dashboard.css — CRMS Student Dashboard
    Location: src/main/resources/static/css/dashboard.css
    ============================================================ */
+body > * {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+html, body {
+    width: 100%;
+    overflow-x: hidden;
+}
 
 :root {
     --primary:        #F97316;
@@ -25,23 +34,27 @@
 
 body {
     margin: 0;
-    background: var(--bg);
+    background: #f9fafb;
     font-family: 'Segoe UI', system-ui, sans-serif;
     color: var(--text);
 }
 
 /* ── Layout ──────────────────────────────────────────────── */
 .crms-main {
-    margin-left: var(--sidebar-w);
-    padding: 36px 40px;
-    min-height: 100vh;
+    margin-left: 260px; /* sidebar width */
+    width: 100%; /* 🔥 THIS IS THE REAL FIX */
+        box-sizing: border-box; /* 🔥 THIS FIXES OVERFLOW */
+
+    padding: 30px 40px;
 }
 
 .dash-grid {
+    width: 100%;   /* ADD THIS */
     display: grid;
-    grid-template-columns: 300px 1fr;
+    grid-template-columns: 1fr 2fr;   /* 🔥 exact TSX ratio */
     gap: 32px;
     align-items: start;
+    max-width: none;
 }
 
 @media (max-width: 1024px) {
@@ -65,11 +78,11 @@ body {
 
 /* ── Card base ───────────────────────────────────────────── */
 .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-xl);
+    background: #ffffff;
+    border-radius: 16px;
     padding: 24px;
-    box-shadow: var(--shadow-card);
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 .dash-left { display: flex; flex-direction: column; gap: 24px; }
@@ -177,9 +190,10 @@ body {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius-xl);
-    padding: 24px;
+    padding: 20px 30px;
     box-shadow: var(--shadow-card);
     transition: box-shadow .2s;
+    width: 100%;
 }
 .app-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.1); }
 
@@ -198,43 +212,52 @@ body {
 .date-val { font-weight: 600; font-size: .9rem; }
 
 /* ── Timeline ────────────────────────────────────────────── */
-.timeline-wrap { position: relative; padding-top: 4px; }
+.timeline-wrap {
+    position: relative;
+    margin-top: 20px;
+}
 
 .timeline-track {
     position: absolute;
-    top: 16px; left: 11px; right: 11px;
-    height: 3px;
-    background: var(--border);
-    border-radius: 99px;
-    z-index: 0;
+    top: 10px;              /* aligns with dots center */
+    left: 5%;
+    width: 90%;             /* aligns with first & last dot */
+    height: 4px;
+    background: #e5e7eb;
+    z-index: 1;
 }
+
 .timeline-fill {
     height: 100%;
-    background: var(--primary);
-    border-radius: 99px;
-    transition: width .4s ease;
+    background: #f97316;
+    z-index: 2;
 }
 
 .timeline-steps {
-    position: relative; z-index: 1;
-    display: flex; justify-content: space-between;
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    z-index: 3;
 }
 
 /* Individual step */
 .step {
-    display: flex; flex-direction: column;
-    align-items: center; width: 72px;
+    text-align: center;
+    flex: 1;
 }
 
 .step-dot {
-    width: 24px; height: 24px;
+    width: 18px;
+    height: 18px;
+    background: #d1d5db;
     border-radius: 50%;
-    background: var(--border);
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: 8px;
-    box-shadow: 0 0 0 4px var(--card);
-    transition: background .3s, transform .3s;
+    margin: 0 auto 6px;
 }
+
+.step.done .step-dot {
+    background: #f97316;
+}
+
 .step-check { width: 12px; height: 12px; color: transparent; }
 
 /* Completed step */

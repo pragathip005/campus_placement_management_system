@@ -12,20 +12,25 @@
     <h2>Create Account</h2>
     <p class="subtitle">Join CRMS and get started</p>
 
-    <form method="post" action="/register">
+    <form method="post" action="/register" th:action="@{/register}">
 
+        <!-- ✅ CSRF TOKEN -->
+        <input type="hidden" name="csrfToken" th:value="${csrfToken}">
         <div th:if="${error}" class="error" th:text="${error}"></div>
 
         <!-- ROLE SELECT -->
         <div class="role-btns">
             <button type="button" onclick="setRole('student')" id="studentBtn" class="active">Student</button>
             <button type="button" onclick="setRole('hr')" id="hrBtn">HR</button>
+            <button type="button" onclick="setRole('alumni')" id="alumniBtn">Alumni</button>
+            <button type="button" onclick="setRole('admin')" id="adminBtn">Admin</button>
         </div>
 
         <input type="hidden" name="role" id="roleInput" value="student">
 
+        <!-- REST OF YOUR FORM REMAINS THE SAME -->
         <!-- PERSONAL INFO -->
-        <div class="section">
+        <div class="section" id="personalSection">
 
     <div class="section-title">Personal Information</div>
 
@@ -50,8 +55,7 @@
 
         <!-- STUDENT -->
         <div id="studentFields">
-
-            <!-- ACADEMIC -->
+            <!-- Your existing student fields -->
             <div class="section">
                 <h3>Academic Details</h3>
 
@@ -125,9 +129,20 @@
         <div id="hrFields" style="display:none;">
             <div class="section">
                 <h3>Company Details</h3>
+
                 <div class="input-group">
                     <label>Company Name</label>
                     <input type="text" name="companyName" placeholder="Acme Corp">
+                </div>
+
+                <div class="input-group">
+                    <label>Company Email</label>
+                    <input type="email" name="companyEmail" placeholder="hr@company.com">
+                </div>
+
+                <div class="input-group">
+                    <label>Industry</label>
+                    <input type="text" name="industry" placeholder="IT / Finance / Healthcare">
                 </div>
             </div>
         </div>
@@ -147,30 +162,50 @@
 function setRole(role) {
     document.getElementById("roleInput").value = role;
 
-    document.getElementById("studentBtn").classList.remove("active");
-    document.getElementById("hrBtn").classList.remove("active");
+    ['studentBtn', 'hrBtn', 'alumniBtn', 'adminBtn'].forEach(id => {
+        document.getElementById(id).classList.remove("active");
+    });
 
     document.getElementById(role + "Btn").classList.add("active");
 
-    const studentFields = document.querySelectorAll("#studentFields input");
-    const hrFields = document.querySelectorAll("#hrFields input");
+    const studentSection = document.getElementById("studentFields");
+    const hrSection = document.getElementById("hrFields");
+    const personalSection = document.getElementById("personalSection");
+
+    const studentInputs = document.querySelectorAll("#studentFields input");
+    const hrInputs = document.querySelectorAll("#hrFields input");
+    const personalInputs = document.querySelectorAll("#personalSection input");
 
     if (role === "student") {
-        document.getElementById("studentFields").style.display = "block";
-        document.getElementById("hrFields").style.display = "none";
-        studentFields.forEach(field => {
-            if (field.id === "srnField" || field.id === "branchField" || field.id === "cgpaField") {
-                field.required = true;
-            } else {
-                field.required = false;
-            }
-        });
-        hrFields.forEach(field => field.required = false);
+
+        personalSection.style.display = "block";
+        studentSection.style.display = "block";
+        hrSection.style.display = "none";
+
+        personalInputs.forEach(f => f.required = true);
+        studentInputs.forEach(f => f.required = true);
+        hrInputs.forEach(f => f.required = false);
+
+    } else if (role === "hr") {
+
+        // 🔥 THIS is the fix
+        personalSection.style.display = "none";   // <-- IMPORTANT CHANGE
+        studentSection.style.display = "none";
+        hrSection.style.display = "block";
+
+        personalInputs.forEach(f => f.required = false);
+        studentInputs.forEach(f => f.required = false);
+        hrInputs.forEach(f => f.required = true);
+
     } else {
-        document.getElementById("studentFields").style.display = "none";
-        document.getElementById("hrFields").style.display = "block";
-        studentFields.forEach(field => field.required = false);
-        hrFields.forEach(field => field.required = false);
+
+        personalSection.style.display = "block";
+        studentSection.style.display = "none";
+        hrSection.style.display = "none";
+
+        personalInputs.forEach(f => f.required = true);
+        studentInputs.forEach(f => f.required = false);
+        hrInputs.forEach(f => f.required = false);
     }
 }
 

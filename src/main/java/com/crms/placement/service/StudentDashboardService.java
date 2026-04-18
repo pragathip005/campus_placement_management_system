@@ -77,17 +77,25 @@ public class StudentDashboardService {
             // ── Timeline mapping ──────────────────────────────────
             // Your statuses: APPLIED | ACCEPTED | REJECTED | OFFERED
             // Steps shown:   Applied(0) → Shortlisted(1) → Offered(2) → [Placed/Rejected]
-            boolean rejected = "REJECTED".equalsIgnoreCase(app.getStatus());
-            dto.setRejected(rejected);
 
-            int idx = switch (app.getStatus() == null ? "" : app.getStatus().toUpperCase()) {
-                case "APPLIED"  -> 0;
-                case "ACCEPTED" -> 1;
-                case "OFFERED"  -> 2;
-                default         -> 0;   // REJECTED stays at 0
-            };
+            String status = app.getStatus() == null ? "" : app.getStatus().toUpperCase();
+            boolean rejected = status.equals("REJECTED");
+            dto.setRejected(rejected);
+            int idx;
+            switch (status) {
+                case "APPLIED" -> idx = 0;
+                case "ELIGIBLE" -> idx = 1;
+                case "OA_SENT" -> idx = 2;
+                case "TEST_COMPLETED" -> idx = 3;
+                case "SHORTLISTED" -> idx = 4;
+                case "INTERVIEW_SCHEDULED", "INTERVIEW_DONE" -> idx = 5;
+                case "OFFERED" -> idx = 6;
+                case "ACCEPTED" -> idx = 7;
+                case "REJECTED" -> idx = 0;
+                default -> idx = 0;
+            }
             dto.setStatusIndex(idx);
-            dto.setProgressPercent(idx == 2 ? 100 : idx * 33);
+            dto.setProgressPercent((idx * 100) / 7);
 
             return dto;
         }).collect(Collectors.toList());
@@ -105,6 +113,6 @@ public class StudentDashboardService {
 
     /** OA Pending = APPLIED (update if you add OA_SENT status later) */
     public long getOaPendingCount(Integer studentId) {
-        return applicationRepository.countByStudentIdAndStatus(studentId, "APPLIED");
+        return applicationRepository.countOaPendingByStudentId(studentId);
     }
 }

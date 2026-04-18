@@ -24,7 +24,7 @@ public class StudentDashboardController {
         this.dashboardService   = dashboardService;
     }
 
-    @GetMapping("/dashboard")
+    @GetMapping("/student/dashboard")
     public String dashboard(HttpSession session, Model model) {
 
         // ── 1. Get logged-in user from session ────────────────────
@@ -33,6 +33,10 @@ public class StudentDashboardController {
             System.out.println("❌ [Dashboard] No loggedInUser in session → redirect to login");
             return "redirect:/login";
         }
+
+        model.addAttribute("activePage", "Dashboard");
+        model.addAttribute("user", user);
+        model.addAttribute("username", user.getName());
 
         System.out.println("✅ [Dashboard] loggedInUser: " + user.getEmail()
                 + " | userId: " + user.getUserId());
@@ -45,7 +49,7 @@ public class StudentDashboardController {
                     + user.getUserId() + " → redirect to login");
             return "redirect:/login";
         }
-
+        
         System.out.println("✅ [Dashboard] Student found: " + student.getName()
                 + " | placed=" + student.getIsPlaced());
 

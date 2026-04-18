@@ -25,7 +25,7 @@
             <p>Please enter your details</p>
 
             <form method="post" action="/login">
-
+                <input type="hidden" name="csrfToken" th:value="${csrfToken}">
                 <!-- ROLE SELECT -->
                 <div class="role-container">
                     <input type="radio" id="student" name="role" value="student" checked>

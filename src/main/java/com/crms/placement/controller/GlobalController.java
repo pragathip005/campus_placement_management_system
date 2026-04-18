@@ -10,8 +10,6 @@ public class GlobalController {
 
     @ModelAttribute("user")
     public User getLoggedInUser(HttpSession session) {
-        User user = (User) session.getAttribute("loggedInUser");
-        System.out.println("GlobalController: session user = " + (user != null ? user.getName() : "null"));
-        return user;
+        return (User) session.getAttribute("loggedInUser");
     }
 }

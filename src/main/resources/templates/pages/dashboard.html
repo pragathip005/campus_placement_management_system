@@ -1,29 +1,23 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Dashboard', ~{::content}, ~{::styles}, ~{::scripts})}">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard – CRMS</title>
-    <link rel="stylesheet" th:href="@{/css/dashboard.css}" />
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <th:block th:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    </th:block>
+
+    <th:block th:fragment="scripts">
+        <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    </th:block>
 </head>
+
 <body>
 
-<!-- ════════════════════════════════════════════════════════
-     SIDEBAR — update fragment path to match your file
-════════════════════════════════════════════════════════ -->
-<div th:replace="~{fragments/sidebar :: sidebar}"></div>
-
-<!-- ════════════════════════════════════════════════════════
-     MAIN CONTENT
-════════════════════════════════════════════════════════ -->
+<th:block th:fragment="content">
 <main class="crms-main">
-
-    <!-- ── Placed Banner ──────────────────────────────────
-         Uses ${placed} boolean from model — avoids
-         Thymeleaf's Boolean wrapper getter ambiguity
-         with getIsPlaced() on a Boolean field.
-    ─────────────────────────────────────────────────── -->
     <div th:if="${placed}" class="placed-banner">
         <div class="placed-inner">
             <h2 class="placed-title">
@@ -176,61 +170,55 @@
                         </div>
 
                         <div class="timeline-steps">
-
-                            <!-- Step 0: Applied — always done for any existing application -->
-                            <div th:class="'step done'
-                                + (${app.statusIndex == 0 and !app.rejected} ? ' current' : '')">
-                                <div class="step-dot">
-                                    <i data-lucide="check" class="step-check"></i>
-                                </div>
+                            <!-- Applied -->
+                            <div th:class="'step' + (${app.statusIndex >= 0} ? ' done' : '')">
+                                <div class="step-dot"></div>
                                 <span class="step-label">Applied</span>
                             </div>
-
-                            <!-- Step 1: Shortlisted -->
-                            <div th:class="'step'
-                                + (${app.statusIndex >= 1} ? ' done' : '')
-                                + (${app.statusIndex == 1 and !app.rejected} ? ' current' : '')">
-                                <div class="step-dot">
-                                    <i data-lucide="check" class="step-check"></i>
-                                </div>
+                            <!-- Eligible -->
+                            <div th:class="'step' + (${app.statusIndex >= 1} ? ' done' : '')">
+                                <div class="step-dot"></div>
+                                <span class="step-label">Eligible</span>
+                            </div>
+                            <!-- OA -->
+                            <div th:class="'step' + (${app.statusIndex >= 2} ? ' done' : '')">
+                                <div class="step-dot"></div>
+                                <span class="step-label">OA Sent</span>
+                            </div>
+                            <!-- Test -->
+                            <div th:class="'step' + (${app.statusIndex >= 3} ? ' done' : '')">
+                                <div class="step-dot"></div>
+                                <span class="step-label">Test Done</span>
+                            </div>
+                            <!-- Shortlisted -->
+                            <div th:class="'step' + (${app.statusIndex >= 4} ? ' done' : '')">
+                                <div class="step-dot"></div>
                                 <span class="step-label">Shortlisted</span>
                             </div>
-
-                            <!-- Step 2: Offered -->
-                            <div th:class="'step'
-                                + (${app.statusIndex >= 2} ? ' done' : '')
-                                + (${app.statusIndex == 2 and !app.rejected} ? ' current' : '')">
-                                <div class="step-dot">
-                                    <i data-lucide="check" class="step-check"></i>
-                                </div>
+                            <!-- Interview -->
+                            <div th:class="'step' + (${app.statusIndex >= 5} ? ' done' : '')">
+                                <div class="step-dot"></div>
+                                <span class="step-label">Interview</span>
+                            </div>
+                            <!-- Offer -->
+                            <div th:class="'step' + (${app.statusIndex >= 6} ? ' done' : '')">
+                                <div class="step-dot"></div>
                                 <span class="step-label">Offered</span>
                             </div>
-
-                            <!-- Step 3a: Placed (normal) -->
-                            <div th:if="${!app.rejected}"
-                                 th:class="'step'
-                                    + (${app.statusIndex >= 3} ? ' done' : '')
-                                    + (${app.statusIndex == 3} ? ' current' : '')">
-                                <div class="step-dot">
-                                    <i data-lucide="check" class="step-check"></i>
-                                </div>
+                            <!-- Placed -->
+                            <div th:class="'step' + (${app.statusIndex >= 7} ? ' done' : '')">
+                                <div class="step-dot"></div>
                                 <span class="step-label">Placed</span>
                             </div>
-
-                            <!-- Step 3b: Rejected (red X) -->
-                            <div th:if="${app.rejected}" class="step">
-                                <div class="step-dot rejected-dot">
-                                    <i data-lucide="x" class="step-check"></i>
-                                </div>
-                                <span class="step-label rejected-label">Rejected</span>
+                            <!-- Rejected -->
+                            <div th:if="${app.rejected}" class="step rejected">
+                                <div class="step-dot rejected-dot"></div>
+                                <span class="step-label">Rejected</span>
                             </div>
-
                         </div>
                     </div>
-
                 </div><!-- /app-card -->
             </div><!-- /app-list -->
-
         </section>
     </div><!-- /dash-grid -->
 </main>
@@ -247,5 +235,6 @@
 </th:block>
 
 <script>lucide.createIcons();</script>
+</th:block>
 </body>
 </html>

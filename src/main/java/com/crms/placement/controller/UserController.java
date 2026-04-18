@@ -1,15 +1,15 @@
 package com.crms.placement.controller;
-
 import com.crms.placement.model.Student;
 import com.crms.placement.model.User;
 import com.crms.placement.repository.StudentRepository;
 import com.crms.placement.repository.UserRepository;
-
 import jakarta.servlet.http.HttpSession;
-
+import java.util.UUID;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.mindrot.jbcrypt.BCrypt;
 
 @Controller
 public class UserController {
@@ -66,7 +66,8 @@ public class UserController {
 
         // 🔹 update password (ONLY if not empty)
         if (password != null && !password.isEmpty()) {
-            user.setPassword(password);
+            String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt(12));
+            user.setPassword(hashedPassword);
             userRepository.save(user);
         }
 

@@ -14,48 +14,49 @@ public class LoginService {
     public LoginService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
+
+    // REGISTER
     public User register(User user) {
 
-    // convert role to uppercase (IMPORTANT)
-    user.setRole(user.getRole().toUpperCase());
+        if (user.getRole() == null) {
+            throw new RuntimeException("Role cannot be null");
+        }
 
-    // check if already exists
-    if (userRepository.findByEmailAndRole(user.getEmail(), user.getRole()).isPresent()) {
-        throw new RuntimeException("User already exists");
+        user.setRole(user.getRole().toUpperCase());
+
+        // safety check
+        if (userRepository.findByEmailAndRole(user.getEmail(), user.getRole()).isPresent()) {
+            throw new RuntimeException("User already exists");
+        }
+
+        User savedUser = userRepository.save(user);
+
+        System.out.println("✅ USER REGISTERED: " + savedUser.getEmail());
+
+        return savedUser;
     }
 
-    User savedUser = userRepository.save(user);
-
-    System.out.println("✅ USER REGISTERED");
-
-    return savedUser; // ✅ RETURN THIS
-}
-
+    // LOGIN
     public User login(String email, String password, String role) {
 
-    System.out.println("EMAIL: " + email);
-    role = role.toUpperCase();
-    System.out.println("ROLE: " + role);
+        if (role == null) {
+            throw new RuntimeException("Role cannot be null");
+        }
 
-    Optional<User> userOpt = userRepository.findByEmailAndRole(email, role);
+        role = role.toUpperCase();
 
-    if (userOpt.isEmpty()) {
-        System.out.println("❌ USER NOT FOUND");
-        throw new RuntimeException("User not found");
+        Optional<User> userOpt = userRepository.findByEmailAndRole(email, role);
+
+        if (userOpt.isEmpty()) {
+            throw new RuntimeException("User not found");
+        }
+
+        User user = userOpt.get();
+
+        if (!user.getPassword().equals(password)) {
+            throw new RuntimeException("Invalid password");
+        }
+
+        return user;
     }
-
-    User user = userOpt.get();
-
-    System.out.println("DB PASSWORD: " + user.getPassword());
-    System.out.println("ENTERED PASSWORD: " + password);
-
-    if (!user.getPassword().equals(password)) {
-        System.out.println("❌ PASSWORD WRONG");
-        throw new RuntimeException("Invalid password");
-    }
-
-    System.out.println("✅ LOGIN SUCCESS");
-
-    return user;
-}
 }

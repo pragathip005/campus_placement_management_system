@@ -27,8 +27,13 @@ public class Company {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer company_id;
+    private Long company_id;
 
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "company_id")
+    private User user;
+    
     private String name;
 
     // Constructors - Problem: Public constructors, no validation

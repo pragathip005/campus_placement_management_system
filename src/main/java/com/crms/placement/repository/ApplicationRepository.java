@@ -28,8 +28,26 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
     /** Count by student + specific status string */
     long countByStudentIdAndStatus(Integer studentId, String status);
 
+    @Query("""
+    SELECT COUNT(a) FROM Application a
+    WHERE a.studentId = :studentId
+    AND UPPER(a.status) IN (
+        'OA_SENT'
+    )
+    """)
+    long countOaPendingByStudentId(@Param("studentId") Integer studentId);
+
     /** Count shortlisted = ACCEPTED + OFFERED */
-    @Query("SELECT COUNT(a) FROM Application a " +
-           "WHERE a.studentId = :studentId AND a.status IN ('ACCEPTED', 'OFFERED')")
+    @Query("""
+    SELECT COUNT(a) FROM Application a
+    WHERE a.studentId = :studentId
+    AND UPPER(a.status) IN (
+        'SHORTLISTED',
+        'INTERVIEW_SCHEDULED',
+        'INTERVIEW_DONE',
+        'OFFERED',
+        'ACCEPTED'
+    )
+    """)
     long countShortlistedByStudentId(@Param("studentId") Integer studentId);
 }
