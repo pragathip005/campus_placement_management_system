@@ -23,7 +23,7 @@ public String dashboard(HttpSession session, Model model) {
     model.addAttribute("user", user);
 
     if ("HR".equalsIgnoreCase(user.getRole())) {
-        return "pages/hr-dashboard";
+        return "pages/hr/dashboard";
     }
 
     if ("STUDENT".equalsIgnoreCase(user.getRole())) {

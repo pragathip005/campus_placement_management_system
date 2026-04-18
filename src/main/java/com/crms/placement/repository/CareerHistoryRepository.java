@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface CareerHistoryRepository extends JpaRepository<CareerHistory, Long> {
     List<CareerHistory> findByAlumniId(Long alumniId);
+    long countByAlumniId(Long alumniId);
 }

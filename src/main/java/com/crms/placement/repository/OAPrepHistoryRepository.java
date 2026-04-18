@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface OAPrepHistoryRepository extends JpaRepository<OAPrepHistory, Long> {
     List<OAPrepHistory> findByAlumniId(Long alumniId);
+    long countByAlumniId(Long alumniId);
 }

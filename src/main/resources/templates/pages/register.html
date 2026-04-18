@@ -22,6 +22,8 @@
         <div class="role-btns">
             <button type="button" onclick="setRole('student')" id="studentBtn" class="active">Student</button>
             <button type="button" onclick="setRole('hr')" id="hrBtn">HR</button>
+            <button type="button" onclick="setRole('alumni')" id="alumniBtn">Alumni</button>
+            <button type="button" onclick="setRole('admin')" id="adminBtn">Admin</button>
         </div>
 
         <input type="hidden" name="role" id="roleInput" value="student">
@@ -147,6 +149,50 @@
             </div>
         </div>
 
+        <!-- ALUMNI FIELDS -->
+        <div id="alumniFields" style="display:none;">
+    <div class="section">
+        <h3>Alumni Details</h3>
+
+        <div class="grid-2">
+            <div class="input-group">
+                <label>Graduation Year</label>
+                <input type="number" name="graduationYear" id="graduationYearField">
+            </div>
+
+            <div class="input-group">
+                <label>Phone</label>
+                <input type="text" name="phone" id="alumniPhoneField">
+            </div>
+
+            <div class="input-group">
+                <label>Current Company</label>
+                <input type="text" name="currentCompany" id="currentCompanyField">
+            </div>
+
+            <div class="input-group">
+                <label>Job Role</label>
+                <input type="text" name="currentJobRole" id="currentJobRoleField">
+            </div>
+
+            <div class="input-group">
+                <label>Placement Status</label>
+                <input type="text" name="placementStatus" id="placementStatusField">
+            </div>
+
+            <div class="input-group">
+                <label>LinkedIn</label>
+                <input type="text" name="linkedinUrl" id="linkedinUrlField">
+            </div>
+        </div>
+
+        <div class="input-group full-width">
+            <label>Company History</label>
+            <textarea name="companyHistory" id="companyHistoryField"></textarea>
+        </div>
+    </div>
+</div>
+
         <button type="submit" class="submit-btn">Create Account</button>
 
     </form>
@@ -162,47 +208,57 @@
 function setRole(role) {
     document.getElementById("roleInput").value = role;
 
-    // Toggle button active states
-    document.getElementById("studentBtn").classList.remove("active");
-    document.getElementById("hrBtn").classList.remove("active");
+    // Reset buttons
+    ["student","alumni","admin","hr"].forEach(r => {
+        document.getElementById(r + "Btn").classList.remove("active");
+    });
     document.getElementById(role + "Btn").classList.add("active");
 
-    const personalSection = document.getElementById("personalSection");
-    const studentSection = document.getElementById("studentFields");
-    const hrSection = document.getElementById("hrFields");
+    const personal = document.getElementById("personalSection");
+    const student = document.getElementById("studentFields");
+    const alumni = document.getElementById("alumniFields");
+    const hr = document.getElementById("hrFields");
 
-    const personalInputs = document.querySelectorAll("#personalSection input");
-    const studentInputs = document.querySelectorAll("#studentFields input");
-    const hrInputs = document.querySelectorAll("#hrFields input");
+    // Hide all
+    personal.style.display = "none";
+    student.style.display = "none";
+    alumni.style.display = "none";
+    hr.style.display = "none";
+
+    // Reset required
+    document.querySelectorAll("input, textarea").forEach(f => f.required = false);
 
     if (role === "student") {
-        // Show personal + student sections
-        personalSection.style.display = "block";
-        studentSection.style.display = "block";
-        hrSection.style.display = "none";
+        personal.style.display = "block";
+        student.style.display = "block";
 
-        // Set required fields
-        personalInputs.forEach(f => f.required = true);
+        document.getElementById("nameField").required = true;
+        document.getElementById("emailField").required = true;
+        document.getElementById("passwordField").required = true;
         document.getElementById("srnField").required = true;
-        document.getElementById("branchField").required = true;
-        document.getElementById("cgpaField").required = true;
-        
-        hrInputs.forEach(f => f.required = false);
+
+    } else if (role === "alumni") {
+        personal.style.display = "block";
+        alumni.style.display = "block";
+
+        document.getElementById("nameField").required = true;
+        document.getElementById("emailField").required = true;
+        document.getElementById("passwordField").required = true;
+        document.getElementById("graduationYearField").required = true;
+
+    } else if (role === "admin") {
+        personal.style.display = "block";
+
+        document.getElementById("nameField").required = true;
+        document.getElementById("emailField").required = true;
+        document.getElementById("passwordField").required = true;
 
     } else if (role === "hr") {
-        // Show ONLY HR section
-        personalSection.style.display = "none";
-        studentSection.style.display = "none";
-        hrSection.style.display = "block";
+        hr.style.display = "block";
 
-        // Set required fields for HR
-        personalInputs.forEach(f => f.required = false);
-        studentInputs.forEach(f => f.required = false);
-        
         document.getElementById("companyNameField").required = true;
         document.getElementById("companyEmailField").required = true;
         document.getElementById("companyPasswordField").required = true;
-        document.getElementById("industryField").required = true;
     }
 }
 
