@@ -108,7 +108,10 @@
     transition: 0.2s;
     font-weight: 500;
 }
-
+.sidebar {
+    display: flex;
+    flex-direction: column;
+}
 .logout-btn:hover {
     background: #dc2626;
     color: white;

@@ -18,11 +18,16 @@
 
 <th:block th:fragment="content">
 <main class="crms-main">
-    <div th:if="${placed}" class="placed-banner">
+    <div th:if="${placed}" class="placed-banner" id="placedBanner">
         <div class="placed-inner">
+            
+            <!-- ❌ Close button -->
+            <button class="close-banner" onclick="closePlacedBanner()">×</button>
+
             <h2 class="placed-title">
                 Congratulations, <span th:text="${student.name}">Name</span>! 🎉
             </h2>
+
             <p class="placed-sub">
                 You have been successfully placed at
                 <strong th:text="${placedCompanyName}">Company</strong>.
@@ -74,21 +79,6 @@
                         </span>
                     </div>
                 </div>
-
-                <!-- Resume upload -->
-                <form th:action="@{/student/resume/upload}" method="post"
-                      enctype="multipart/form-data" class="resume-form">
-                    <label for="resumeFile" class="resume-btn">
-                        <i data-lucide="upload" class="btn-icon"></i>
-                        <span th:text="${student.resumeUrl != null}
-                            ? 'Replace Resume' : 'Upload Resume'">
-                            Upload Resume
-                        </span>
-                    </label>
-                    <input id="resumeFile" type="file" name="resume" accept=".pdf"
-                           style="display:none" onchange="this.form.submit()" />
-                </form>
-            </div>
 
             <!-- Stats Card -->
             <div class="card stats-card">
@@ -225,13 +215,20 @@
 
 <!-- Confetti only when placed -->
 <th:block th:if="${placed}">
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script>
-        confetti({
-            particleCount: 500, spread: 120, origin: { y: 0.3 },
-            colors: ['#FF8C00', '#FFA500', '#FFD700', '#FFFFFF']
-        });
-    </script>
+    function closePlacedBanner() {
+        const banner = document.getElementById("placedBanner");
+        if (banner) {
+            banner.style.opacity = "0";
+            banner.style.transform = "translateY(-10px)";
+            banner.style.transition = "all 0.3s ease";
+
+            setTimeout(() => {
+                banner.style.display = "none";
+            }, 300);
+        }
+    }
+</script>
 </th:block>
 
 <script>lucide.createIcons();</script>

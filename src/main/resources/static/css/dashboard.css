@@ -81,13 +81,16 @@ body {
 
 /* ── Placed Banner ───────────────────────────────────────── */
 .placed-banner {
-    background: linear-gradient(135deg, #F97316, #F59E0B);
-    border-radius: var(--radius-xl);
-    padding: 32px 40px;
-    margin-bottom: 32px;
-    color: #fff;
-    box-shadow: 0 8px 32px var(--primary-shadow);
-    overflow: hidden;
+    position: relative;
+    background: linear-gradient(135deg, #4CAF50, #2E7D32);
+    color: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    animation: slideDown 0.4s ease;
+}
+
+.placed-inner {
     position: relative;
 }
 
@@ -486,4 +489,38 @@ body {
 .rejected-label {
     color: var(--red) !important;
     font-weight: 700 !important;
+}
+
+.close-banner {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: white;
+    color: #2E7D32;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.close-banner:hover {
+    background: #f0f0f0;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

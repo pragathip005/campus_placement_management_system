@@ -45,18 +45,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
     long countOaPendingByStudentId(@Param("studentId") Integer studentId);
 
     /** Shortlisted pipeline count */
-    @Query("""
-        SELECT COUNT(a) FROM Application a
-        WHERE a.studentId = :studentId
-        AND a.status IN (
-            com.crms.placement.model.ApplicationStatus.SHORTLISTED,
-            com.crms.placement.model.ApplicationStatus.INTERVIEW_SCHEDULED,
-            com.crms.placement.model.ApplicationStatus.INTERVIEW_DONE,
-            com.crms.placement.model.ApplicationStatus.OFFERED,
-            com.crms.placement.model.ApplicationStatus.ACCEPTED
-        )
-    """)
-    long countShortlistedByStudentId(@Param("studentId") Integer studentId);
+    long countByStudentIdAndStatusIn(Integer studentId, List<ApplicationStatus> statuses);
 
     // =====================================================
     // 🔥 HR DISPATCH / JOB SIDE LOGIC (FROM INCOMING FILE)

@@ -2,6 +2,8 @@ package com.crms.placement.service;
 
 import com.crms.placement.dto.ApplicationDashboardDto;
 import com.crms.placement.model.Application;
+import com.crms.placement.model.ApplicationStatus;
+
 import com.crms.placement.model.Company;
 import com.crms.placement.model.Opportunity;
 import com.crms.placement.repository.ApplicationRepository;
@@ -108,8 +110,17 @@ public class StudentDashboardService {
 
     /** Shortlisted = ACCEPTED + OFFERED */
     public long getShortlistedCount(Integer studentId) {
-        return applicationRepository.countShortlistedByStudentId(studentId);
-    }
+    return applicationRepository.countByStudentIdAndStatusIn(
+        studentId,
+        List.of(
+            ApplicationStatus.SHORTLISTED,
+            ApplicationStatus.INTERVIEW_SCHEDULED,
+            ApplicationStatus.INTERVIEW_DONE,
+            ApplicationStatus.OFFERED,
+            ApplicationStatus.ACCEPTED
+        )
+    );
+}
 
     /** OA Pending = APPLIED (update if you add OA_SENT status later) */
     public long getOaPendingCount(Integer studentId) {

@@ -45,7 +45,7 @@ public class HrDashboardController {
         model.addAttribute("user", user);
 
         // OPTIONAL: if HR company is tied to user later
-        return "pages/hr_dashboard";
+        return "pages/hr-dashboard";
     }
 
     // =====================================================
@@ -177,7 +177,7 @@ public class HrDashboardController {
                 details.put("student", student);
                 applicantDetails.add(details);
 
-                if (app.getStatus() == ApplicationStatus.OA_COMPLETED) {
+                if (app.getStatus() == ApplicationStatus.TEST_COMPLETED) {
                     Map<String, Object> rankEntry = new HashMap<>();
                     rankEntry.put("application", app);
                     rankEntry.put("student", student);

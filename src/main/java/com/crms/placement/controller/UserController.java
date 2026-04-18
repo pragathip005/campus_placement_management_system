@@ -10,18 +10,24 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.mindrot.jbcrypt.BCrypt;
+import com.crms.placement.service.SupabaseService;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 public class UserController {
 
     private final StudentRepository studentRepository;
     private final UserRepository userRepository;
-
+    private final SupabaseService supabaseService;
+    
     public UserController(StudentRepository studentRepository,
-                          UserRepository userRepository) {
-        this.studentRepository = studentRepository;
-        this.userRepository = userRepository;
-    }
+                      UserRepository userRepository,
+                      SupabaseService supabaseService) {
+    this.studentRepository = studentRepository;
+    this.userRepository = userRepository;
+    this.supabaseService = supabaseService;
+}
+    
 
     // ✅ SHOW PROFILE PAGE
     @GetMapping("/profile")
@@ -44,26 +50,34 @@ public class UserController {
     @PostMapping("/profile/update")
     public String updateProfile(
             @RequestParam String phone,
-            @RequestParam String resumeUrl,
-            @RequestParam String password,
+            @RequestParam(required = false) MultipartFile resumeFile,
+            @RequestParam(required = false) String password,
             HttpSession session
     ) {
 
+        System.out.println("UPLOAD HIT"); // 🔥 ADD THIS HERE
+
         User user = (User) session.getAttribute("loggedInUser");
-
         if (user == null) return "redirect:/login";
-
         Long userId = user.getUserId();
-
-        // 🔹 update student table
         Student student = studentRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
-
+        // update phone
         student.setPhone(phone);
-        student.setResumeUrl(resumeUrl);
+        // 🔥 NEW: resume upload logic
+        System.out.println("File received: " + 
+        (resumeFile != null ? resumeFile.getOriginalFilename() : "NULL"));
+        if (resumeFile != null && !resumeFile.isEmpty()) {
+            System.out.println("Uploading to Supabase...");
+            String resumeUrl = supabaseService.uploadResume(resumeFile);
+            System.out.println("Supabase URL: " + resumeUrl);
+            student.setResumeUrl(resumeUrl);
+        }
 
+        System.out.println("Resume saved in DB: " + student.getResumeUrl());
         studentRepository.save(student);
 
+        // password update
         if (password != null && !password.isEmpty()) {
             String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt(12));
             user.setPassword(hashedPassword);

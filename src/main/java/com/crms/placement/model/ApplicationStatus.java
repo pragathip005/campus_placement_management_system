@@ -2,11 +2,13 @@ package com.crms.placement.model;
 
 public enum ApplicationStatus {
     APPLIED,
+    ELIGIBLE,
     OA_SENT,
-    OA_COMPLETED,
-    INTERVIEW,
-    SELECTED,
-    OFFER_ACCEPTED,
-    REJECTED,
-    OFFER_REJECTED
+    TEST_COMPLETED,
+    SHORTLISTED,
+    INTERVIEW_SCHEDULED,
+    INTERVIEW_DONE,
+    OFFERED,
+    ACCEPTED,
+    REJECTED
 }

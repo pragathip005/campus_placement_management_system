@@ -75,13 +75,23 @@ public String dashboard(HttpSession session, Model model) {
 
     // ── 4. Pass to template ───────────────────────────────────
     model.addAttribute("student", student);
-    model.addAttribute("placed", Boolean.TRUE.equals(student.getIsPlaced()));
-    model.addAttribute("placedCompanyName",
-            student.getPlacedCompany() != null ? student.getPlacedCompany().getName() : null);
+    boolean placed = false;
+    String placedCompanyName = null;
+    ApplicationDashboardDto placedApp = applications.stream()
+    .filter(app -> app.getStatus() != null && app.getStatus().name().equals("ACCEPTED"))
+    .findFirst()
+    .orElse(null);
+    if (placedApp != null) {
+        placed = true;
+        placedCompanyName = placedApp.getCompanyName();
+        }
+    model.addAttribute("placed", placed);
+    model.addAttribute("placedCompanyName", placedCompanyName);
     model.addAttribute("applications", applications);
     model.addAttribute("totalApplications", totalApplications);
     model.addAttribute("shortlistedCount", shortlistedCount);
     model.addAttribute("oaPendingCount", oaPendingCount);
+
 
     return "pages/dashboard";
 }

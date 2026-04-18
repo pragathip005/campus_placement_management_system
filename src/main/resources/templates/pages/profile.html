@@ -17,7 +17,7 @@
     <section class="profile-page">
         <h2>My Profile</h2>
 
-        <form action="/profile/update" method="post">
+        <form action="/profile/update" method="post" enctype="multipart/form-data">
             <div class="form-grid">
                 <div>
                     <label>Name</label>
@@ -60,8 +60,15 @@
                     <input type="text" name="phone" th:value="${student != null ? student.phone : ''}">
                 </div>
                 <div>
-                    <label>Resume URL</label>
-                    <input type="text" name="resumeUrl" th:value="${student != null ? student.resumeUrl : ''}">
+                    <label>Resume</label>
+
+                    <div th:if="${student != null and student.resumeUrl != null and student.resumeUrl != ''}">
+                        <a th:href="${student.resumeUrl}" target="_blank">
+                            <button type="button">View Resume</button>
+                        </a>
+                    </div>
+
+                    <input type="file" name="resumeFile" accept=".pdf,.doc,.docx">
                 </div>
                 <div>
                     <label>Eligible</label>

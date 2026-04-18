@@ -22,17 +22,25 @@
         </th:block>
     </ul>
 
-    <div class="user">
+    <div class="user-section">
         <div class="user-profile">
             <div class="user-avatar" th:text="${username != null ? #strings.substring(username, 0, 1) : (activePage == 'Alumni Dashboard' ? 'A' : (activePage == 'HR Dashboard' or activePage == 'HR Applicants' ? 'H' : 'U'))}">N</div>
             <div class="user-info">
-<<<<<<< HEAD
-                <h4 th:text="${user != null ? user.name : 'User Name'}">User Name</h4>
-                <p th:text="${user != null ? user.role : ''}">Guest</p>
-=======
-                <h4 th:text="${username != null ? username : (activePage == 'Alumni Dashboard' ? 'Alumni User' : (activePage == 'HR Dashboard' or activePage == 'HR Applicants' ? 'HR Manager' : 'User Name'))}">User Name</h4>
-                <p th:text="${activePage == 'Alumni Dashboard' ? 'Alumni' : (activePage == 'HR Dashboard' or activePage == 'HR Applicants' ? 'HR' : 'Student')}">Student</p>
->>>>>>> origin/develop
+                <!-- NAME -->
+                <h4 th:text="${user != null ? user.name :
+                            (username != null ? username :
+                            (activePage == 'Alumni Dashboard' ? 'Alumni User' :
+                            (activePage == 'HR Dashboard' or activePage == 'HR Applicants' ? 'HR Manager' :
+                            'User Name')))}">
+                    User Name
+                </h4>
+                <!-- ROLE -->
+                <p th:text="${user != null ? user.role :
+                            (activePage == 'Alumni Dashboard' ? 'Alumni' :
+                            (activePage == 'HR Dashboard' or activePage == 'HR Applicants' ? 'HR' :
+                            'Student'))}">
+                    Student
+                </p>
             </div>
         </div>
         <form th:action="@{/logout}" method="post">
@@ -42,35 +50,3 @@
 </div>
 </body>
 </html>
-
-
-<!--<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<body>
-<div th:fragment="sidebar(activePage)" class="sidebar">
-    <div class="logo">CRMS.</div>
-
-    <ul class="nav">
-        <li><a th:href="@{/dashboard}">Dashboard</a></li>
-        <li><a th:href="@{/job-board}">Job Board</a></li>
-        <li><a th:href="@{/preparation-hub}">Preparation Hub</a></li>
-        <li><a th:href="@{/alumni}">Alumni Hub</a></li>
-        <li><a th:href="@{/profile}">Profile</a></li>
-    </ul>
-
-    <div class="user">
-        <div class="user-profile">
-            <div class="user-avatar" th:text="${user != null ? #strings.substring(user.name, 0, 1) : 'U'}">N</div>
-            <div class="user-info">
-                <h4 th:text="${user != null ? user.name : 'User Name'}">User Name</h4>
-                <p th:text="${user != null ? user.role : ''}">Guest</p>
-            </div>
-        </div>
-        <form th:action="@{/logout}" method="post">
-            <button type="submit" class="logout-btn">Logout</button>
-        </form>
-    </div>
-</div>
-</body>
-</html>
--->
