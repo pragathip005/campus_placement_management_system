@@ -101,33 +101,39 @@ public String login(
     }
 
     @PostMapping("/register")
-    public String register(
-            @RequestParam String name,
-            @RequestParam String email,
-            @RequestParam String password,
-            @RequestParam String role,
-            @RequestParam(required = false) String companyName,
-            @RequestParam(required = false) String companyEmail,
-            @RequestParam(required = false) String industry,
-            @RequestParam(required = false) String srn,
-            @RequestParam(required = false) String phone,
-            @RequestParam(required = false) String address,
-            @RequestParam(required = false) String branch,
-            @RequestParam(required = false) Integer batchYear,
-            @RequestParam(required = false) Double sgpaSem1,
-            @RequestParam(required = false) Double sgpaSem2,
-            @RequestParam(required = false) Double sgpaSem3,
-            @RequestParam(required = false) Double sgpaSem4,
-            @RequestParam(required = false) Double sgpaSem5,
-            @RequestParam(required = false) Double sgpaSem6,
-            @RequestParam(required = false) Double sgpaSem7,
-            @RequestParam(required = false) String resumeUrl,
-            @RequestParam(required = false) Double cgpa,
-            @RequestParam(required = false) Integer backlogCount,
-            @RequestParam String csrfToken,
-            HttpSession session,
-            Model model
-    ) {
+public String register(
+        @RequestParam(required = false) String name,
+        @RequestParam(required = false) String email,
+        @RequestParam(required = false) String password,
+        @RequestParam String role,
+        
+        // HR-specific fields
+        @RequestParam(required = false) String companyName,
+        @RequestParam(required = false) String companyEmail,
+        @RequestParam(required = false) String companyPassword,
+        @RequestParam(required = false) String industry,
+        
+        // Student-specific fields
+        @RequestParam(required = false) String srn,
+        @RequestParam(required = false) String phone,
+        @RequestParam(required = false) String address,
+        @RequestParam(required = false) String branch,
+        @RequestParam(required = false) Integer batchYear,
+        @RequestParam(required = false) Double sgpaSem1,
+        @RequestParam(required = false) Double sgpaSem2,
+        @RequestParam(required = false) Double sgpaSem3,
+        @RequestParam(required = false) Double sgpaSem4,
+        @RequestParam(required = false) Double sgpaSem5,
+        @RequestParam(required = false) Double sgpaSem6,
+        @RequestParam(required = false) Double sgpaSem7,
+        @RequestParam(required = false) String resumeUrl,
+        @RequestParam(required = false) Double cgpa,
+        @RequestParam(required = false) Integer backlogCount,
+        
+        @RequestParam String csrfToken,
+        HttpSession session,
+        Model model
+) {
     String sessionToken = (String) session.getAttribute("csrfToken");
 
     if (sessionToken == null || !sessionToken.equals(csrfToken)) {
@@ -138,72 +144,137 @@ public String login(
         return "pages/register";
     }
 
-        try {
-            User user = new User();
+    try {
+        User user = new User();
+        
+        // ✅ HANDLE HR REGISTRATION
+        if (role.equalsIgnoreCase("hr")) {
+            
+            // Validate HR fields
+            if (companyName == null || companyName.trim().isEmpty()) {
+                throw new RuntimeException("Company name is required");
+            }
+            if (companyEmail == null || companyEmail.trim().isEmpty()) {
+                throw new RuntimeException("Company email is required");
+            }
+            if (companyPassword == null || companyPassword.trim().isEmpty()) {
+                throw new RuntimeException("Password is required");
+            }
+            if (industry == null || industry.trim().isEmpty()) {
+                throw new RuntimeException("Industry is required");
+            }
+            
+            // Use company details for User table
+            user.setName(companyName);
+            user.setEmail(companyEmail);
+            user.setPassword(companyPassword);
+            user.setRole("HR");
+            
+            System.out.println("🏢 [REGISTER] HR User: " + companyEmail);
+            
+        } 
+        // ✅ HANDLE STUDENT REGISTRATION
+        else if (role.equalsIgnoreCase("student")) {
+            
+            // Validate student fields
+            if (name == null || name.trim().isEmpty()) {
+                throw new RuntimeException("Name is required");
+            }
+            if (email == null || email.trim().isEmpty()) {
+                throw new RuntimeException("Email is required");
+            }
+            if (password == null || password.trim().isEmpty()) {
+                throw new RuntimeException("Password is required");
+            }
+            if (cgpa == null) {
+                throw new RuntimeException("CGPA is required");
+            }
+            
             user.setName(name);
             user.setEmail(email);
             user.setPassword(password);
-            user.setRole(role);
-
-            if (role.equalsIgnoreCase("student")) {
-                user.setCgpa(cgpa);
-                user.setBacklogCount(backlogCount != null ? backlogCount : 0);
-            }
-
-            // ✅ save + get saved user
-            User savedUser = loginService.register(user);
-
-            if (role.equalsIgnoreCase("hr")) {
-                Company company = new Company();
-                company.setUser(savedUser); // links user_id = company_id
-                company.setName(companyName);
-                company.setEmail(savedUser.getEmail());
-                company.setIndustry(industry);
-
-                companyRepository.save(company);
-            }
-
-            // ✅ If student, also create the student table entry
-            if (role.equalsIgnoreCase("student")) {
-                Student student = new Student();
-                student.setUser(savedUser);
-                student.setName(name);
-                student.setEmail(email);
-                student.setSrn(srn);
-                student.setPhone(phone);
-                student.setAddress(address);
-                student.setBranch(branch);
-                student.setBatchYear(batchYear);
-                student.setSgpaSem1(sgpaSem1);
-                student.setSgpaSem2(sgpaSem2);
-                student.setSgpaSem3(sgpaSem3);
-                student.setSgpaSem4(sgpaSem4);
-                student.setSgpaSem5(sgpaSem5);
-                student.setSgpaSem6(sgpaSem6);
-                student.setSgpaSem7(sgpaSem7);
-                student.setCgpa(cgpa);
-                student.setBacklogCount(backlogCount != null ? backlogCount : 0);
-                student.setResumeUrl(resumeUrl);
-                student.setIsEligible(false);
-                student.setIsPlaced(false);
-                studentRepository.save(student);
-            }
-
-            // ✅ STORE IN SESSION
-            session.setAttribute("loggedInUser", savedUser);
-
-            if (savedUser.getRole().equalsIgnoreCase("hr")) {
-                return "redirect:/hr/dashboard";
-            } else if (user.getRole().equalsIgnoreCase("student")) {
-                return "redirect:/student/dashboard";
-            }
-
-            return "redirect:/dashboard"; // ✅ REQUIRED
-
-        } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
-            return "pages/register";
+            user.setRole("STUDENT");
+            user.setCgpa(cgpa);
+            user.setBacklogCount(backlogCount != null ? backlogCount : 0);
+            
+            System.out.println("🎓 [REGISTER] Student User: " + email);
         }
+        else {
+            throw new RuntimeException("Invalid role selected");
+        }
+
+        // ✅ Save user (password will be hashed in LoginService)
+        User savedUser = loginService.register(user);
+        
+        System.out.println("✅ [REGISTER] User saved with ID: " + savedUser.getUserId());
+
+        // ✅ Create Company record for HR
+        if (role.equalsIgnoreCase("hr")) {
+            Company company = new Company();
+            company.setUser(savedUser);
+            company.setName(companyName);
+            company.setEmail(companyEmail);
+            company.setIndustry(industry);
+
+            companyRepository.save(company);
+            
+            System.out.println("✅ [REGISTER] Company saved: " + company.getName());
+        }
+
+        // ✅ Create Student record for STUDENT
+        if (role.equalsIgnoreCase("student")) {
+            Student student = new Student();
+            student.setUser(savedUser);
+            student.setName(name);
+            student.setEmail(email);
+            student.setSrn(srn);
+            student.setPhone(phone);
+            student.setAddress(address);
+            student.setBranch(branch);
+            student.setBatchYear(batchYear);
+            student.setSgpaSem1(sgpaSem1);
+            student.setSgpaSem2(sgpaSem2);
+            student.setSgpaSem3(sgpaSem3);
+            student.setSgpaSem4(sgpaSem4);
+            student.setSgpaSem5(sgpaSem5);
+            student.setSgpaSem6(sgpaSem6);
+            student.setSgpaSem7(sgpaSem7);
+            student.setCgpa(cgpa);
+            student.setBacklogCount(backlogCount != null ? backlogCount : 0);
+            student.setResumeUrl(resumeUrl);
+            student.setIsEligible(false);
+            student.setIsPlaced(false);
+            
+            studentRepository.save(student);
+            
+            System.out.println("✅ [REGISTER] Student record saved");
+        }
+
+        // ✅ Store in session
+        session.setAttribute("loggedInUser", savedUser);
+        session.setMaxInactiveInterval(30 * 60);
+
+        System.out.println("✅ [REGISTER] Registration complete - redirecting");
+
+        // ✅ Redirect based on role
+        if (savedUser.getRole().equalsIgnoreCase("HR")) {
+            return "redirect:/hr/dashboard";
+        } else if (savedUser.getRole().equalsIgnoreCase("STUDENT")) {
+            return "redirect:/student/dashboard";
+        }
+
+        return "redirect:/dashboard";
+
+    } catch (Exception e) {
+        System.out.println("❌ [REGISTER] ERROR: " + e.getMessage());
+        e.printStackTrace();
+        
+        model.addAttribute("error", e.getMessage());
+        String newToken = UUID.randomUUID().toString();
+        session.setAttribute("csrfToken", newToken);
+        model.addAttribute("csrfToken", newToken);
+        
+        return "pages/register";
     }
-    
+}    
 }

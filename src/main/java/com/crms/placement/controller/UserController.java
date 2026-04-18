@@ -64,7 +64,6 @@ public class UserController {
 
         studentRepository.save(student);
 
-        // 🔹 update password (ONLY if not empty)
         if (password != null && !password.isEmpty()) {
             String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt(12));
             user.setPassword(hashedPassword);

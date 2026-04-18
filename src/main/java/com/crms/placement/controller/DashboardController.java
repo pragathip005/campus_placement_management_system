@@ -27,7 +27,7 @@ public String dashboard(HttpSession session, Model model) {
     }
 
     if ("STUDENT".equalsIgnoreCase(user.getRole())) {
-        return "pages/dashboard";
+        return "redirect:/student/dashboard";
     }
 
     return "redirect:/login";

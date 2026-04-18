@@ -22,40 +22,35 @@
         <div class="role-btns">
             <button type="button" onclick="setRole('student')" id="studentBtn" class="active">Student</button>
             <button type="button" onclick="setRole('hr')" id="hrBtn">HR</button>
-            <button type="button" onclick="setRole('alumni')" id="alumniBtn">Alumni</button>
-            <button type="button" onclick="setRole('admin')" id="adminBtn">Admin</button>
         </div>
 
         <input type="hidden" name="role" id="roleInput" value="student">
 
-        <!-- REST OF YOUR FORM REMAINS THE SAME -->
-        <!-- PERSONAL INFO -->
+        <!-- PERSONAL INFO (STUDENT + ALUMNI + ADMIN) -->
         <div class="section" id="personalSection">
+            <div class="section-title">Personal Information</div>
 
-    <div class="section-title">Personal Information</div>
+            <div class="grid-2 big-inputs">
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" name="name" id="nameField" placeholder="John Doe" required>
+                </div>
 
-    <div class="grid-2 big-inputs">
-        <div class="input-group">
-            <label>Full Name</label>
-            <input type="text" name="name" placeholder="John Doe" required>
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email" id="emailField" placeholder="john@example.com" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" name="password" id="passwordField" placeholder="Min 6 characters" required>
+            </div>
         </div>
 
-        <div class="input-group">
-            <label>Email Address</label>
-            <input type="email" name="email" placeholder="john@example.com" required>
-        </div>
-    </div>
-
-    <div class="input-group">
-        <label>Password</label>
-        <input type="password" name="password" placeholder="Min 6 characters" required>
-    </div>
-
-</div>
-
-        <!-- STUDENT -->
+        <!-- STUDENT FIELDS -->
         <div id="studentFields">
-            <!-- Your existing student fields -->
+            <!-- ACADEMIC -->
             <div class="section">
                 <h3>Academic Details</h3>
 
@@ -82,7 +77,7 @@
 
                     <div class="input-group">
                         <label>Backlogs</label>
-                        <input type="number" name="backlogCount" id="backlogCountField" min="0">
+                        <input type="number" name="backlogCount" id="backlogCountField" min="0" value="0">
                     </div>
                 </div>
             </div>
@@ -125,24 +120,29 @@
             </div>
         </div>
 
-        <!-- HR -->
+        <!-- HR FIELDS -->
         <div id="hrFields" style="display:none;">
             <div class="section">
                 <h3>Company Details</h3>
 
                 <div class="input-group">
                     <label>Company Name</label>
-                    <input type="text" name="companyName" placeholder="Acme Corp">
+                    <input type="text" name="companyName" id="companyNameField" placeholder="Acme Corp">
                 </div>
 
                 <div class="input-group">
                     <label>Company Email</label>
-                    <input type="email" name="companyEmail" placeholder="hr@company.com">
+                    <input type="email" name="companyEmail" id="companyEmailField" placeholder="hr@company.com">
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" name="companyPassword" id="companyPasswordField" placeholder="Min 6 characters">
                 </div>
 
                 <div class="input-group">
                     <label>Industry</label>
-                    <input type="text" name="industry" placeholder="IT / Finance / Healthcare">
+                    <input type="text" name="industry" id="industryField" placeholder="IT / Finance / Healthcare">
                 </div>
             </div>
         </div>
@@ -162,53 +162,51 @@
 function setRole(role) {
     document.getElementById("roleInput").value = role;
 
-    ['studentBtn', 'hrBtn', 'alumniBtn', 'adminBtn'].forEach(id => {
-        document.getElementById(id).classList.remove("active");
-    });
-
+    // Toggle button active states
+    document.getElementById("studentBtn").classList.remove("active");
+    document.getElementById("hrBtn").classList.remove("active");
     document.getElementById(role + "Btn").classList.add("active");
 
+    const personalSection = document.getElementById("personalSection");
     const studentSection = document.getElementById("studentFields");
     const hrSection = document.getElementById("hrFields");
-    const personalSection = document.getElementById("personalSection");
 
+    const personalInputs = document.querySelectorAll("#personalSection input");
     const studentInputs = document.querySelectorAll("#studentFields input");
     const hrInputs = document.querySelectorAll("#hrFields input");
-    const personalInputs = document.querySelectorAll("#personalSection input");
 
     if (role === "student") {
-
+        // Show personal + student sections
         personalSection.style.display = "block";
         studentSection.style.display = "block";
         hrSection.style.display = "none";
 
+        // Set required fields
         personalInputs.forEach(f => f.required = true);
-        studentInputs.forEach(f => f.required = true);
+        document.getElementById("srnField").required = true;
+        document.getElementById("branchField").required = true;
+        document.getElementById("cgpaField").required = true;
+        
         hrInputs.forEach(f => f.required = false);
 
     } else if (role === "hr") {
-
-        // 🔥 THIS is the fix
-        personalSection.style.display = "none";   // <-- IMPORTANT CHANGE
+        // Show ONLY HR section
+        personalSection.style.display = "none";
         studentSection.style.display = "none";
         hrSection.style.display = "block";
 
+        // Set required fields for HR
         personalInputs.forEach(f => f.required = false);
         studentInputs.forEach(f => f.required = false);
-        hrInputs.forEach(f => f.required = true);
-
-    } else {
-
-        personalSection.style.display = "block";
-        studentSection.style.display = "none";
-        hrSection.style.display = "none";
-
-        personalInputs.forEach(f => f.required = true);
-        studentInputs.forEach(f => f.required = false);
-        hrInputs.forEach(f => f.required = false);
+        
+        document.getElementById("companyNameField").required = true;
+        document.getElementById("companyEmailField").required = true;
+        document.getElementById("companyPasswordField").required = true;
+        document.getElementById("industryField").required = true;
     }
 }
 
+// Initialize on page load
 setRole(document.getElementById("roleInput").value);
 </script>
 
