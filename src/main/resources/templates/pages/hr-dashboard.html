@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('HR Dashboard', ~{::content}, ~{::styles}, ~{::scripts})}">
+
+<head>
+    <th:block th:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/hr-dashboard.css}">
+    </th:block>
+    <th:block th:fragment="scripts">
+        <script>
+            function toggleModal(show) {
+                document.getElementById('postJobModal').style.display = show ? 'flex' : 'none';
+            }
+
+            function switchTab(tabId) {
+                document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+                
+                document.getElementById(tabId).classList.add('active');
+                document.querySelector(`button[onclick="switchTab('${tabId}')"]`).classList.add('active');
+            }
+        </script>
+    </th:block>
+</head>
+
+<body>
+
+<!-- DEFINE content fragment -->
+<th:block th:fragment="content">
+<div class="main-content hr-container">
+
+    <div class="hr-header">
+        <div>
+            <h1>HR Dashboard</h1>
+            <p>Manage your job postings and applicants.</p>
+        </div>
+        <button class="post-job-btn" onclick="toggleModal(true)">
+            + Post New Job
+        </button>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('activePostings')">Active Postings</button>
+        <!-- Adding Applicant Pipeline tab placeholder if HR wants to see global pipeline, but primarily handled in job details -->
+        <button class="tab-btn" onclick="switchTab('applicantPipeline')">Applicant Pipeline</button>
+    </div>
+
+    <!-- TAB CONTENT: Active Postings -->
+    <div id="activePostings" class="tab-content active">
+        
+        <div th:if="${successMessage}" style="color: green; margin-bottom: 15px; font-weight: bold;">
+            <p th:text="${successMessage}"></p>
+        </div>
+        <div th:if="${errorMessage}" style="color: red; margin-bottom: 15px; font-weight: bold;">
+            <p th:text="${errorMessage}"></p>
+        </div>
+
+        <div class="postings-list">
+            <a th:each="posting : ${activePostings}" th:href="@{/hr/job/{id}/applicants(id=${posting.job.opportunity_id})}" class="posting-card">
+                <div class="posting-header">
+                    <h3 th:text="${posting.job.name}">Role Name</h3>
+                    <span th:class="'status-badge ' + (${posting.isOpen} ? 'open' : 'closed')"
+                          th:text="${posting.isOpen} ? 'OPEN' : 'CLOSED'">OPEN</span>
+                </div>
+                
+                <p style="color: #718096; font-size: 14px; margin-bottom: 16px;" th:text="${posting.job.role}">Job Type</p>
+
+                <div class="posting-details">
+                    <span>CTC: <span th:text="${posting.job.ctc != null ? posting.job.ctc + ' LPA' : 'N/A'}"></span></span>
+                    <span>Min CGPA: <span th:text="${posting.job.minCgpa}"></span></span>
+                    <span>Deadline: <span th:text="${posting.job.applicationDeadline != null ? #temporals.format(posting.job.applicationDeadline, 'd MMM yyyy') : 'N/A'}"></span></span>
+                    <span>Openings: <span th:text="${posting.job.vacancies != null ? posting.job.vacancies : 'N/A'}"></span></span>
+                </div>
+
+                <div class="posting-footer">
+                    <span>👥 <span th:text="${posting.applicantCount}"></span> Applicants</span>
+                    <span style="color: #cbd5e1;">📝 View Details</span>
+                </div>
+            </a>
+
+            <div th:if="${#lists.isEmpty(activePostings)}" style="text-align: center; color: #718096; padding: 40px;">
+                <p>No active postings found. Click "Post New Job" to create one.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB CONTENT: Applicant Pipeline (Global placeholder) -->
+    <div id="applicantPipeline" class="tab-content">
+        <div style="text-align: center; color: #718096; padding: 40px;">
+            <p>Select a specific job posting to view its applicant pipeline.</p>
+        </div>
+    </div>
+
+    <!-- POST JOB MODAL -->
+    <div id="postJobModal" class="job-modal">
+        <div class="job-modal-content">
+            <h2 style="margin-bottom: 20px; font-size: 20px;">Post New Opportunity</h2>
+            <form th:action="@{/hr/job/post}" method="post">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Job Title</label>
+                        <input type="text" name="name" required placeholder="e.g. Software Engineer Intern">
+                    </div>
+                    <div class="form-group">
+                        <label>Role Type</label>
+                        <input type="text" name="role" required placeholder="e.g. SDE-1">
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label>Description</label>
+                        <textarea name="description" rows="4" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Job Category</label>
+                        <select name="type" required>
+                            <option value="FTE">Full Time (FTE)</option>
+                            <option value="INTERNSHIP">Internship</option>
+                            <option value="BOTH">FTE + Internship</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" name="location" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>CTC (LPA)</label>
+                        <input type="number" step="0.1" name="ctc" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Minimum CGPA</label>
+                        <input type="number" step="0.1" name="minCgpa" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Openings</label>
+                        <input type="number" name="vacancies" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Deadline</label>
+                        <input type="datetime-local" name="applicationDeadline" required>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="toggleModal(false)">Cancel</button>
+                    <button type="submit" class="btn-submit">Post Job</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+</th:block>
+</body>
+</html>

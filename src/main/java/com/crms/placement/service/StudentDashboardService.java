@@ -78,7 +78,7 @@ public class StudentDashboardService {
             // Your statuses: APPLIED | ACCEPTED | REJECTED | OFFERED
             // Steps shown:   Applied(0) → Shortlisted(1) → Offered(2) → [Placed/Rejected]
 
-            String status = app.getStatus() == null ? "" : app.getStatus().toUpperCase();
+            String status = app.getStatus() == null ? "" : app.getStatus().name();
             boolean rejected = status.equals("REJECTED");
             dto.setRejected(rejected);
             int idx;

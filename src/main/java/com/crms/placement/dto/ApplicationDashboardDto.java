@@ -2,6 +2,8 @@ package com.crms.placement.dto;
 
 import java.time.LocalDateTime;
 
+import com.crms.placement.model.ApplicationStatus;
+
 /**
  * View object passed to the Thymeleaf dashboard template.
  * Merges Application + Opportunity + Company so the template
@@ -11,7 +13,7 @@ public class ApplicationDashboardDto {
 
     // From Application
     private Integer applicationId;
-    private String  status;           // APPLIED | ACCEPTED | REJECTED | OFFERED
+    private ApplicationStatus status;           // APPLIED | ACCEPTED | REJECTED | OFFERED
     private LocalDateTime appliedDate;
 
     // From Opportunity (via app.opportunityId → Opportunity)
@@ -36,8 +38,8 @@ public class ApplicationDashboardDto {
     public Integer getApplicationId()                      { return applicationId; }
     public void setApplicationId(Integer v)                { this.applicationId = v; }
 
-    public String getStatus()                              { return status; }
-    public void setStatus(String v)                        { this.status = v; }
+    public ApplicationStatus getStatus()                   {return status;}
+    public void setStatus(ApplicationStatus status)        {this.status = status;}
 
     public LocalDateTime getAppliedDate()                  { return appliedDate; }
     public void setAppliedDate(LocalDateTime v)            { this.appliedDate = v; }

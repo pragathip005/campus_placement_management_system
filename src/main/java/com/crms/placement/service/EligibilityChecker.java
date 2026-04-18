@@ -2,7 +2,6 @@ package com.crms.placement.service;
 
 import com.crms.placement.model.Opportunity;
 import com.crms.placement.model.Student;
-import com.crms.placement.repository.ApplicationRepository;
 import com.crms.placement.repository.OpportunityRepository;
 import com.crms.placement.repository.StudentRepository;
 import org.springframework.stereotype.Component;
@@ -12,14 +11,11 @@ public class EligibilityChecker {
 
     private final StudentRepository studentRepository;
     private final OpportunityRepository opportunityRepository;
-    private final ApplicationRepository applicationRepository;
 
     public EligibilityChecker(StudentRepository studentRepository,
-                            OpportunityRepository opportunityRepository,
-                            ApplicationRepository applicationRepository) {
+                              OpportunityRepository opportunityRepository) {
         this.studentRepository = studentRepository;
         this.opportunityRepository = opportunityRepository;
-        this.applicationRepository = applicationRepository;
     }
 
     public EligibilityResult checkEligibility(Integer studentId, Integer opportunityId) {
@@ -30,9 +26,7 @@ public class EligibilityChecker {
             return EligibilityResult.ineligible("Student or Opportunity not found");
         }
 
-        if (hasPreviouslyApplied(studentId, opportunityId)) {
-            return EligibilityResult.ineligible("Already applied to this opportunity");
-        }
+        // ❌ REMOVED duplicate check (wrong layer)
 
         EligibilityResult placementResult = checkPlacementEligibility(student);
         if (!placementResult.isEligible()) return placementResult;
@@ -88,12 +82,10 @@ public class EligibilityChecker {
         String studentBranch = student.getBranch();
         var eligibleBranches = opportunity.getEligibleBranches();
 
-        // If no branch restrictions, student is eligible
         if (eligibleBranches == null || eligibleBranches.isEmpty()) {
             return EligibilityResult.eligible();
         }
 
-        // Check if student's branch is in the eligible branches list
         if (studentBranch != null && eligibleBranches.contains(studentBranch)) {
             return EligibilityResult.eligible();
         }
@@ -102,10 +94,5 @@ public class EligibilityChecker {
             String.format("Branch %s is not eligible. Eligible branches: %s",
                 studentBranch, String.join(", ", eligibleBranches))
         );
-    }
-
-    private boolean hasPreviouslyApplied(Integer studentId, Integer opportunityId) {
-        return applicationRepository.findByStudentIdAndOpportunityId(studentId, opportunityId)
-            .isPresent();
     }
 }

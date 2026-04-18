@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('HR Applicants', ~{::content}, ~{::styles}, ~{::scripts})}">
+
+<head>
+    <th:block th:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/hr-dashboard.css}">
+        <style>
+            .back-link {
+                display: inline-block;
+                color: #718096;
+                text-decoration: none;
+                margin-bottom: 20px;
+                font-weight: 500;
+                transition: color 0.3s;
+            }
+            .back-link:hover {
+                color: #ff9500;
+            }
+        </style>
+    </th:block>
+    <th:block th:fragment="scripts">
+        <script>
+            function switchTab(tabId) {
+                document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+                
+                document.getElementById(tabId).classList.add('active');
+                document.querySelector(`button[onclick="switchTab('${tabId}')"]`).classList.add('active');
+            }
+
+            function updateStatus(applicationId, selectElement) {
+                const status = selectElement.value;
+                const originalValue = selectElement.getAttribute('data-original');
+                
+                if (status === originalValue) return;
+
+                if (!confirm(`Are you sure you want to change the status to ${status}?`)) {
+                    selectElement.value = originalValue;
+                    return;
+                }
+
+                fetch(`/hr/application/${applicationId}/status?status=${status}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Status updated successfully!');
+                        selectElement.setAttribute('data-original', status);
+                        // Optionally update row styling based on status
+                        const statusBadge = document.getElementById(`status-badge-${applicationId}`);
+                        if (statusBadge) {
+                            statusBadge.className = `app-status ${status.toLowerCase()}`;
+                            statusBadge.textContent = status;
+                        }
+                    } else {
+                        alert(data.message || 'Failed to update status');
+                        selectElement.value = originalValue;
+                    }
+                })
+                .catch(error => {
+                    alert('Error updating status: ' + error.message);
+                    selectElement.value = originalValue;
+                });
+            }
+        </script>
+    </th:block>
+</head>
+
+<body>
+
+<th:block th:fragment="content">
+<div class="main-content hr-container">
+
+    <a th:href="@{/hr/dashboard}" class="back-link">← Back to Dashboard</a>
+
+    <div class="hr-header">
+        <div>
+            <h1 th:text="${job.name}">Job Title</h1>
+            <p>Manage applicants for this role.</p>
+        </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('applicantPipeline')">Applicant Pipeline</button>
+        <button class="tab-btn" onclick="switchTab('rankList')">Rank List</button>
+    </div>
+
+    <!-- TAB CONTENT: Applicant Pipeline -->
+    <div id="applicantPipeline" class="tab-content active">
+        
+        <div th:if="${#lists.isEmpty(applicants)}" style="text-align: center; color: #718096; padding: 40px;">
+            <p>No applicants found for this job posting.</p>
+        </div>
+
+        <table class="applicants-table" th:if="${!#lists.isEmpty(applicants)}">
+            <thead>
+                <tr>
+                    <th>Candidate</th>
+                    <th>Role</th>
+                    <th>CGPA</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="entry : ${applicants}">
+                    <td class="student-info">
+                        <span class="name" th:text="${entry.student.name}">Student Name</span>
+                        <span class="email" th:text="${entry.student.email != null ? entry.student.email : 'student@example.com'}">Email</span>
+                    </td>
+                    <td th:text="${job.role}">Role</td>
+                    <td th:text="${entry.student.cgpa}">9.5</td>
+                    <td>
+                        <span th:id="'status-badge-' + ${entry.application.applicationId}" 
+                              th:class="'app-status ' + ${#strings.toLowerCase(entry.application.status)}"
+                              th:text="${entry.application.status}">APPLIED</span>
+                    </td>
+                    <td>
+                        <select class="status-select" 
+                                th:attr="data-original=${entry.application.status.name()}"
+                                th:onchange="'updateStatus(' + ${entry.application.applicationId} + ', this)'">
+                            <option value="APPLIED" th:selected="${entry.application.status.name() == 'APPLIED'}">Applied</option>
+                            <option value="OA_SENT" th:selected="${entry.application.status.name() == 'OA_SENT'}">OA Sent</option>
+                            <option value="OA_COMPLETED" th:selected="${entry.application.status.name() == 'OA_COMPLETED'}">OA Completed</option>
+                            <option value="INTERVIEW" th:selected="${entry.application.status.name() == 'INTERVIEW'}">Interview</option>
+                            <option value="SELECTED" th:selected="${entry.application.status.name() == 'SELECTED'}">Select</option>
+                            <option value="REJECTED" th:selected="${entry.application.status.name() == 'REJECTED'}">Reject</option>
+                        </select>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+    <!-- TAB CONTENT: Rank List -->
+    <div id="rankList" class="tab-content">
+        
+        <div style="background: #e0f2fe; padding: 16px; border-radius: 8px; margin-bottom: 20px; color: #0284c7; font-size: 14px;">
+            ℹ️ This rank list includes only students who have completed the Online Assessment (OA_COMPLETED status).
+        </div>
+
+        <div th:if="${#lists.isEmpty(rankList)}" style="text-align: center; color: #718096; padding: 40px;">
+            <p>No students have completed the OA yet.</p>
+        </div>
+
+        <table class="applicants-table" th:if="${!#lists.isEmpty(rankList)}">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Candidate</th>
+                    <th>OA Score</th>
+                    <th>CGPA</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="entry, iterStat : ${rankList}">
+                    <td style="font-weight: bold; color: #ff9500;">
+                        #<span th:text="${iterStat.count}">1</span>
+                    </td>
+                    <td class="student-info">
+                        <span class="name" th:text="${entry.student.name}">Student Name</span>
+                        <span class="email" th:text="${entry.student.email != null ? entry.student.email : 'student@example.com'}">Email</span>
+                    </td>
+                    <td style="font-weight: bold;" th:text="${entry.oaScore} + '/100'">85/100</td>
+                    <td th:text="${entry.student.cgpa}">9.5</td>
+                    <td>
+                        <select class="status-select" 
+                                th:attr="data-original=${entry.application.status.name()}"
+                                th:onchange="'updateStatus(' + ${entry.application.applicationId} + ', this)'">
+                            <option value="OA_COMPLETED" th:selected="${entry.application.status.name() == 'OA_COMPLETED'}">OA Completed</option>
+                            <option value="INTERVIEW" th:selected="${entry.application.status.name() == 'INTERVIEW'}">Shortlist for Interview</option>
+                            <option value="REJECTED" th:selected="${entry.application.status.name() == 'REJECTED'}">Reject</option>
+                        </select>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</th:block>
+</body>
+</html>
