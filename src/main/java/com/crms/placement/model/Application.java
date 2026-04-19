@@ -20,13 +20,18 @@ public class Application {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private ApplicationStatus status;// // APPLIED, OA_SENT, OA_COMPLETED, INTERVIEW, SELECTED, OFFER_ACCEPTED, REJECTED, OFFER_REJECTED
+    private ApplicationStatus status;
 
     @Column(name = "applied_date")
     private LocalDateTime appliedDate;
 
     @OneToOne(mappedBy = "application", cascade = CascadeType.ALL)
     private OnlineAssessment onlineAssessment;
+
+    // ✅ NEW — lazy loaded, read-only, uses existing opportunity_id column
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "opportunity_id", insertable = false, updatable = false)
+    private Opportunity opportunity;
 
     // Constructors
     public Application() {}
@@ -54,9 +59,9 @@ public class Application {
     public LocalDateTime getAppliedDate() { return appliedDate; }
     public void setAppliedDate(LocalDateTime appliedDate) { this.appliedDate = appliedDate; }
 
-    public OnlineAssessment getOnlineAssessment() {
-       return onlineAssessment;  }
+    public OnlineAssessment getOnlineAssessment() { return onlineAssessment; }
+    public void setOnlineAssessment(OnlineAssessment onlineAssessment) { this.onlineAssessment = onlineAssessment; }
 
-    public void setOnlineAssessment(OnlineAssessment onlineAssessment) {
-       this.onlineAssessment = onlineAssessment;  }
+    // ✅ NEW getter
+    public Opportunity getOpportunity() { return opportunity; }
 }

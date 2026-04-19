@@ -44,7 +44,7 @@ public class SessionAuthFilter implements Filter {
 
         // Check session
         HttpSession session = httpRequest.getSession(false);
-        if (session != null && session.getAttribute("loggedInUser") != null) {
+        if (session != null && session.getAttribute("user") != null) {
             
             // ✅ Set session timeout
             session.setMaxInactiveInterval(MAX_INACTIVE_INTERVAL);

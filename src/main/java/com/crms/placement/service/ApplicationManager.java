@@ -2,55 +2,80 @@ package com.crms.placement.service;
 
 import com.crms.placement.model.Application;
 import com.crms.placement.model.ApplicationStatus;
+import com.crms.placement.model.OnlineAssessment;
+import com.crms.placement.model.Opportunity;
 import com.crms.placement.repository.ApplicationRepository;
+import com.crms.placement.repository.OnlineAssessmentRepository;
+import com.crms.placement.repository.OpportunityRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-/**
- * GRASP: Creator + Information Expert
- * SOLID: Single Responsibility - Only manages applications
- */
 @Component
 public class ApplicationManager {
 
     private final ApplicationRepository applicationRepository;
+    private final OnlineAssessmentRepository onlineAssessmentRepository;
+    private final OpportunityRepository opportunityRepository;
 
-    public ApplicationManager(ApplicationRepository applicationRepository) {
+    public ApplicationManager(ApplicationRepository applicationRepository,
+                              OnlineAssessmentRepository onlineAssessmentRepository,
+                              OpportunityRepository opportunityRepository) {
         this.applicationRepository = applicationRepository;
+        this.onlineAssessmentRepository = onlineAssessmentRepository;
+        this.opportunityRepository = opportunityRepository;
     }
 
-    /**
-     * Submit a new application
-     */
     public Application submitApplication(Integer studentId, Integer opportunityId) {
 
-        // ✅ Prevent duplicate applications (CORRECT PLACE)
+        // ✅ Duplicate check (same as 3.2)
         if (hasApplied(studentId, opportunityId)) {
             throw new RuntimeException("Already applied to this opportunity");
         }
 
+        // ✅ Fetch opportunity
+        Opportunity opportunity = opportunityRepository.findById(opportunityId)
+                .orElseThrow(() -> new RuntimeException("Opportunity not found"));
+
+        // ✅ Save application as APPLIED
         Application application = new Application(
                 studentId,
                 opportunityId,
                 ApplicationStatus.APPLIED
         );
+        application = applicationRepository.save(application);
 
-        return applicationRepository.save(application);
+        // ✅ Create OA only if opportunity has an OA round
+        if (Boolean.TRUE.equals(opportunity.getHasOa()) && opportunity.getOaDate() != null) {
+            OnlineAssessment oa = new OnlineAssessment();
+            oa.setApplication(application);
+            oa.setOaLink("https://oa-platform.com/test/" + application.getApplicationId());
+            oa.setCompleted(false);
+            oa.setNotified(false);
+            oa.setScheduledAt(opportunity.getOaDate());
+            onlineAssessmentRepository.save(oa);
+
+            application.setStatus(ApplicationStatus.OA_SENT);
+            applicationRepository.save(application);
+
+            System.out.println("✅ OA created for student " + studentId
+                    + " scheduledAt=" + opportunity.getOaDate());
+        } else {
+            System.out.println("✅ No OA round for opportunity " + opportunityId
+                    + ", status stays APPLIED");
+        }
+
+        return application;
     }
 
-    /**
-     * Check if student has already applied
-     */
+    // ✅ Duplicate check
     public boolean hasApplied(Integer studentId, Integer opportunityId) {
     return applicationRepository
             .findByStudentIdAndOpportunityId(studentId, opportunityId)
             .isPresent();
 }
 
-    /**
-     * Get student's application for a specific opportunity
-     */
+    // ✅ Get specific application
     public Application getApplication(Integer studentId, Integer opportunityId) {
     return applicationRepository
             .findByStudentIdAndOpportunityId(studentId, opportunityId)

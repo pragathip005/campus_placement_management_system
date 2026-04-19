@@ -28,7 +28,7 @@ public class StudentDashboardController {
 public String dashboard(HttpSession session, Model model) {
 
     // ── 1. Get logged-in user from session ────────────────────
-    User user = (User) session.getAttribute("loggedInUser");
+    User user = (User) session.getAttribute("user");
     if (user == null) {
         System.out.println("❌ [Dashboard] No loggedInUser in session → redirect to login");
         return "redirect:/login";
@@ -78,7 +78,7 @@ public String dashboard(HttpSession session, Model model) {
     boolean placed = false;
     String placedCompanyName = null;
     ApplicationDashboardDto placedApp = applications.stream()
-    .filter(app -> app.getStatus() != null && app.getStatus().name().equals("ACCEPTED"))
+    .filter(app -> app.getStatus() != null && app.getStatus().name().equals("OFFER_ACCEPTED"))
     .findFirst()
     .orElse(null);
     if (placedApp != null) {

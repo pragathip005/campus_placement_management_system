@@ -33,7 +33,7 @@ public class UserController {
     @GetMapping("/profile")
     public String profile(HttpSession session, Model model) {
 
-        User user = (User) session.getAttribute("loggedInUser");
+        User user = (User) session.getAttribute("user");
 
         if (user == null) return "redirect:/login";
 
@@ -58,7 +58,7 @@ public class UserController {
 
         System.out.println("UPLOAD HIT"); // 🔥 ADD THIS HERE
 
-        User user = (User) session.getAttribute("loggedInUser");
+        User user = (User) session.getAttribute("user");
         if (user == null) return "redirect:/login";
         Long userId = user.getUserId();
         Student student = studentRepository.findById(userId)

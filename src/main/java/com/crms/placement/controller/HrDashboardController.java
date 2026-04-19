@@ -37,7 +37,7 @@ public class HrDashboardController {
 
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
-        User user = (User) session.getAttribute("loggedInUser");
+        User user = (User) session.getAttribute("user");
         if (user == null || !"HR".equalsIgnoreCase(user.getRole())) {
             return "redirect:/login";
         }
@@ -96,7 +96,7 @@ public class HrDashboardController {
             @RequestParam(required = false) org.springframework.web.multipart.MultipartFile jdPdf,
             RedirectAttributes redirectAttributes) {
 
-        User user = (User) session.getAttribute("loggedInUser");
+        User user = (User) session.getAttribute("user");
         if (user == null || !"HR".equalsIgnoreCase(user.getRole())) {
             return "redirect:/login";
         }
@@ -152,7 +152,7 @@ public class HrDashboardController {
 
     @GetMapping("/job/{id}/applicants")
     public String viewApplicants(HttpSession session, @PathVariable Integer id, Model model) {
-        User user = (User) session.getAttribute("loggedInUser");
+        User user = (User) session.getAttribute("user");
         if (user == null || !"HR".equalsIgnoreCase(user.getRole())) {
             return "redirect:/login";
         }
@@ -205,7 +205,7 @@ public class HrDashboardController {
             @RequestParam String status) {
         Map<String, Object> response = new HashMap<>();
         
-        User user = (User) session.getAttribute("loggedInUser");
+        User user = (User) session.getAttribute("user");
         if (user == null || !"HR".equalsIgnoreCase(user.getRole())) {
             response.put("success", false);
             response.put("message", "Unauthorized");

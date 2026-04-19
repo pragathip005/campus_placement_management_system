@@ -42,7 +42,7 @@ public class JobController {
         if (session == null) {
             return null;
         }
-        return (User) session.getAttribute("loggedInUser");
+        return (User) session.getAttribute("user");
     }
 
     private Integer resolveStudentId(HttpSession session) {

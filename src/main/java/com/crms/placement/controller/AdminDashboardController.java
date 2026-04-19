@@ -25,7 +25,7 @@ public class AdminDashboardController {
     public String dashboard(HttpSession session, Model model) {
 
         // ── 1. Get logged-in user from session ────────────────────
-        User user = (User) session.getAttribute("loggedInUser");
+        User user = (User) session.getAttribute("user");
         if (user == null) {
             System.out.println("❌ [Admin Dashboard] No loggedInUser in session → redirect to login");
             return "redirect:/login";

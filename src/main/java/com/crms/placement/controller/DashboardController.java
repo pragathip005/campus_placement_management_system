@@ -12,7 +12,7 @@ public class DashboardController {
     @GetMapping("/dashboard")
 public String dashboard(HttpSession session, Model model) {
 
-    User sessionUser = (User) session.getAttribute("loggedInUser");
+    User sessionUser = (User) session.getAttribute("user");
 
     if (sessionUser == null) {
         return "redirect:/login";

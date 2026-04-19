@@ -10,6 +10,6 @@ public class GlobalController {
 
     @ModelAttribute("user")
     public User getLoggedInUser(HttpSession session) {
-        return (User) session.getAttribute("loggedInUser");
+        return (User) session.getAttribute("user");
     }
 }

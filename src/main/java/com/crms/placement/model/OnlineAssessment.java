@@ -21,6 +21,12 @@ public class OnlineAssessment {
 
     private boolean completed;
 
+    @Column(name = "notified")
+    private boolean notified = false;
+
+public boolean isNotified() { return notified; }
+public void setNotified(boolean notified) { this.notified = notified; }
+
     // 🔗 Relationship with Application
     @OneToOne
     @JoinColumn(name = "application_id", nullable = false)
@@ -33,7 +39,7 @@ public class OnlineAssessment {
         this.application = application;
         this.oaLink = oaLink;
         this.completed = false;
-        this.scheduledAt = LocalDateTime.now(); // 🔥 set automatically
+        this.notified = false;
     }
 
     // Getters & Setters

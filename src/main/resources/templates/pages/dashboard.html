@@ -159,51 +159,57 @@
                                  th:style="'width:' + ${app.progressPercent} + '%'"></div>
                         </div>
 
-                        <div class="timeline-steps">
-                            <!-- Applied -->
-                            <div th:class="'step' + (${app.statusIndex >= 0} ? ' done' : '')">
-                                <div class="step-dot"></div>
-                                <span class="step-label">Applied</span>
+                        <div class="timeline-wrap">
+                            <div class="timeline-track">
+                                <div class="timeline-fill"
+                                    th:style="'width:' + ${app.progressPercent} + '%'"></div>
                             </div>
-                            <!-- Eligible -->
-                            <div th:class="'step' + (${app.statusIndex >= 1} ? ' done' : '')">
-                                <div class="step-dot"></div>
-                                <span class="step-label">Eligible</span>
-                            </div>
-                            <!-- OA -->
-                            <div th:class="'step' + (${app.statusIndex >= 2} ? ' done' : '')">
-                                <div class="step-dot"></div>
-                                <span class="step-label">OA Sent</span>
-                            </div>
-                            <!-- Test -->
-                            <div th:class="'step' + (${app.statusIndex >= 3} ? ' done' : '')">
-                                <div class="step-dot"></div>
-                                <span class="step-label">Test Done</span>
-                            </div>
-                            <!-- Shortlisted -->
-                            <div th:class="'step' + (${app.statusIndex >= 4} ? ' done' : '')">
-                                <div class="step-dot"></div>
-                                <span class="step-label">Shortlisted</span>
-                            </div>
-                            <!-- Interview -->
-                            <div th:class="'step' + (${app.statusIndex >= 5} ? ' done' : '')">
-                                <div class="step-dot"></div>
-                                <span class="step-label">Interview</span>
-                            </div>
-                            <!-- Offer -->
-                            <div th:class="'step' + (${app.statusIndex >= 6} ? ' done' : '')">
-                                <div class="step-dot"></div>
-                                <span class="step-label">Offered</span>
-                            </div>
-                            <!-- Placed -->
-                            <div th:class="'step' + (${app.statusIndex >= 7} ? ' done' : '')">
-                                <div class="step-dot"></div>
-                                <span class="step-label">Placed</span>
-                            </div>
-                            <!-- Rejected -->
-                            <div th:if="${app.rejected}" class="step rejected">
-                                <div class="step-dot rejected-dot"></div>
-                                <span class="step-label">Rejected</span>
+
+                            <div class="timeline-steps">
+
+                                <!-- 0: Applied -->
+                                <div th:class="'step' + (${app.statusIndex >= 0} ? ' done' : '')">
+                                    <div class="step-dot"></div>
+                                    <span class="step-label">Applied</span>
+                                </div>
+
+                                <!-- 1: OA Sent -->
+                                <div th:class="'step' + (${app.statusIndex >= 1} ? ' done' : '')">
+                                    <div class="step-dot"></div>
+                                    <span class="step-label">OA Sent</span>
+                                </div>
+
+                                <!-- 2: OA Completed -->
+                                <div th:class="'step' + (${app.statusIndex >= 2} ? ' done' : '')">
+                                    <div class="step-dot"></div>
+                                    <span class="step-label">OA Completed</span>
+                                </div>
+
+                                <!-- 3: Interview -->
+                                <div th:class="'step' + (${app.statusIndex >= 3} ? ' done' : '')">
+                                    <div class="step-dot"></div>
+                                    <span class="step-label">Interview</span>
+                                </div>
+
+                                <!-- 4: Selected -->
+                                <div th:class="'step' + (${app.statusIndex >= 4} ? ' done' : '')">
+                                    <div class="step-dot"></div>
+                                    <span class="step-label">Selected</span>
+                                </div>
+
+                                <!-- 5: Offer -->
+                                <div th:class="'step' + (${app.statusIndex >= 5} ? ' done' : '')">
+                                    <div class="step-dot"></div>
+                                    <span class="step-label">Offer</span>
+                                </div>
+
+                                <!-- ❌ Rejected -->
+                                <div th:if="${app.status != null and (app.status.name() == 'REJECTED' or app.status.name() == 'OFFER_REJECTED')}"
+                                    class="step rejected">
+                                    <div class="step-dot rejected-dot"></div>
+                                    <span class="step-label">Rejected</span>
+                                </div>
+
                             </div>
                         </div>
                     </div>
