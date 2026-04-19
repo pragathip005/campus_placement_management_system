@@ -11,7 +11,6 @@ public class Opportunity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer opportunity_id;
-
     private String name;
     private String role;
     private String type;
@@ -35,6 +34,15 @@ public class Opportunity {
 
     @Column(name = "shortlisting_success_rate")
     private Double shortlistingSuccessRate;
+
+    @Column(name = "oa_date")
+    private LocalDateTime oaDate;
+
+    @Column(name = "interview_date")
+    private LocalDateTime interviewDate;
+
+    @Column(name = "has_oa")
+    private Boolean hasOa;
 
     @ElementCollection
     @CollectionTable(name = "opportunity_eligible_branches", joinColumns = @JoinColumn(name = "opportunity_id"))
@@ -73,6 +81,9 @@ public class Opportunity {
     public Integer getVacancies() { return vacancies; }
     public Double getShortlistingSuccessRate() { return shortlistingSuccessRate; }
     public List<String> getEligibleBranches() { return eligibleBranches; }
+    public LocalDateTime getOaDate() { return oaDate; }
+    public LocalDateTime getInterviewDate() { return interviewDate; }
+    public Boolean getHasOa() { return hasOa; }
 
     // Setters (for builder pattern)
     public void setName(String name) { this.name = name; }
@@ -90,4 +101,7 @@ public class Opportunity {
     public void setVacancies(Integer vacancies) { this.vacancies = vacancies; }
     public void setShortlistingSuccessRate(Double shortlistingSuccessRate) { this.shortlistingSuccessRate = shortlistingSuccessRate; }
     public void setEligibleBranches(List<String> eligibleBranches) { this.eligibleBranches = eligibleBranches; }
-}
+    public void setOaDate(LocalDateTime oaDate) { this.oaDate = oaDate; }
+    public void setInterviewDate(LocalDateTime interviewDate) { this.interviewDate = interviewDate; }
+    public void setHasOa(Boolean hasOa) { this.hasOa = hasOa; }
+}  

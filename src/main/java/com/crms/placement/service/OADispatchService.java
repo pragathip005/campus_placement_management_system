@@ -1,13 +1,15 @@
 package com.crms.placement.service;
+
 import org.springframework.transaction.annotation.Transactional;
 import com.crms.placement.dto.OADispatchResponseDTO;
 import com.crms.placement.model.Application;
 import com.crms.placement.model.ApplicationStatus;
 import com.crms.placement.model.OnlineAssessment;
+import com.crms.placement.model.Opportunity;
 import com.crms.placement.repository.ApplicationRepository;
 import com.crms.placement.repository.OnlineAssessmentRepository;
+import com.crms.placement.repository.OpportunityRepository;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
 
 import java.util.List;
 
@@ -17,20 +19,24 @@ public class OADispatchService {
     private final ApplicationRepository applicationRepository;
     private final OnlineAssessmentRepository onlineAssessmentRepository;
     private final EligibilityChecker eligibilityChecker;
+    private final OpportunityRepository opportunityRepository;
 
     public OADispatchService(ApplicationRepository applicationRepository,
                              OnlineAssessmentRepository onlineAssessmentRepository,
-                             EligibilityChecker eligibilityChecker) {
+                             EligibilityChecker eligibilityChecker,
+                             OpportunityRepository opportunityRepository) {
         this.applicationRepository = applicationRepository;
         this.onlineAssessmentRepository = onlineAssessmentRepository;
         this.eligibilityChecker = eligibilityChecker;
+        this.opportunityRepository = opportunityRepository;
     }
 
-    /**
-     * Dispatch OA to eligible APPLIED students for a given opportunity
-     */
     @Transactional
     public OADispatchResponseDTO dispatchOA(Integer opportunityId) {
+
+        // ✅ Fetch opportunity to get oaDate
+        Opportunity opportunity = opportunityRepository.findById(opportunityId)
+                .orElseThrow(() -> new RuntimeException("Opportunity not found: " + opportunityId));
 
         List<Application> applications =
                 applicationRepository.findByOpportunityIdAndStatus(
@@ -70,7 +76,7 @@ public class OADispatchService {
             oa.setApplication(application);
             oa.setOaLink("https://oa-platform.com/test/" + application.getApplicationId());
             oa.setCompleted(false);
-            
+            oa.setScheduledAt(opportunity.getOaDate()); // ✅ set from opportunity
 
             onlineAssessmentRepository.save(oa);
 
@@ -78,7 +84,8 @@ public class OADispatchService {
             application.setStatus(ApplicationStatus.OA_SENT);
             applicationRepository.save(application);
 
-            System.out.println("OA sent to studentId=" + application.getStudentId());
+            System.out.println("OA dispatched to studentId=" + application.getStudentId()
+                    + " scheduledAt=" + opportunity.getOaDate());
 
             dispatched++;
         }

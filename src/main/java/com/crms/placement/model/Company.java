@@ -12,6 +12,11 @@ public class Company {
 
     private String name;
 
+    private String industry;
+
+    @Column(name = "email")
+    private String email;
+
     public Company() {}
 
     public Company(String name) {
@@ -24,4 +29,10 @@ public class Company {
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+
+    public String getIndustry() { return industry; }
+    public void setIndustry(String industry) { this.industry = industry; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 }
