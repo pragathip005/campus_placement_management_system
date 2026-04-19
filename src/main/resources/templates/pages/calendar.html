@@ -164,6 +164,64 @@
                 d.appendChild(document.createTextNode(str));
                 return d.innerHTML;
             }
+
+            // ── Observer Pattern (frontend side) ─────────────────────────────────
+            // Poll /api/calendar/updates every 30 seconds.
+            // When new events arrive, add them to the live FullCalendar instance
+            // and refresh the upcoming list — no page reload needed.
+
+            const POLL_INTERVAL = 30000;
+
+            function pollForUpdates() {
+                fetch('/api/calendar/updates')
+                    .then(res => res.json())
+                    .then(newEvents => {
+                        if (!newEvents || newEvents.length === 0) return;
+
+                        newEvents.forEach(ev => {
+                            calendar.addEvent({
+                                title:           ev.title,
+                                start:           ev.start,
+                                end:             ev.end  || undefined,
+                                backgroundColor: ev.color,
+                                borderColor:     ev.color,
+                                extendedProps: {
+                                    type:        ev.type,
+                                    companyName: ev.companyName,
+                                    status:      ev.status
+                                }
+                            });
+                        });
+
+                        // Rebuild upcoming list with fresh full event set
+                        refreshUpcomingEvents();
+
+                        showToast('Your calendar has been updated with new events!');
+                    })
+                    .catch(err => console.error('Calendar sync error:', err));
+            }
+
+            function refreshUpcomingEvents() {
+                fetch('/api/calendar/events')
+                    .then(res => res.json())
+                    .then(events => buildUpcomingList(events))
+                    .catch(() => {});
+            }
+
+            function showToast(message) {
+                const toast = document.createElement('div');
+                toast.className = 'calendar-toast';
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.classList.add('show'), 100);
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 400);
+                }, 3500);
+            }
+
+            // Start polling after initial page load
+            setInterval(pollForUpdates, POLL_INTERVAL);
         });
         </script>
     </th:block>
