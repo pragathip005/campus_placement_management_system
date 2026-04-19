@@ -26,4 +26,18 @@ public interface NotificationService {
     void sendStatusUpdate(String toEmail, String studentName,
                           String status, String companyName,
                           String fromEmail);
+
+    /**
+     * Observer Pattern: Notify student of their assigned interview slot.
+     * Called by SlotAllocationService; this service acts as the observer.
+     *
+     * @param toEmail      student's email
+     * @param studentName  student's name
+     * @param companyName  company name
+     * @param role         job role
+     * @param slotTime     formatted slot date/time string
+     */
+    void notifySlotAssigned(String toEmail, String studentName,
+                             String companyName, String role,
+                             String slotTime);
 }
