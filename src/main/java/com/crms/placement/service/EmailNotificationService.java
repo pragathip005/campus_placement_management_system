@@ -77,6 +77,27 @@ public class EmailNotificationService implements NotificationService {
             """.formatted(studentName, companyName, oaDate, oaLink, oaLink, companyName);
     }
 
+    @Override
+    public void notifySlotAssigned(String toEmail, String studentName,
+                                    String companyName, String role,
+                                    String slotTime) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setFrom(senderEmail, companyName + " Recruitment");
+            helper.setTo(toEmail);
+            helper.setSubject("Interview Slot Confirmed - " + companyName);
+            helper.setText(buildSlotEmailBody(studentName, companyName, role, slotTime), true);
+
+            mailSender.send(message);
+            System.out.println("✅ Slot notification sent to " + toEmail);
+
+        } catch (Exception e) {
+            System.out.println("❌ Failed to send slot email to " + toEmail + ": " + e.getMessage());
+        }
+    }
+
     private String buildStatusEmailBody(String studentName, String companyName, String status) {
         return """
             <html>
@@ -89,5 +110,23 @@ public class EmailNotificationService implements NotificationService {
             </body>
             </html>
             """.formatted(studentName, companyName, status, companyName);
+    }
+
+    private String buildSlotEmailBody(String studentName, String companyName,
+                                       String role, String slotTime) {
+        return """
+            <html>
+            <body>
+                <p>Dear %s,</p>
+                <p>Congratulations! You have been shortlisted for an interview at <strong>%s</strong>.</p>
+                <p><strong>Role:</strong> %s</p>
+                <p><strong>Interview Slot:</strong> %s</p>
+                <p>Please be present 15 minutes before your scheduled time. Carry a printed copy of your resume.</p>
+                <br/>
+                <p>Best of luck!</p>
+                <p><strong>%s Recruitment Team</strong></p>
+            </body>
+            </html>
+            """.formatted(studentName, companyName, role, slotTime, companyName);
     }
 }
