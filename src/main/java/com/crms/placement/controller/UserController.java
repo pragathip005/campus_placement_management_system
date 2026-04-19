@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.mindrot.jbcrypt.BCrypt;
 import com.crms.placement.service.SupabaseService;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class UserController {
@@ -52,7 +53,8 @@ public class UserController {
             @RequestParam String phone,
             @RequestParam(required = false) MultipartFile resumeFile,
             @RequestParam(required = false) String password,
-            HttpSession session
+            HttpSession session,
+            RedirectAttributes redirectAttributes
     ) {
 
         System.out.println("UPLOAD HIT"); // 🔥 ADD THIS HERE
@@ -64,7 +66,17 @@ public class UserController {
                 .orElseThrow(() -> new RuntimeException("Student not found"));
         // update phone
         student.setPhone(phone);
-        // 🔥 NEW: resume upload logic
+        
+        //resume upload logic
+        String contentType = resumeFile.getContentType();
+
+        if (contentType == null || 
+        (!contentType.equals("application/pdf") &&
+            !contentType.equals("application/msword") &&
+            !contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document"))) {
+            throw new IllegalArgumentException("Only PDF/DOC/DOCX allowed");
+        }
+
         System.out.println("File received: " + 
         (resumeFile != null ? resumeFile.getOriginalFilename() : "NULL"));
         if (resumeFile != null && !resumeFile.isEmpty()) {
@@ -84,6 +96,7 @@ public class UserController {
             userRepository.save(user);
         }
 
+        redirectAttributes.addFlashAttribute("success", "Profile updated!");
         return "redirect:/profile";
     }
 }

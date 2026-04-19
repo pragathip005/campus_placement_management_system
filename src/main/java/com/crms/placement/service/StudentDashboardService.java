@@ -77,27 +77,21 @@ public class StudentDashboardService {
             }
 
             // ── Timeline mapping ──────────────────────────────────
-            // Your statuses: APPLIED | ACCEPTED | REJECTED | OFFERED
-            // Steps shown:   Applied(0) → Shortlisted(1) → Offered(2) → [Placed/Rejected]
+            // APPLIED → OA_SENT → OA_COMPLETED → INTERVIEW → SELECTED → OFFER OUTCOME
 
             String status = app.getStatus() == null ? "" : app.getStatus().name();
-            boolean rejected = status.equals("REJECTED");
-            dto.setRejected(rejected);
             int idx;
             switch (status) {
                 case "APPLIED" -> idx = 0;
-                case "ELIGIBLE" -> idx = 1;
-                case "OA_SENT" -> idx = 2;
-                case "TEST_COMPLETED" -> idx = 3;
-                case "SHORTLISTED" -> idx = 4;
-                case "INTERVIEW_SCHEDULED", "INTERVIEW_DONE" -> idx = 5;
-                case "OFFERED" -> idx = 6;
-                case "ACCEPTED" -> idx = 7;
-                case "REJECTED" -> idx = 0;
+                case "OA_SENT" -> idx = 1;
+                case "OA_COMPLETED" -> idx = 2;
+                case "INTERVIEW" -> idx = 3;
+                case "SELECTED" -> idx = 4;
+                case "OFFER_ACCEPTED", "OFFER_REJECTED", "REJECTED" -> idx = 5;
                 default -> idx = 0;
             }
             dto.setStatusIndex(idx);
-            dto.setProgressPercent((idx * 100) / 7);
+            dto.setProgressPercent((idx * 100) / 5);
 
             return dto;
         }).collect(Collectors.toList());
@@ -110,20 +104,24 @@ public class StudentDashboardService {
 
     /** Shortlisted = ACCEPTED + OFFERED */
     public long getShortlistedCount(Integer studentId) {
-    return applicationRepository.countByStudentIdAndStatusIn(
+        return applicationRepository.countByStudentIdAndStatusIn(
         studentId,
         List.of(
-            ApplicationStatus.SHORTLISTED,
-            ApplicationStatus.INTERVIEW_SCHEDULED,
-            ApplicationStatus.INTERVIEW_DONE,
-            ApplicationStatus.OFFERED,
-            ApplicationStatus.ACCEPTED
+            ApplicationStatus.INTERVIEW,
+            ApplicationStatus.SELECTED,
+            ApplicationStatus.OFFER_ACCEPTED
         )
     );
 }
 
     /** OA Pending = APPLIED (update if you add OA_SENT status later) */
     public long getOaPendingCount(Integer studentId) {
-        return applicationRepository.countOaPendingByStudentId(studentId);
+        return applicationRepository.countByStudentIdAndStatusIn(
+        studentId,
+        List.of(
+            ApplicationStatus.APPLIED,
+            ApplicationStatus.OA_SENT
+        )
+    );
     }
 }

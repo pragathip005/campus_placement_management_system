@@ -5,7 +5,7 @@ import com.crms.placement.repository.CompanyRepository;
 import com.crms.placement.repository.StudentRepository;
 import com.crms.placement.service.OpportunityService;
 import jakarta.servlet.http.HttpSession;
-import com.crms.placement.service.SupabaseStorageService;
+import com.crms.placement.service.SupabaseService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,15 +22,20 @@ public class HrDashboardController {
     private final OpportunityService opportunityService;
     private final CompanyRepository companyRepository;
     private final StudentRepository studentRepository;
-    private final SupabaseStorageService supabaseStorageService;
+    private final SupabaseService supabaseService;
 
 
-    public HrDashboardController(OpportunityService opportunityService, CompanyRepository companyRepository, StudentRepository studentRepository, SupabaseStorageService supabaseStorageService) {
-        this.opportunityService = opportunityService;
-        this.companyRepository = companyRepository;
-        this.studentRepository = studentRepository;
-        this.supabaseStorageService = supabaseStorageService;
-    }
+    public HrDashboardController(
+        OpportunityService opportunityService,
+        CompanyRepository companyRepository,
+        StudentRepository studentRepository,
+        SupabaseService supabaseService) {
+
+    this.opportunityService = opportunityService;
+    this.companyRepository = companyRepository;
+    this.studentRepository = studentRepository;
+    this.supabaseService = supabaseService;
+        }
 
     // =====================================================
     // ✅ KEEP YOUR ORIGINAL SESSION-BASED DASHBOARD (FIXED)
@@ -133,7 +138,7 @@ public class HrDashboardController {
 
             String uploadedJdUrl = null;
             if (jdPdf != null && !jdPdf.isEmpty()) {
-                uploadedJdUrl = supabaseStorageService.uploadFile(jdPdf);
+                uploadedJdUrl = supabaseService.uploadJobDescription(jdPdf);
             }
 
             // GRASP: Creator (OpportunityBuilder creates Opportunity)
@@ -208,7 +213,7 @@ public class HrDashboardController {
                 details.put("student", student);
                 applicantDetails.add(details);
 
-                if (app.getStatus() == ApplicationStatus.TEST_COMPLETED) {
+                if (app.getStatus() == ApplicationStatus.OA_COMPLETED) {
                     Map<String, Object> rankEntry = new HashMap<>();
                     rankEntry.put("application", app);
                     rankEntry.put("student", student);

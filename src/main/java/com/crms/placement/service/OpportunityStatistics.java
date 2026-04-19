@@ -19,8 +19,8 @@ public class OpportunityStatistics {
         if (total == 0) return 0;
 
         long selected = applicationRepository.countByOpportunityIdAndStatus(
-                opportunityId, ApplicationStatus.SHORTLISTED
-);
+                opportunityId, ApplicationStatus.SELECTED
+        );
 
         return (selected * 100.0) / total;
     }
@@ -30,15 +30,15 @@ public class OpportunityStatistics {
         long total = applicationRepository.countByOpportunityId(opportunityId);
 
         long selected = applicationRepository.countByOpportunityIdAndStatus(
-                opportunityId, ApplicationStatus.SHORTLISTED
+                opportunityId, ApplicationStatus.SELECTED
         );
 
         long offerAccepted = applicationRepository.countByOpportunityIdAndStatus(
-                opportunityId, ApplicationStatus.ACCEPTED
+                opportunityId, ApplicationStatus.OFFER_ACCEPTED
         );
 
         long offerRejected = applicationRepository.countByOpportunityIdAndStatus(
-                opportunityId, ApplicationStatus.REJECTED
+                opportunityId, ApplicationStatus.OFFER_REJECTED
         );
 
         long rejected = applicationRepository.countByOpportunityIdAndStatus(
@@ -47,11 +47,9 @@ public class OpportunityStatistics {
 
         long pending =
                 applicationRepository.countByOpportunityIdAndStatus(opportunityId, ApplicationStatus.APPLIED)
-        + applicationRepository.countByOpportunityIdAndStatus(opportunityId, ApplicationStatus.ELIGIBLE)
-        + applicationRepository.countByOpportunityIdAndStatus(opportunityId, ApplicationStatus.OA_SENT)
-        + applicationRepository.countByOpportunityIdAndStatus(opportunityId, ApplicationStatus.TEST_COMPLETED)
-        + applicationRepository.countByOpportunityIdAndStatus(opportunityId, ApplicationStatus.INTERVIEW_SCHEDULED)
-        + applicationRepository.countByOpportunityIdAndStatus(opportunityId, ApplicationStatus.INTERVIEW_DONE);
+              + applicationRepository.countByOpportunityIdAndStatus(opportunityId, ApplicationStatus.OA_SENT)
+              + applicationRepository.countByOpportunityIdAndStatus(opportunityId, ApplicationStatus.OA_COMPLETED)
+              + applicationRepository.countByOpportunityIdAndStatus(opportunityId, ApplicationStatus.INTERVIEW);
 
         return new ApplicationStatisticsDTO(
                 total,

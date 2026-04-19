@@ -16,7 +16,9 @@
 
     <section class="profile-page">
         <h2>My Profile</h2>
-
+        <div th:if="${success}" class="alert-success">
+            <p th:text="${success}"></p>
+        </div>
         <form action="/profile/update" method="post" enctype="multipart/form-data">
             <div class="form-grid">
                 <div>
