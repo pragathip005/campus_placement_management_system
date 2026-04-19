@@ -39,7 +39,7 @@ public class JobController {
     @GetMapping("/job-board")
     public String jobBoard(Model model) {
         // For now, using hardcoded student. In production, get from session/auth
-        Integer studentId = 1;
+        Integer studentId = 10;
 
         var jobs = service.getAllJobs();
         var jobsWithStatus = jobs.stream().map(job -> {
@@ -114,7 +114,7 @@ public class JobController {
 
         try {
             // For now, using hardcoded student ID. In production, get from session/auth
-            Integer studentId = 1;
+            Integer studentId = 10;
 
             System.out.println("🔥 APPLY ENDPOINT HIT - studentId: " + studentId + ", opportunityId: " + id);
 
