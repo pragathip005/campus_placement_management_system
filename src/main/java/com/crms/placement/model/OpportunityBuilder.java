@@ -21,6 +21,13 @@ public class OpportunityBuilder {
     private Integer vacancies;
     private LocalDateTime applicationDeadline;
     private Company company;
+    private Integer duration;
+    private LocalDateTime oaDate;
+    private LocalDateTime interviewDate;
+    private Boolean hasOA;
+    private Boolean hasInterview;
+    private Double shortlistingSuccessRate;
+    private java.util.List<String> eligibleBranches;
 
     // Builder methods
     public OpportunityBuilder withName(String name) {
@@ -88,6 +95,41 @@ public class OpportunityBuilder {
         return this;
     }
 
+    public OpportunityBuilder withDuration(Integer duration) {
+        this.duration = duration;
+        return this;
+    }
+
+    public OpportunityBuilder withOaDate(LocalDateTime oaDate) {
+        this.oaDate = oaDate;
+        return this;
+    }
+
+    public OpportunityBuilder withInterviewDate(LocalDateTime interviewDate) {
+        this.interviewDate = interviewDate;
+        return this;
+    }
+
+    public OpportunityBuilder withHasOA(Boolean hasOA) {
+        this.hasOA = hasOA;
+        return this;
+    }
+
+    public OpportunityBuilder withHasInterview(Boolean hasInterview) {
+        this.hasInterview = hasInterview;
+        return this;
+    }
+
+    public OpportunityBuilder withShortlistingSuccessRate(Double shortlistingSuccessRate) {
+        this.shortlistingSuccessRate = shortlistingSuccessRate;
+        return this;
+    }
+
+    public OpportunityBuilder withEligibleBranches(java.util.List<String> eligibleBranches) {
+        this.eligibleBranches = eligibleBranches;
+        return this;
+    }
+
     /**
      * Builds the Opportunity object with the configured fields.
      * @return Constructed Opportunity object
@@ -115,6 +157,13 @@ public class OpportunityBuilder {
         opportunity.setVacancies(vacancies != null ? vacancies : 1);
         opportunity.setApplicationDeadline(applicationDeadline);
         opportunity.setCompany(company);
+        opportunity.setDuration(duration);
+        opportunity.setOaDate(oaDate);
+        opportunity.setInterviewDate(interviewDate);
+        opportunity.setHasOA(hasOA != null ? hasOA : Boolean.FALSE);
+        opportunity.setHasInterview(hasInterview != null ? hasInterview : Boolean.FALSE);
+        opportunity.setShortlistingSuccessRate(shortlistingSuccessRate);
+        opportunity.setEligibleBranches(eligibleBranches);
 
         return opportunity;
     }
