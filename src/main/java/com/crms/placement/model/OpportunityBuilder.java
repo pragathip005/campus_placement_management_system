@@ -160,7 +160,7 @@ public class OpportunityBuilder {
         opportunity.setDuration(duration);
         opportunity.setOaDate(oaDate);
         opportunity.setInterviewDate(interviewDate);
-        opportunity.setHasOA(hasOA != null ? hasOA : Boolean.FALSE);
+        opportunity.setHasOa(hasOA != null ? hasOA : Boolean.FALSE);
         opportunity.setHasInterview(hasInterview != null ? hasInterview : Boolean.FALSE);
         opportunity.setShortlistingSuccessRate(shortlistingSuccessRate);
         opportunity.setEligibleBranches(eligibleBranches);
