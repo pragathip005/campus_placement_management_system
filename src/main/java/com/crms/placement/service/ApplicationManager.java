@@ -81,4 +81,21 @@ public class ApplicationManager {
                 applicationRepository.findByStudentIdAndOpportunityId(studentId, opportunityId);
         return applications.isEmpty() ? null : applications.get(0);
     }
+
+    /**
+     * Get all applications for a specific opportunity (HR Use Case)
+     */
+    public List<Application> getApplicationsByOpportunityId(Integer opportunityId) {
+        return applicationRepository.findByOpportunityId(opportunityId);
+    }
+
+    /**
+     * Update application status (HR Use Case)
+     */
+    public void updateApplicationStatus(Integer applicationId, ApplicationStatus status) {
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Application not found"));
+        application.setStatus(status);
+        applicationRepository.save(application);
+    }
 }

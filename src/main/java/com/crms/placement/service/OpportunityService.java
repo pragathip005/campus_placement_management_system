@@ -99,5 +99,28 @@ public class OpportunityService {
     /**
      * Calculate shortlist success rate
      */
+
+    // ===== HR Management Methods =====
+
+    /**
+     * Create a new job opportunity
+     */
+    public Opportunity createOpportunity(Opportunity opportunity) {
+        return opportunityRepository.save(opportunity);
+    }
+
+    /**
+     * Get all applications for a specific job
+     */
+    public List<Application> getApplicantsByJob(Integer opportunityId) {
+        return applicationManager.getApplicationsByOpportunityId(opportunityId);
+    }
+
+    /**
+     * Update the status of an application
+     */
+    public void updateApplicationStatus(Integer applicationId, com.crms.placement.model.ApplicationStatus status) {
+        applicationManager.updateApplicationStatus(applicationId, status);
+    }
 }
 
