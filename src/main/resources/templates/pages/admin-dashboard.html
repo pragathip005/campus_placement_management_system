@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{fragments/layout :: layout('Admin Dashboard', ~{::content}, ~{::styles}, ~{::scripts})}">
+
+<head>
+    <th:block th:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/admin-dashboard.css}">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </th:block>
+
+    <th:block th:fragment="scripts">
+        <!-- Pass server-side stats into JS — Thymeleaf inlines the object as JSON -->
+        <script th:inline="javascript">
+            const stats = /*[[${stats}]]*/ {};
+
+            /* ── helpers ── */
+            function entries(obj) {
+                return obj ? Object.entries(obj) : [];
+            }
+
+            /* ── 1. Placements by Branch — horizontal bar ── */
+            (function () {
+                const data = stats.placementsByBranch || {};
+                const labels = Object.keys(data);
+                const values = Object.values(data);
+                new Chart(document.getElementById('branchChart'), {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: 'Students Placed',
+                            data: values,
+                            backgroundColor: '#3b82f6',
+                            borderRadius: 6,
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { color: '#f1f5f9' }, ticks: { stepSize: 1 } },
+                            y: { grid: { display: false } }
+                        }
+                    }
+                });
+            })();
+
+            /* ── 2. Offers by CTC Tier — doughnut ── */
+            (function () {
+                const data = stats.offersByCtcTier || {};
+                const labels = Object.keys(data);
+                const values = Object.values(data);
+                const total = values.reduce((a, b) => a + b, 0);
+                new Chart(document.getElementById('tierChart'), {
+                    type: 'doughnut',
+                    data: {
+                        labels,
+                        datasets: [{
+                            data: values,
+                            backgroundColor: ['#3b82f6', '#22c55e', '#f97316', '#ef4444'],
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '65%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: { size: 12 },
+                                    generateLabels: (chart) => {
+                                        return chart.data.labels.map((label, i) => ({
+                                            text: `${label}  ${total > 0 ? Math.round(chart.data.datasets[0].data[i] * 100 / total) : 0}%`,
+                                            fillStyle: chart.data.datasets[0].backgroundColor[i],
+                                            index: i
+                                        }));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            })();
+
+            /* ── 3. Monthly Hiring Trend — vertical bar with gradient ── */
+            (function () {
+                const data = stats.monthlyPlacementTrend || {};
+                const labels = Object.keys(data);
+                const values = Object.values(data);
+                const ctx = document.getElementById('trendChart').getContext('2d');
+                const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+                gradient.addColorStop(0, '#3b82f6');
+                gradient.addColorStop(1, '#93c5fd');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: 'Offers',
+                            data: values,
+                            backgroundColor: gradient,
+                            borderRadius: 6,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { grid: { color: '#f1f5f9' }, ticks: { stepSize: 1 } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            })();
+
+            /* ── 4. Application Pipeline — horizontal bar ── */
+            (function () {
+                const pipeline = stats.applicationPipeline || {};
+                const maxVal = Math.max(...Object.values(pipeline), 1);
+                const container = document.getElementById('pipelineBars');
+                if (!container) return;
+
+                const colors = {
+                    APPLIED: '#3b82f6', OA_SENT: '#8b5cf6', OA_COMPLETED: '#06b6d4',
+                    INTERVIEW: '#f59e0b', SELECTED: '#22c55e',
+                    OFFER_ACCEPTED: '#16a34a', REJECTED: '#ef4444', OFFER_REJECTED: '#f97316'
+                };
+
+                Object.entries(pipeline).forEach(([status, count]) => {
+                    const pct = Math.round((count / maxVal) * 100);
+                    const label = status.replace(/_/g, ' ').toLowerCase();
+                    container.innerHTML += `
+                        <div class="pipeline-item">
+                            <span class="pipeline-label">${label}</span>
+                            <div class="pipeline-bar-track">
+                                <div class="pipeline-bar-fill"
+                                     style="width:${pct}%; background:${colors[status] || '#3b82f6'}"></div>
+                            </div>
+                            <span class="pipeline-count">${count}</span>
+                        </div>`;
+                });
+            })();
+
+            /* ── Modal helpers ── */
+            function openModal(title, bodyHtml) {
+                document.getElementById('modalTitle').textContent = title;
+                document.getElementById('modalBody').innerHTML = bodyHtml;
+                const overlay = document.getElementById('modalOverlay');
+                overlay.style.display = 'flex';
+            }
+            function closeModal() {
+                document.getElementById('modalOverlay').style.display = 'none';
+            }
+
+            function showPlacedStudents() {
+                const students = stats.placedStudentsList || [];
+                if (!students.length) {
+                    openModal('Students Placed', '<p style="color:#94a3b8;">No placed students yet.</p>');
+                    return;
+                }
+                const rows = students.map(s => `
+                    <tr>
+                        <td style="padding:10px 8px; border-bottom:1px solid #f1f5f9; font-weight:500;">${s.name}</td>
+                        <td style="padding:10px 8px; border-bottom:1px solid #f1f5f9; color:#64748b;">${s.branch}</td>
+                        <td style="padding:10px 8px; border-bottom:1px solid #f1f5f9; color:#334155;">${s.companyName}</td>
+                        <td style="padding:10px 8px; border-bottom:1px solid #f1f5f9; color:#16a34a; font-weight:600;">${s.ctcLpa} LPA</td>
+                    </tr>`).join('');
+                openModal(`Placed Students (${students.length})`, `
+                    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                        <thead>
+                            <tr style="color:#94a3b8; font-size:11px; text-transform:uppercase;">
+                                <th style="padding:6px 8px; text-align:left;">Name</th>
+                                <th style="padding:6px 8px; text-align:left;">Branch</th>
+                                <th style="padding:6px 8px; text-align:left;">Company</th>
+                                <th style="padding:6px 8px; text-align:left;">CTC</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>`);
+            }
+
+            function showCompanies() {
+                const companies = stats.companiesList || [];
+                if (!companies.length) {
+                    openModal('Companies Visited', '<p style="color:#94a3b8;">No companies found.</p>');
+                    return;
+                }
+                const rows = companies.map(c => `
+                    <tr>
+                        <td style="padding:10px 8px; border-bottom:1px solid #f1f5f9; font-weight:500;">${c.name}</td>
+                        <td style="padding:10px 8px; border-bottom:1px solid #f1f5f9; color:#64748b;">${c.industry}</td>
+                    </tr>`).join('');
+                openModal(`Companies Visited (${companies.length})`, `
+                    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                        <thead>
+                            <tr style="color:#94a3b8; font-size:11px; text-transform:uppercase;">
+                                <th style="padding:6px 8px; text-align:left;">Company</th>
+                                <th style="padding:6px 8px; text-align:left;">Industry</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>`);
+            }
+        </script>
+    </th:block>
+</head>
+
+<body>
+<th:block th:fragment="content">
+<div class="main-content" style="padding: 28px; background: #f8fafc; min-height: 100vh;">
+
+    <!-- Modal Overlay -->
+    <div id="modalOverlay" onclick="closeModal()"
+         style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4);
+                z-index:999; align-items:center; justify-content:center;">
+        <div onclick="event.stopPropagation()"
+             style="background:white; border-radius:16px; padding:28px; width:540px;
+                    max-height:80vh; overflow-y:auto; box-shadow:0 8px 32px rgba(0,0,0,0.18); position:relative;">
+            <button onclick="closeModal()"
+                    style="position:absolute; top:16px; right:16px; border:none; background:none;
+                           font-size:20px; cursor:pointer; color:#94a3b8; line-height:1;">✕</button>
+            <h3 id="modalTitle" style="font-size:16px; font-weight:700; color:#0f172a; margin-bottom:16px;"></h3>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>Placement Cell Dashboard</h1>
+        <p>Real-time placement statistics and hiring trends</p>
+    </div>
+
+    <!-- ── Row 1: Stat Cards ── -->
+    <div class="dashboard-grid">
+
+        <div class="card">
+            <div class="stat-icon">🎓</div>
+            <div class="stat-label">Total Students</div>
+            <div class="stat-value" th:text="${stats.totalStudents}">0</div>
+            <div class="stat-sub neutral">Registered for placements</div>
+        </div>
+
+        <div class="card" onclick="showPlacedStudents()"
+             style="cursor:pointer; transition:box-shadow 0.2s;"
+             onmouseover="this.style.boxShadow='0 4px 20px rgba(59,130,246,0.2)'"
+             onmouseout="this.style.boxShadow='0 2px 12px rgba(0,0,0,0.07)'">
+            <div class="stat-icon">✅</div>
+            <div class="stat-label">Students Placed</div>
+            <div class="stat-value" th:text="${stats.totalPlaced}">0</div>
+            <div class="stat-sub" th:text="${stats.placementPercentage + '% placement rate'}">0%</div>
+            <div style="font-size:11px; color:#3b82f6; margin-top:6px;">Click to view names →</div>
+        </div>
+
+        <div class="card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-label">Average CTC</div>
+            <div class="stat-value"
+                 th:text="${#numbers.formatDecimal(stats.averageCtcLpa, 1, 1) + ' LPA'}">0 LPA</div>
+            <div class="stat-sub"
+                 th:text="'Highest: ' + ${#numbers.formatDecimal(stats.highestCtcLpa, 1, 1)} + ' LPA'">0 LPA</div>
+        </div>
+
+        <div class="card" onclick="showCompanies()"
+             style="cursor:pointer; transition:box-shadow 0.2s;"
+             onmouseover="this.style.boxShadow='0 4px 20px rgba(59,130,246,0.2)'"
+             onmouseout="this.style.boxShadow='0 2px 12px rgba(0,0,0,0.07)'">
+            <div class="stat-icon">🏢</div>
+            <div class="stat-label">Companies Visited</div>
+            <div class="stat-value" th:text="${stats.totalCompanies}">0</div>
+            <div class="stat-sub neutral"
+                 th:text="${stats.offerAcceptanceRate + '% offer acceptance rate'}">—</div>
+            <div style="font-size:11px; color:#3b82f6; margin-top:6px;">Click to view list →</div>
+        </div>
+
+    </div>
+
+    <!-- ── Row 2: Branch Bar + CTC Tier Doughnut ── -->
+    <div class="charts-row">
+
+        <div class="card">
+            <div class="card-title">Placements by Branch</div>
+            <div class="chart-wrapper tall">
+                <canvas id="branchChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Offers by CTC Tier</div>
+            <div style="display:flex; gap:12px; margin-bottom:10px; font-size:12px; flex-wrap:wrap;">
+                <span><span style="color:#3b82f6">●</span> Dream (≥15 LPA)</span>
+                <span><span style="color:#22c55e">●</span> Tier 1 (10–15 LPA)</span>
+                <span><span style="color:#f97316">●</span> Tier 2 (6–10 LPA)</span>
+                <span><span style="color:#ef4444">●</span> Tier 3 (&lt;6 LPA)</span>
+            </div>
+            <div class="chart-wrapper tall">
+                <canvas id="tierChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── Row 3: Top Companies Table + Monthly Trend ── -->
+    <div class="bottom-row">
+
+        <div class="card">
+            <div class="card-title">Top Hiring Companies</div>
+            <table class="companies-table">
+                <thead>
+                    <tr>
+                        <th>Company</th>
+                        <th>Offers</th>
+                        <th>Avg CTC</th>
+                        <th>Tier</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="c : ${stats.topHiringCompanies}">
+                        <td th:text="${c.companyName}">—</td>
+                        <td th:text="${c.offerCount}">0</td>
+                        <td th:text="${#numbers.formatDecimal(c.avgCtcLpa, 1, 1) + ' LPA'}">—</td>
+                        <td>
+                            <span class="tier-badge"
+                                  th:classappend="${c.tier == 'Dream'  ? 'tier-dream' :
+                                                   c.tier == 'Tier 1' ? 'tier-1' :
+                                                   c.tier == 'Tier 2' ? 'tier-2' : 'tier-3'}"
+                                  th:text="${c.tier}">—</span>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(stats.topHiringCompanies)}">
+                        <td colspan="4" style="color:#94a3b8; text-align:center; padding:20px;">
+                            No offer data yet
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Monthly Hiring Trend</div>
+            <div class="chart-wrapper tall">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── Row 4: Application Pipeline (full width) ── -->
+    <div class="pipeline-row">
+        <div class="card">
+            <div class="card-title">Application Pipeline — All Stages</div>
+            <div id="pipelineBars" class="pipeline-bars"></div>
+        </div>
+    </div>
+
+</div>
+</th:block>
+</body>
+</html>

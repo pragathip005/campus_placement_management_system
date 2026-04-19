@@ -5,7 +5,7 @@
     <div class="logo">CRMS.</div>
 
     <ul class="nav">
-        <th:block th:if="${activePage != 'Alumni Dashboard' and activePage != 'HR Dashboard' and activePage != 'HR Applicants'}">
+        <th:block th:if="${activePage != 'Alumni Dashboard' and activePage != 'HR Dashboard' and activePage != 'HR Applicants' and activePage != 'Admin Dashboard'}">
             <li th:class="${activePage == 'Dashboard' ? 'active' : ''}"><a th:href="@{/dashboard}">Dashboard</a></li>
             <li th:class="${activePage == 'Job Board' ? 'active' : ''}"><a th:href="@{/job-board}">Job Board</a></li>
             <li th:class="${activePage == 'Calendar' ? 'active' : ''}"><a th:href="@{/calendar}">Calendar</a></li>
@@ -18,14 +18,17 @@
         <th:block th:if="${activePage == 'HR Dashboard' or activePage == 'HR Applicants'}">
             <li class="active"><a th:href="@{/hr/dashboard}">HR Dashboard</a></li>
         </th:block>
+        <th:block th:if="${activePage == 'Admin Dashboard'}">
+            <li class="active"><a th:href="@{/admin/dashboard}">Placement Statistics</a></li>
+        </th:block>
     </ul>
 
     <div class="user">
         <div class="user-profile">
-            <div class="user-avatar" th:text="${username != null ? #strings.substring(username, 0, 1) : (activePage == 'Alumni Dashboard' ? 'A' : (activePage == 'HR Dashboard' or activePage == 'HR Applicants' ? 'H' : 'U'))}">N</div>
+            <div class="user-avatar" th:text="${username != null ? #strings.substring(username, 0, 1) : (activePage == 'Alumni Dashboard' ? 'A' : (activePage == 'HR Dashboard' or activePage == 'HR Applicants' ? 'H' : (activePage == 'Admin Dashboard' ? 'A' : 'U')))}">N</div>
             <div class="user-info">
-                <h4 th:text="${username != null ? username : (activePage == 'Alumni Dashboard' ? 'Alumni User' : (activePage == 'HR Dashboard' or activePage == 'HR Applicants' ? 'HR Manager' : 'User Name'))}">User Name</h4>
-                <p th:text="${activePage == 'Alumni Dashboard' ? 'Alumni' : (activePage == 'HR Dashboard' or activePage == 'HR Applicants' ? 'HR' : 'Student')}">Student</p>
+                <h4 th:text="${username != null ? username : (activePage == 'Alumni Dashboard' ? 'Alumni User' : (activePage == 'HR Dashboard' or activePage == 'HR Applicants' ? 'HR Manager' : (activePage == 'Admin Dashboard' ? 'Placement Cell' : 'User Name')))}">User Name</h4>
+                <p th:text="${activePage == 'Alumni Dashboard' ? 'Alumni' : (activePage == 'HR Dashboard' or activePage == 'HR Applicants' ? 'HR' : (activePage == 'Admin Dashboard' ? 'Admin' : 'Student'))}">Student</p>
             </div>
         </div>
         <a th:href="@{/logout}">Logout</a>

@@ -34,4 +34,11 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
     @Query("SELECT a FROM Application a WHERE a.opportunity.company = :company AND a.status = :status")
     List<Application> findByCompanyAndStatus(@Param("company") Company company,
                                               @Param("status") ApplicationStatus status);
+
+    // Count all applications with a given status (used by StatisticsService)
+    long countByStatus(ApplicationStatus status);
+
+    // Eager-fetch opportunity + company for statistics aggregation (avoids N+1 queries)
+    @Query("SELECT a FROM Application a JOIN FETCH a.opportunity o JOIN FETCH o.company WHERE a.status = :status")
+    List<Application> findByStatusWithOpportunityAndCompany(@Param("status") ApplicationStatus status);
 }
