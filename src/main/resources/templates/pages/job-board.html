@@ -295,11 +295,16 @@ window.onclick = function(event) {
                 </div>
             </div>
 
-            <div class="salary" th:if="${job.type == 'INTERNSHIP'}" th:text="${#numbers.formatDecimal(job.stipend / 1000, 0, 1)} + ' K'">10 K</div>
-            <div class="salary" th:if="${job.type == 'FTE' || job.type == 'BOTH'}"
-                 th:text="${(job.ctc % 100000 == 0) ?
-                   (#numbers.formatDecimal(job.ctc / 100000, 0, 0)) :
-                   (#numbers.formatDecimal(job.ctc / 100000, 0, 1))} + ' LPA'">LPA</div>
+            <div class="salary" th:if="${job.type == 'INTERNSHIP'}">
+                Stipend: <span th:text="${job.stipend != null ? (#numbers.formatDecimal(job.stipend / 1000.0, 0, 1) + ' K/mo') : 'N/A'}"></span>
+            </div>
+            <div class="salary" th:if="${job.type == 'FTE'}">
+                CTC: <span th:text="${job.ctc != null ? ((job.ctc % 100000 == 0) ? (#numbers.formatDecimal(job.ctc / 100000, 0, 0)) : (#numbers.formatDecimal(job.ctc / 100000.0, 0, 1))) + ' LPA' : 'N/A'}"></span>
+            </div>
+            <div class="salary" th:if="${job.type == 'BOTH'}">
+                CTC: <span th:text="${job.ctc != null ? ((job.ctc % 100000 == 0) ? (#numbers.formatDecimal(job.ctc / 100000, 0, 0)) : (#numbers.formatDecimal(job.ctc / 100000.0, 0, 1))) + ' LPA' : 'N/A'}"></span> | 
+                Stipend: <span th:text="${job.stipend != null ? (#numbers.formatDecimal(job.stipend / 1000.0, 0, 1) + ' K/mo') : 'N/A'}"></span>
+            </div>
         </div>
 
         <!-- DESCRIPTION -->

@@ -5,6 +5,7 @@ import com.crms.placement.repository.CompanyRepository;
 import com.crms.placement.repository.StudentRepository;
 import com.crms.placement.service.OpportunityService;
 import jakarta.servlet.http.HttpSession;
+import com.crms.placement.service.SupabaseStorageService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,13 +22,14 @@ public class HrDashboardController {
     private final OpportunityService opportunityService;
     private final CompanyRepository companyRepository;
     private final StudentRepository studentRepository;
+    private final SupabaseStorageService supabaseStorageService;
 
-    public HrDashboardController(OpportunityService opportunityService,
-                                 CompanyRepository companyRepository,
-                                 StudentRepository studentRepository) {
+
+    public HrDashboardController(OpportunityService opportunityService, CompanyRepository companyRepository, StudentRepository studentRepository, SupabaseStorageService supabaseStorageService) {
         this.opportunityService = opportunityService;
         this.companyRepository = companyRepository;
         this.studentRepository = studentRepository;
+        this.supabaseStorageService = supabaseStorageService;
     }
 
     // =====================================================
@@ -99,11 +101,17 @@ public class HrDashboardController {
             @RequestParam String type,
             @RequestParam String description,
             @RequestParam String location,
-            @RequestParam Double ctc,
+            @RequestParam(required = false) Double ctc,
+            @RequestParam(required = false) Double stipend,
+            @RequestParam(required = false) Integer duration,
             @RequestParam Double minCgpa,
             @RequestParam Integer vacancies,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-            LocalDateTime applicationDeadline,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime applicationDeadline,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime oaDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime interviewDate,
+            @RequestParam(required = false) Double shortlistingSuccessRate,
+            @RequestParam(required = false) String eligibleBranches,
+            @RequestParam(required = false) org.springframework.web.multipart.MultipartFile jdPdf,
             RedirectAttributes redirectAttributes) {
 
         User user = (User) session.getAttribute("loggedInUser");
@@ -116,6 +124,20 @@ public class HrDashboardController {
             Company company = companyRepository.findById(user.getUserId())
                     .orElseThrow(() -> new RuntimeException("Company not found for HR"));
 
+            List<String> branchesList = new ArrayList<>();
+            if (eligibleBranches != null && !eligibleBranches.trim().isEmpty()) {
+                for (String branch : eligibleBranches.split(",")) {
+                    branchesList.add(branch.trim());
+                }
+            }
+
+            String uploadedJdUrl = null;
+            if (jdPdf != null && !jdPdf.isEmpty()) {
+                uploadedJdUrl = supabaseStorageService.uploadFile(jdPdf);
+            }
+
+            // GRASP: Creator (OpportunityBuilder creates Opportunity)
+            // Creational Pattern: Builder Pattern
             Opportunity newJob = Opportunity.builder()
                     .withName(name)
                     .withRole(role)
@@ -123,10 +145,19 @@ public class HrDashboardController {
                     .withDescription(description)
                     .withLocation(location)
                     .withCtc(ctc)
+                    .withStipend(stipend)
+                    .withDuration(duration)
                     .withMinCgpa(minCgpa)
                     .withVacancies(vacancies)
                     .withApplicationDeadline(applicationDeadline)
+                    .withOaDate(oaDate)
+                    .withInterviewDate(interviewDate)
+                    .withHasOA(oaDate != null)
+                    .withHasInterview(interviewDate != null)
+                    .withShortlistingSuccessRate(shortlistingSuccessRate)
+                    .withEligibleBranches(branchesList)
                     .withCompany(company)
+                    .withJdUrl(uploadedJdUrl)
                     .build();
 
             opportunityService.createOpportunity(newJob);
