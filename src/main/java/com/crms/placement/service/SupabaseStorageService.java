@@ -15,7 +15,7 @@ import java.util.UUID;
 @Service
 public class SupabaseStorageService {
 
-    @Value("${supabase.key}")
+    @Value("${supabase.apikey}")
     private String supabaseKey;
 
     private final String SUPABASE_PROJECT_URL = "https://dgqvsehwglhisstoogus.supabase.co";

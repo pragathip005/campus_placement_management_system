@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 public class Alumni {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)

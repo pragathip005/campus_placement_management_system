@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 public class Company {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer company_id;
 
     private String name;
