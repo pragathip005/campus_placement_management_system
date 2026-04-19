@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.mindrot.jbcrypt.BCrypt;
 import com.crms.placement.service.SupabaseService;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -91,8 +90,7 @@ public class UserController {
 
         // password update
         if (password != null && !password.isEmpty()) {
-            String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt(12));
-            user.setPassword(hashedPassword);
+            user.setPassword(password);
             userRepository.save(user);
         }
 

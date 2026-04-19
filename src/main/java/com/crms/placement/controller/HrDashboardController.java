@@ -41,59 +41,43 @@ public class HrDashboardController {
     // ✅ KEEP YOUR ORIGINAL SESSION-BASED DASHBOARD (FIXED)
     // =====================================================
     @GetMapping("/dashboard")
-    public String hrDashboard(HttpSession session, Model model) {
-
-        User user = (User) session.getAttribute("loggedInUser");
-
-        if (user == null || !user.getRole().equalsIgnoreCase("HR")) {
-            return "redirect:/login";
-        }
-
-        model.addAttribute("user", user);
-
-        // OPTIONAL: if HR company is tied to user later
-        return "pages/hr-dashboard";
+public String hrDashboard(HttpSession session, Model model) {
+    
+    User user = (User) session.getAttribute("loggedInUser");
+    
+    if (user == null || !user.getRole().equalsIgnoreCase("HR")) {
+        return "redirect:/login";
     }
-
-    // =====================================================
-    // ✅ JOB LISTING (NO HARDCODED COMPANY ID)
-    // =====================================================
-    @GetMapping("/jobs")
-    public String viewJobs(HttpSession session, Model model) {
-
-        User user = (User) session.getAttribute("loggedInUser");
-
-        if (user == null || !user.getRole().equalsIgnoreCase("HR")) {
-            return "redirect:/login";
-        }
-
-        List<Opportunity> allJobs = opportunityService.getAllJobs();
-        List<Map<String, Object>> activePostings = new ArrayList<>();
-
-        for (Opportunity job : allJobs) {
-
-            if (job.getCompany() == null) continue;
-
-            Map<String, Object> posting = new HashMap<>();
-            posting.put("job", job);
-
-            List<Application> applicants =
-                    opportunityService.getApplicantsByJob(job.getOpportunity_id());
-
-            posting.put("applicantCount", applicants.size());
-
-            boolean isOpen = job.getApplicationDeadline() != null &&
-                    job.getApplicationDeadline().isAfter(LocalDateTime.now());
-
-            posting.put("isOpen", isOpen);
-
-            activePostings.add(posting);
-        }
-
-        model.addAttribute("activePostings", activePostings);
-
-        return "pages/hr-dashboard";
+    
+    model.addAttribute("user", user);
+    
+    // ✅ ADD THIS: Load jobs directly in dashboard
+    List<Opportunity> allJobs = opportunityService.getAllJobs();
+    List<Map<String, Object>> activePostings = new ArrayList<>();
+    
+    for (Opportunity job : allJobs) {
+        if (job.getCompany() == null) continue;
+        
+        Map<String, Object> posting = new HashMap<>();
+        posting.put("job", job);
+        
+        List<Application> applicants =
+                opportunityService.getApplicantsByJob(job.getOpportunity_id());
+        
+        posting.put("applicantCount", applicants.size());
+        
+        boolean isOpen = job.getApplicationDeadline() != null &&
+                job.getApplicationDeadline().isAfter(LocalDateTime.now());
+        
+        posting.put("isOpen", isOpen);
+        
+        activePostings.add(posting);
     }
+    
+    model.addAttribute("activePostings", activePostings);
+    
+    return "pages/hr-dashboard";
+}
 
     // =====================================================
     // ✅ POST JOB (NO HARDCODED COMPANY)

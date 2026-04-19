@@ -3,16 +3,10 @@ package com.crms.placement.service;
 import com.crms.placement.model.User;
 import com.crms.placement.repository.UserRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Optional;
-
 
 @Service
 public class LoginService {
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     private final UserRepository userRepository;
 
@@ -20,7 +14,7 @@ public class LoginService {
         this.userRepository = userRepository;
     }
 
-    // REGISTER
+    // REGISTER - PLAIN TEXT PASSWORD
     public User register(User user) {
 
         if (user.getRole() == null) {
@@ -31,28 +25,25 @@ public class LoginService {
 
         System.out.println("🔍 [REGISTER] Checking for existing user: " + user.getEmail() + " | Role: " + user.getRole());
 
-        // safety check
+        // Check if user already exists
         if (userRepository.findByEmailAndRole(user.getEmail(), user.getRole()).isPresent()) {
             throw new RuntimeException("User already exists with this email and role");
         }
 
-        // ✅ HASH PASSWORD BEFORE SAVING
-        String plainPassword = user.getPassword();
-        String hashedPassword = passwordEncoder.encode(plainPassword);
-        user.setPassword(hashedPassword);
-
-        System.out.println("🔒 [REGISTER] Password hashed successfully");
+        // ✅ PASSWORD STORED AS PLAIN TEXT - NO HASHING
+        System.out.println("🔓 [REGISTER] Storing password as plain text: " + user.getPassword());
 
         User savedUser = userRepository.save(user);
 
         System.out.println("✅ [REGISTER] USER SAVED: ID=" + savedUser.getUserId() 
             + " | Email=" + savedUser.getEmail() 
-            + " | Role=" + savedUser.getRole());
+            + " | Role=" + savedUser.getRole()
+            + " | Password=" + savedUser.getPassword());
 
         return savedUser;
     }
 
-    // LOGIN
+    // LOGIN - PLAIN TEXT STRING COMPARISON
     public User login(String email, String password, String role) {
 
         if (role == null || role.trim().isEmpty()) {
@@ -65,7 +56,7 @@ public class LoginService {
 
         role = role.toUpperCase();
 
-        System.out.println("🔍 [LOGIN] Attempting login for: " + email + " | Role: " + role);
+        System.out.println("🔍 [LOGIN] Attempting login for: " + email + " | Role: " + role + " | Password: " + password);
 
         Optional<User> userOpt = userRepository.findByEmailAndRole(email, role);
 
@@ -78,17 +69,18 @@ public class LoginService {
 
         System.out.println("✅ [LOGIN] USER FOUND: ID=" + user.getUserId() 
             + " | Name=" + user.getName() 
-            + " | Role=" + user.getRole());
+            + " | Role=" + user.getRole()
+            + " | Stored Password=" + user.getPassword());
 
-        // ✅ VERIFY HASHED PASSWORD
-        boolean passwordMatches = passwordEncoder.matches(password, user.getPassword());
-
-        if (!passwordMatches) {
-            System.out.println("❌ [LOGIN] WRONG PASSWORD for user: " + user.getEmail());
+        // ✅ SIMPLE PLAIN TEXT STRING COMPARISON
+        System.out.println("🔓 [LOGIN] Comparing passwords: Input='" + password + "' | Stored='" + user.getPassword() + "'");
+        
+        if (!password.equals(user.getPassword())) {
+            System.out.println("❌ [LOGIN] PASSWORD MISMATCH for user: " + user.getEmail());
             throw new RuntimeException("Invalid password");
         }
 
-        System.out.println("✅ [LOGIN] PASSWORD CORRECT - Login successful for: " + user.getEmail());
+        System.out.println("✅ [LOGIN] PASSWORD MATCH - Login successful for: " + user.getEmail());
 
         return user;
     }
