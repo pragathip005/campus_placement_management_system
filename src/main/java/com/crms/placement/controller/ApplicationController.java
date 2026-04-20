@@ -31,5 +31,36 @@ public class ApplicationController {
         return applicationManager.submitApplication(studentId, opportunityId);  // replaces raw repo call
     }
 
-    // rest of the methods unchanged...
+    // ✅ Get all applications
+    @GetMapping
+    public List<Application> getAllApplications() {
+        return applicationRepository.findAll();
+    }
+
+    // ✅ Get applications by student
+    @GetMapping("/student/{studentId}")
+    public List<Application> getByStudent(@PathVariable Integer studentId) {
+        return applicationRepository.findAll()
+                .stream()
+                .filter(a -> a.getStudentId().equals(studentId))
+                .toList();
+    }
+
+    // ✅ Update status
+    @PutMapping("/{id}/status")
+    public Application updateStatus(
+            @PathVariable Integer id,
+            @RequestParam ApplicationStatus status
+    ) {
+        Optional<Application> optional = applicationRepository.findById(id);
+
+        if (optional.isEmpty()) {
+            throw new RuntimeException("Application not found");
+        }
+
+        Application application = optional.get();
+        application.setStatus(status);
+
+        return applicationRepository.save(application);
+    }
 }

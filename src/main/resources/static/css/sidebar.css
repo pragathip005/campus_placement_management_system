@@ -1,11 +1,24 @@
+/* SIDEBAR BASE */
 .sidebar {
     width: 260px;
     height: 100vh;
     background: #111827;
     color: white;
-    position: fixed;
-    left: 0;
+
+    /* ✅ keeps it in layout (fixes 2-column issue) */
+    position: sticky;
     top: 0;
+
+    /* ✅ layout */
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+
+    /* prevents shrinking */
+    flex-shrink: 0;
+
+    /* internal scrolling if needed */
+    overflow-y: auto;
 }
 
 /* LOGO */
@@ -50,13 +63,13 @@
     transition: all 0.2s ease;
 }
 
-/* HOVER EFFECT */
+/* HOVER */
 .nav-item:hover {
     background: rgba(255,255,255,0.05);
     color: white;
 }
 
-/* ACTIVE (OPTIONAL) */
+/* ACTIVE */
 .nav-item.active {
     background: #f97316;
     color: white;
@@ -102,17 +115,13 @@
     padding: 10px;
     border-radius: 10px;
     border: none;
-    background: #ef4444;
-    color: white;
+    background: transparent;
+    color: #9ca3af;
     cursor: pointer;
     transition: 0.2s;
-    font-weight: 500;
 }
-.sidebar {
-    display: flex;
-    flex-direction: column;
-}
+
 .logout-btn:hover {
-    background: #dc2626;
-    color: white;
+    background: rgba(255,0,0,0.1);
+    color: #ef4444;
 }

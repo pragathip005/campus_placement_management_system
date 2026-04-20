@@ -1,3 +1,4 @@
+/* RESET */
 * {
     margin: 0;
     padding: 0;
@@ -9,6 +10,7 @@ body {
     background: #f5f6fa;
 }
 
+/* MAIN LAYOUT */
 .container {
     display: flex;
     min-height: 100vh;
@@ -19,17 +21,24 @@ body {
     width: 235px;
     background: #0f172a;
     color: white;
-    position: fixed;
-    left: 0;
+
+    /* ✅ KEEP IN LAYOUT */
+    position: sticky;
     top: 0;
+
     height: 100vh;
     padding: 30px 20px;
+
     display: flex;
     flex-direction: column;
+
     overflow-y: auto;
-    z-index: 10;
+
+    /* ✅ prevents shrinking */
+    flex-shrink: 0;
 }
 
+/* LOGO */
 .sidebar .logo {
     font-size: 24px;
     font-weight: bold;
@@ -39,15 +48,10 @@ body {
     gap: 8px;
 }
 
-.sidebar .logo::before {
-    content: '';
-}
-
+/* NAV */
 .sidebar .nav {
     list-style: none;
     flex: 1;
-    margin: 0;
-    padding: 0;
 }
 
 .sidebar .nav li {
@@ -66,14 +70,6 @@ body {
     font-size: 15px;
 }
 
-.sidebar .nav a::before {
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
 .sidebar .nav li:nth-child(1) a::before { content: '📊'; }
 .sidebar .nav li:nth-child(2) a::before { content: '💼'; }
 .sidebar .nav li:nth-child(3) a::before { content: '📚'; }
@@ -90,6 +86,7 @@ body {
     color: white;
 }
 
+/* USER */
 .sidebar .user {
     margin-top: auto;
     padding-top: 20px;
@@ -119,16 +116,15 @@ body {
 .sidebar .user-info h4 {
     font-size: 14px;
     font-weight: 600;
-    margin: 0;
     color: white;
 }
 
 .sidebar .user-info p {
     font-size: 12px;
     color: #94a3b8;
-    margin: 0;
 }
 
+/* LOGOUT */
 .sidebar a[href*="logout"] {
     color: #a0aec0;
     text-decoration: none;
@@ -136,7 +132,6 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    transition: color 0.3s ease;
 }
 
 .sidebar a[href*="logout"]::before {
@@ -147,13 +142,13 @@ body {
     color: #ff9500;
 }
 
+/* MAIN CONTENT */
 .main-content {
     flex: 1;
-    margin-left: 235px;
-    padding: 40px;
-    background: #f5f6fa;
     padding: 32px;
+
     background: #f8fafc;
-    overflow-y: auto;
-    min-height: 100vh;
+
+    /* prevents overflow issues */
+    min-width: 0;
 }
