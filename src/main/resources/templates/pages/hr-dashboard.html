@@ -92,7 +92,7 @@
 
                         <div class="posting-details">
                             <span>CTC: <span
-                                    th:text="${posting.job.ctc != null ? posting.job.ctc + ' LPA' : 'N/A'}"></span></span>
+                                    th:text="${posting.job.ctc != null ? posting.job.ctc : 'N/A'}"></span></span>
                             <span>Min CGPA: <span th:text="${posting.job.minCgpa}"></span></span>
                             <span>Deadline: <span
                                     th:text="${posting.job.applicationDeadline != null ? #temporals.format(posting.job.applicationDeadline, 'd MMM yyyy') : 'N/A'}"></span></span>

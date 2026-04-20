@@ -87,7 +87,8 @@ body {
 }
 
 /* USER */
-.sidebar .user {
+.sidebar .user,
+.sidebar .user-section {
     margin-top: auto;
     padding-top: 20px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -140,6 +141,30 @@ body {
 
 .sidebar a[href*="logout"]:hover {
     color: #ff9500;
+}
+
+/* Logout button used in sidebar fragment */
+.sidebar .user-section form {
+    margin: 0;
+}
+
+.sidebar .logout-btn {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 10px;
+    background: transparent;
+    color: #a0aec0;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sidebar .logout-btn:hover {
+    border-color: rgba(249, 115, 22, 0.45);
+    background: rgba(249, 115, 22, 0.12);
+    color: #f97316;
 }
 
 /* MAIN CONTENT */
