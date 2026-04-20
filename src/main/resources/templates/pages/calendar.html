@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Calendar', ~{::content}, ~{::styles}, ~{::scripts})}">
+
+<head>
+    <th:block th:fragment="styles">
+        <!-- FullCalendar v6 CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+        <!-- Page-specific styles -->
+        <link rel="stylesheet" th:href="@{/css/calendar.css}">
+    </th:block>
+
+    <th:block th:fragment="scripts">
+        <!-- FullCalendar v6 JS -->
+        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+        <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // ── FullCalendar initialisation ───────────────────────────────────────
+            const calendarEl = document.getElementById('calendar');
+
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left:   'prev,next today',
+                    center: 'title',
+                    right:  'dayGridMonth,timeGridWeek,listWeek'
+                },
+                height: 'auto',
+
+                // REST endpoint — CalendarController.getEvents() returns the list
+                events: '/api/calendar/events',
+
+                eventDidMount: function (info) {
+                    // Tooltip on hover
+                    info.el.title = info.event.title;
+                },
+
+                eventClick: function (info) {
+                    showEventModal(info.event);
+                }
+            });
+
+            calendar.render();
+
+            // ── Upcoming events list ──────────────────────────────────────────────
+            fetch('/api/calendar/events')
+                .then(res => res.json())
+                .then(events => buildUpcomingList(events))
+                .catch(() => { /* silent fail — calendar still works */ });
+
+            // ── Modal helpers ─────────────────────────────────────────────────────
+            const overlay = document.getElementById('eventModalOverlay');
+            const modal   = document.getElementById('eventModal');
+
+            document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+            overlay.addEventListener('click', function (e) {
+                if (e.target === overlay) closeModal();
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closeModal();
+            });
+
+            function showEventModal(event) {
+                const props      = event.extendedProps;
+                const isInterview = props.type === 'INTERVIEW';
+                const accentColor = isInterview ? '#3b82f6' : '#f97316';
+                const badgeClass  = isInterview ? 'interview' : 'oa';
+                const typeLabel   = isInterview ? 'Interview Slot' : 'Online Assessment';
+
+                // Accent border on modal left edge
+                modal.style.borderLeftColor = accentColor;
+
+                // Badge
+                const badge = document.getElementById('modalTypeBadge');
+                badge.textContent = typeLabel;
+                badge.className = 'modal-type-badge ' + badgeClass;
+
+                // Company name
+                document.getElementById('modalCompany').textContent = props.companyName || event.title;
+
+                // Date / time
+                const startDate = event.start ? formatDateTime(event.start) : '—';
+                document.getElementById('modalDate').textContent = startDate;
+
+                // Duration (interviews only)
+                const durRow = document.getElementById('modalDurationRow');
+                if (isInterview) {
+                    durRow.style.display = 'flex';
+                    document.getElementById('modalDuration').textContent = '30 minutes';
+                } else {
+                    durRow.style.display = 'none';
+                }
+
+                // Status
+                document.getElementById('modalStatus').textContent = formatStatus(props.status);
+
+                overlay.classList.add('open');
+            }
+
+            function closeModal() {
+                overlay.classList.remove('open');
+            }
+
+            function formatDateTime(date) {
+                if (!date) return '—';
+                return date.toLocaleString('en-IN', {
+                    weekday: 'short', year: 'numeric', month: 'short',
+                    day: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+            }
+
+            function formatStatus(raw) {
+                if (!raw) return '—';
+                return raw.replace(/_/g, ' ').toLowerCase()
+                    .replace(/\b\w/g, c => c.toUpperCase());
+            }
+
+            // ── Build upcoming events list ────────────────────────────────────────
+            function buildUpcomingList(events) {
+                const now = new Date();
+
+                // Keep only future events, sort ascending, take first 5
+                const upcoming = events
+                    .filter(e => e.start && new Date(e.start) > now)
+                    .sort((a, b) => new Date(a.start) - new Date(b.start))
+                    .slice(0, 5);
+
+                const container = document.getElementById('upcomingList');
+                container.innerHTML = '';
+
+                if (upcoming.length === 0) {
+                    container.innerHTML =
+                        '<div class="upcoming-empty">No upcoming events. Keep applying!</div>';
+                    return;
+                }
+
+                upcoming.forEach(function (ev) {
+                    const isInterview = ev.type === 'INTERVIEW';
+                    const typeClass   = isInterview ? 'interview' : 'oa';
+                    const typeLabel   = isInterview ? 'Interview' : 'OA';
+                    const initial     = ev.companyName ? ev.companyName.charAt(0).toUpperCase() : '?';
+                    const dateStr     = new Date(ev.start).toLocaleString('en-IN', {
+                        weekday: 'short', month: 'short', day: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
+                    });
+
+                    const card = document.createElement('div');
+                    card.className = 'upcoming-card ' + typeClass;
+                    card.innerHTML = `
+                        <div class="company-avatar ${typeClass}">${initial}</div>
+                        <div class="card-info">
+                            <p class="company-name">${escHtml(ev.companyName || 'Company')}</p>
+                            <p class="event-datetime">${dateStr}</p>
+                        </div>
+                        <span class="event-type-badge ${typeClass}">${typeLabel}</span>
+                    `;
+                    container.appendChild(card);
+                });
+            }
+
+            function escHtml(str) {
+                const d = document.createElement('div');
+                d.appendChild(document.createTextNode(str));
+                return d.innerHTML;
+            }
+        });
+        </script>
+    </th:block>
+</head>
+
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CONTENT FRAGMENT — injected into layout.html's main-content
+     ═══════════════════════════════════════════════════════════ -->
+<th:block th:fragment="content">
+
+<section class="calendar-page">
+
+    <!-- Page header -->
+    <div class="calendar-header">
+        <h1>My Schedule</h1>
+        <p>Your online assessments and interview slots in one place.</p>
+    </div>
+
+    <!-- Legend -->
+    <div class="calendar-legend">
+        <div class="legend-item">
+            <span class="legend-dot" style="background:#f97316;"></span>
+            <span>Online Assessment</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-dot" style="background:#3b82f6;"></span>
+            <span>Interview Slot</span>
+        </div>
+    </div>
+
+    <!-- FullCalendar mount point -->
+    <div id="calendar"></div>
+
+    <!-- Upcoming events -->
+    <div class="upcoming-section">
+        <h2>Upcoming Events</h2>
+        <div id="upcomingList">
+            <!-- Populated by JS after fetching /api/calendar/events -->
+            <div class="upcoming-empty">Loading events…</div>
+        </div>
+    </div>
+
+</section>
+
+<!-- ── Event detail modal ──────────────────────────────────── -->
+<div id="eventModalOverlay" class="event-modal-overlay">
+    <div id="eventModal" class="event-modal">
+        <button id="modalCloseBtn" class="modal-close" aria-label="Close">&times;</button>
+
+        <span id="modalTypeBadge" class="modal-type-badge interview">Interview Slot</span>
+
+        <h3 id="modalCompany">Company Name</h3>
+
+        <div class="modal-row">
+            <span class="label">Date &amp; Time</span>
+            <span id="modalDate">—</span>
+        </div>
+
+        <div class="modal-row" id="modalDurationRow">
+            <span class="label">Duration</span>
+            <span id="modalDuration">30 minutes</span>
+        </div>
+
+        <div class="modal-row">
+            <span class="label">Status</span>
+            <span id="modalStatus">—</span>
+        </div>
+    </div>
+</div>
+
+</th:block>
+
+</body>
+</html>
