@@ -70,4 +70,15 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
     // Eager-fetch opportunity + company for statistics aggregation (avoids N+1 queries)
     @Query("SELECT a FROM Application a JOIN FETCH a.opportunity o JOIN FETCH o.company WHERE a.status = :status")
     List<Application> findByStatusWithOpportunityAndCompany(@Param("status") ApplicationStatus status);
+
+    // Calendar: fetch a student's OA applications with opportunity + company eager-loaded
+    // Used by CalendarController to build OA calendar events (oaDate lives on Opportunity).
+    @Query("SELECT a FROM Application a JOIN FETCH a.opportunity o JOIN FETCH o.company WHERE a.studentId = :studentId AND a.status IN :statuses")
+    List<Application> findByStudentIdAndStatusIn(@Param("studentId") Integer studentId,
+                                                 @Param("statuses") List<ApplicationStatus> statuses);
+
+    // Calendar polling: fetch a single application by ID with opportunity + company eager-loaded.
+    // Used by CalendarController.buildEventFromUpdate() when delivering OA_ADDED updates.
+    @Query("SELECT a FROM Application a JOIN FETCH a.opportunity o JOIN FETCH o.company WHERE a.applicationId = :id")
+    Optional<Application> findByApplicationIdWithDetails(@Param("id") Integer id);
 }

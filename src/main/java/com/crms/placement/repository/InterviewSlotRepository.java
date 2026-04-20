@@ -19,4 +19,14 @@ public interface InterviewSlotRepository extends JpaRepository<InterviewSlot, Lo
     // Spring Data's _ path separator — use explicit JPQL to avoid ambiguity.
     @Query("SELECT s FROM InterviewSlot s WHERE s.opportunity.opportunity_id = :opportunityId")
     List<InterviewSlot> findByOpportunityId(@Param("opportunityId") Integer opportunityId);
+
+    // Calendar: fetch all slots for a student with opportunity + company eager-loaded.
+    // Avoids LazyInitializationException when CalendarController reads slot.getOpportunity().getCompany().
+    @Query("SELECT s FROM InterviewSlot s JOIN FETCH s.opportunity o JOIN FETCH o.company WHERE s.student.studentId = :studentId")
+    List<InterviewSlot> findByStudentIdWithDetails(@Param("studentId") Long studentId);
+
+    // Calendar polling: fetch a single slot by ID with opportunity + company eager-loaded.
+    // Used by CalendarController.buildEventFromUpdate() when delivering SLOT_ASSIGNED updates.
+    @Query("SELECT s FROM InterviewSlot s JOIN FETCH s.opportunity o JOIN FETCH o.company WHERE s.id = :id")
+    Optional<InterviewSlot> findByIdWithDetails(@Param("id") Long id);
 }
