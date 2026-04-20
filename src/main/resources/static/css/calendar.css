@@ -300,3 +300,26 @@
     font-size: 12px;
     padding-top: 2px;
 }
+
+/* ── Toast notification (Observer Pattern — shown on live calendar update) ── */
+.calendar-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #0f172a;
+    color: #ffffff;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.calendar-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}

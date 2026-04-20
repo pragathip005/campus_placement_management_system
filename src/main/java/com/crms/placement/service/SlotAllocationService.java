@@ -12,6 +12,7 @@ import com.crms.placement.repository.ApplicationRepository;
 import com.crms.placement.repository.InterviewSlotRepository;
 import com.crms.placement.repository.OpportunityRepository;
 import com.crms.placement.repository.StudentRepository;
+import com.crms.placement.service.CalendarEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,18 +32,21 @@ public class SlotAllocationService {
     private final StudentRepository studentRepository;
     private final InterviewSlotRepository interviewSlotRepository;
     private final ApplicationRepository applicationRepository;
-    private final NotificationService notificationService;
+    private final NotificationService    notificationService;
+    private final CalendarEventPublisher calendarEventPublisher;
 
     public SlotAllocationService(OpportunityRepository opportunityRepository,
                                   StudentRepository studentRepository,
                                   InterviewSlotRepository interviewSlotRepository,
                                   ApplicationRepository applicationRepository,
-                                  NotificationService notificationService) {
-        this.opportunityRepository = opportunityRepository;
-        this.studentRepository = studentRepository;
+                                  NotificationService notificationService,
+                                  CalendarEventPublisher calendarEventPublisher) {
+        this.opportunityRepository   = opportunityRepository;
+        this.studentRepository       = studentRepository;
         this.interviewSlotRepository = interviewSlotRepository;
-        this.applicationRepository = applicationRepository;
-        this.notificationService = notificationService;
+        this.applicationRepository   = applicationRepository;
+        this.notificationService     = notificationService;
+        this.calendarEventPublisher  = calendarEventPublisher;
     }
 
     @Transactional
@@ -107,6 +111,13 @@ public class SlotAllocationService {
                 InterviewSlot slot = new InterviewSlot(student, opportunity, slotTime, "SCHEDULED");
                 interviewSlotRepository.save(slot);
                 allCreatedSlots.add(slot);
+
+                // Observer Pattern: publish event so CalendarSyncListener queues
+                // the update for the student's calendar UI to pick up on next poll.
+                calendarEventPublisher.publishSlotAssigned(
+                        student.getStudentId(),
+                        slot.getId()
+                );
 
                 // Mark student as assigned so no other company can claim them
                 assignedStudentIds.add(student.getStudentId());

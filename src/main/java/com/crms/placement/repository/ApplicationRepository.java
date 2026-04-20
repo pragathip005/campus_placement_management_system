@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ApplicationRepository extends JpaRepository<Application, Integer> {
@@ -47,4 +48,9 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
     @Query("SELECT a FROM Application a JOIN FETCH a.opportunity o JOIN FETCH o.company WHERE a.studentId = :studentId AND a.status IN :statuses")
     List<Application> findByStudentIdAndStatusIn(@Param("studentId") Integer studentId,
                                                  @Param("statuses") List<ApplicationStatus> statuses);
+
+    // Calendar polling: fetch a single application by ID with opportunity + company eager-loaded.
+    // Used by CalendarController.buildEventFromUpdate() when delivering OA_ADDED updates.
+    @Query("SELECT a FROM Application a JOIN FETCH a.opportunity o JOIN FETCH o.company WHERE a.applicationId = :id")
+    Optional<Application> findByApplicationIdWithDetails(@Param("id") Integer id);
 }

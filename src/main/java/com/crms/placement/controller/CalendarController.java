@@ -5,9 +5,11 @@ import com.crms.placement.model.Application;
 import com.crms.placement.model.ApplicationStatus;
 import com.crms.placement.model.InterviewSlot;
 import com.crms.placement.model.Opportunity;
+import com.crms.placement.model.PendingCalendarUpdate;
 import com.crms.placement.model.Student;
 import com.crms.placement.repository.ApplicationRepository;
 import com.crms.placement.repository.InterviewSlotRepository;
+import com.crms.placement.repository.PendingCalendarUpdateRepository;
 import com.crms.placement.repository.StudentRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * SRP: CalendarController only handles calendar event aggregation and serving the
@@ -32,16 +35,19 @@ public class CalendarController {
     private static final Integer HARDCODED_STUDENT_ID = 10;
     private static final Long    HARDCODED_STUDENT_LONG_ID = 1L;
 
-    private final ApplicationRepository   applicationRepository;
-    private final InterviewSlotRepository interviewSlotRepository;
-    private final StudentRepository       studentRepository;
+    private final ApplicationRepository          applicationRepository;
+    private final InterviewSlotRepository        interviewSlotRepository;
+    private final StudentRepository              studentRepository;
+    private final PendingCalendarUpdateRepository pendingRepo;
 
     public CalendarController(ApplicationRepository applicationRepository,
                               InterviewSlotRepository interviewSlotRepository,
-                              StudentRepository studentRepository) {
+                              StudentRepository studentRepository,
+                              PendingCalendarUpdateRepository pendingRepo) {
         this.applicationRepository   = applicationRepository;
         this.interviewSlotRepository = interviewSlotRepository;
         this.studentRepository       = studentRepository;
+        this.pendingRepo             = pendingRepo;
     }
 
     /**
@@ -122,5 +128,86 @@ public class CalendarController {
         }
 
         return events;
+    }
+
+    /**
+     * Polling endpoint — the student's browser calls this every 30 seconds.
+     * Returns any undelivered CalendarEventDtos for the hardcoded student,
+     * then marks them delivered so they are never sent twice.
+     *
+     * Observer Pattern (delivery side): CalendarSyncListener queued the update;
+     * this endpoint is how it finally reaches the browser.
+     *
+     * DTO Pattern: PendingCalendarUpdate rows are transformed into CalendarEventDtos
+     * here — the frontend never sees the internal entity shape.
+     */
+    @GetMapping("/api/calendar/updates")
+    @ResponseBody
+    public List<CalendarEventDto> getPendingUpdates() {
+        List<PendingCalendarUpdate> pending =
+                pendingRepo.findByStudentIdAndDeliveredFalse(HARDCODED_STUDENT_LONG_ID);
+
+        List<CalendarEventDto> events = pending.stream()
+                .map(this::buildEventFromUpdate)
+                .filter(dto -> dto != null)
+                .collect(Collectors.toList());
+
+        // Mark all as delivered — same update will not be returned on the next poll
+        pending.forEach(u -> u.setDelivered(true));
+        pendingRepo.saveAll(pending);
+
+        return events;
+    }
+
+    /**
+     * Maps a PendingCalendarUpdate to a CalendarEventDto by reloading the referenced
+     * entity with a JOIN FETCH so lazy relations are safely accessible.
+     * Returns null for unrecognised event types (filtered out by the caller).
+     */
+    private CalendarEventDto buildEventFromUpdate(PendingCalendarUpdate update) {
+        if ("SLOT_ASSIGNED".equals(update.getEventType())) {
+            InterviewSlot slot = interviewSlotRepository
+                    .findByIdWithDetails(update.getReferenceId())
+                    .orElse(null);
+            if (slot == null || slot.getSlotTime() == null) return null;
+
+            Opportunity opp = slot.getOpportunity();
+            String companyName = (opp != null && opp.getCompany() != null)
+                    ? opp.getCompany().getName() : "Company";
+
+            CalendarEventDto dto = new CalendarEventDto();
+            dto.setTitle(companyName + " \u2014 Interview");
+            dto.setStart(slot.getSlotTime().toString());
+            dto.setEnd(slot.getSlotTime().plusMinutes(30).toString());
+            dto.setColor("#3b82f6");
+            dto.setType("INTERVIEW");
+            dto.setCompanyName(companyName);
+            dto.setStatus(slot.getStatus());
+            return dto;
+        }
+
+        if ("OA_ADDED".equals(update.getEventType())) {
+            Application app = applicationRepository
+                    .findByApplicationIdWithDetails(update.getReferenceId().intValue())
+                    .orElse(null);
+            if (app == null) return null;
+
+            Opportunity opp = app.getOpportunity();
+            if (opp == null || opp.getOaDate() == null) return null;
+
+            String companyName = (opp.getCompany() != null)
+                    ? opp.getCompany().getName() : "Company";
+
+            CalendarEventDto dto = new CalendarEventDto();
+            dto.setTitle(companyName + " \u2014 Online Assessment");
+            dto.setStart(opp.getOaDate().toString());
+            dto.setColor("#f97316");
+            dto.setType("OA");
+            dto.setCompanyName(companyName);
+            dto.setStatus(app.getStatus().name());
+            return dto;
+        }
+
+        return null;
     }
 }
