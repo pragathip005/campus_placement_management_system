@@ -3,7 +3,7 @@ package com.crms.placement.controller;
 import com.crms.placement.model.Application;
 import com.crms.placement.model.ApplicationStatus;
 import com.crms.placement.repository.ApplicationRepository;
-import com.crms.placement.service.ApplicationManager;  // ADD
+import com.crms.placement.service.ApplicationManager;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,30 +14,30 @@ import java.util.Optional;
 public class ApplicationController {
 
     private final ApplicationRepository applicationRepository;
-    private final ApplicationManager applicationManager;  // ADD
+    private final ApplicationManager applicationManager;
 
     public ApplicationController(ApplicationRepository applicationRepository,
-                                  ApplicationManager applicationManager) {  // ADD
+                                  ApplicationManager applicationManager) {
         this.applicationRepository = applicationRepository;
-        this.applicationManager = applicationManager;  // ADD
+        this.applicationManager = applicationManager;
     }
 
-    // ✅ Apply for a job — now uses ApplicationManager (duplicate check included)
-    @PostMapping("/apply")  // GET → POST
+    // Apply for a job — uses ApplicationManager (duplicate check included)
+    @PostMapping("/apply")
     public Application apply(
             @RequestParam Integer studentId,
             @RequestParam Integer opportunityId
     ) {
-        return applicationManager.submitApplication(studentId, opportunityId);  // replaces raw repo call
+        return applicationManager.submitApplication(studentId, opportunityId);
     }
 
-    // ✅ Get all applications
+    //  Get all applications
     @GetMapping
     public List<Application> getAllApplications() {
         return applicationRepository.findAll();
     }
 
-    // ✅ Get applications by student
+    //  Get applications by student
     @GetMapping("/student/{studentId}")
     public List<Application> getByStudent(@PathVariable Integer studentId) {
         return applicationRepository.findAll()
@@ -46,7 +46,7 @@ public class ApplicationController {
                 .toList();
     }
 
-    // ✅ Update status
+    // Update status
     @PutMapping("/{id}/status")
     public Application updateStatus(
             @PathVariable Integer id,
