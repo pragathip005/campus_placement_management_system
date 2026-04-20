@@ -12,7 +12,7 @@
     <h2>Create Account</h2>
     <p class="subtitle">Join CRMS and get started</p>
 
-    <form method="post" action="/register" th:action="@{/register}">
+    <form method="post" action="/register" enctype="multipart/form-data" th:action="@{/register}">
 
         <!-- ✅ CSRF TOKEN -->
         <input type="hidden" name="csrfToken" th:value="${csrfToken}">
@@ -116,8 +116,8 @@
                 </div>
 
                 <div class="input-group full-width">
-                    <label>Resume URL</label>
-                    <input type="text" name="resumeUrl" id="resumeUrlField">
+                    <label>Upload Resume</label>
+                    <input type="file" name="resumeFile" accept=".pdf,.doc,.docx">
                 </div>
             </div>
         </div>

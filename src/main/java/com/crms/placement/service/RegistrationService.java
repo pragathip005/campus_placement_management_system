@@ -11,10 +11,15 @@ import com.crms.placement.repository.CompanyRepository;
 import com.crms.placement.repository.AlumniRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.crms.placement.service.SupabaseService;
+
 
 @Service
 public class RegistrationService {
 
+    private final SupabaseService supabaseService;
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
     private final CompanyRepository companyRepository;
@@ -23,15 +28,17 @@ public class RegistrationService {
     public RegistrationService(UserRepository userRepository,
                                StudentRepository studentRepository,
                                CompanyRepository companyRepository,
-                               AlumniRepository alumniRepository) {
+                               AlumniRepository alumniRepository,
+                               SupabaseService supabaseService) {
         this.userRepository = userRepository;
         this.studentRepository = studentRepository;
         this.companyRepository = companyRepository;
         this.alumniRepository = alumniRepository;
+        this.supabaseService = supabaseService;
     }
 
     @Transactional
-    public User register(RegistrationRequestDTO request) {
+    public User register(RegistrationRequestDTO request, MultipartFile resumeFile) {
         // 1. Create User
         User user = new User();
         user.setRole(request.getRole().toUpperCase());
@@ -69,7 +76,11 @@ public class RegistrationService {
             student.setSgpaSem7(request.getSgpaSem7());
             student.setPhone(request.getPhone());
             student.setAddress(request.getAddress());
-            student.setResumeUrl(request.getResumeUrl());
+            String resumeUrl = null;
+                if (resumeFile != null && !resumeFile.isEmpty()) {
+                    resumeUrl = supabaseService.uploadResume(resumeFile);
+                }
+            student.setResumeUrl(resumeUrl);
             student.setIsEligible(true); // Default
             student.setIsPlaced(false); // Default
             studentRepository.save(student);

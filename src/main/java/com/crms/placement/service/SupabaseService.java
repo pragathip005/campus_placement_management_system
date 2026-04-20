@@ -52,6 +52,7 @@ public class SupabaseService {
 
             webClient.post()
                     .uri(uploadUrl)
+                    .header("apikey", apiKey)
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
                     .header(HttpHeaders.CONTENT_TYPE, contentType)
                     .bodyValue(file.getBytes())

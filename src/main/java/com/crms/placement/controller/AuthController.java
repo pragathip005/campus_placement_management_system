@@ -1,5 +1,6 @@
 package com.crms.placement.controller;
 
+import com.crms.placement.dto.RegistrationRequestDTO;
 import com.crms.placement.model.*;
 import com.crms.placement.repository.*;
 import com.crms.placement.service.LoginService;
@@ -7,6 +8,8 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import com.crms.placement.service.RegistrationService;
 
 import java.util.UUID;
 
@@ -18,17 +21,21 @@ public class AuthController {
     private final CompanyRepository companyRepository;
     private final AlumniUserRepository alumniUserRepository;
     private final AdminRepository adminRepository;
+    private final RegistrationService registrationService;
 
     public AuthController(LoginService loginService,
                           StudentRepository studentRepository,
                           CompanyRepository companyRepository,
                           AlumniUserRepository alumniUserRepository,
-                          AdminRepository adminRepository) {
+                          AdminRepository adminRepository,
+                          RegistrationService registrationService) {
         this.loginService = loginService;
         this.studentRepository = studentRepository;
         this.companyRepository = companyRepository;
         this.alumniUserRepository = alumniUserRepository;
         this.adminRepository = adminRepository;
+        this.registrationService = registrationService;
+
     }
 
     // ================= LOGIN =================
@@ -72,25 +79,18 @@ public String showRegister() {
 }
 
 @PostMapping("/register")
-public String register(@RequestParam String name,
-                       @RequestParam String email,
-                       @RequestParam String password,
-                       @RequestParam String role,
-                       HttpSession session,
-                       Model model) {
-
+public String register(
+        @ModelAttribute RegistrationRequestDTO request,
+        @RequestParam(value = "resumeFile", required = false) MultipartFile resumeFile,
+        HttpSession session,
+        Model model
+) {
     try {
-        User user = new User();
-        user.setName(name);
-        user.setEmail(email);
-        user.setPassword(password); // plain or hashed inside service
-        user.setRole(role.toUpperCase());
+        User user = registrationService.register(request, resumeFile);
 
-        User savedUser = loginService.register(user);
+        session.setAttribute("user", user);
 
-        session.setAttribute("user", savedUser);
-
-        return switch (savedUser.getRole()) {
+        return switch (user.getRole().toUpperCase()) {
             case "HR" -> "redirect:/hr/dashboard";
             case "ALUMNI" -> "redirect:/alumni/dashboard";
             case "ADMIN" -> "redirect:/admin/dashboard";
