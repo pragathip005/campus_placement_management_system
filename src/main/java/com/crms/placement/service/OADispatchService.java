@@ -20,15 +20,18 @@ public class OADispatchService {
     private final OnlineAssessmentRepository onlineAssessmentRepository;
     private final EligibilityChecker eligibilityChecker;
     private final OpportunityRepository opportunityRepository;
+    private final CalendarEventPublisher calendarEventPublisher;
 
     public OADispatchService(ApplicationRepository applicationRepository,
                              OnlineAssessmentRepository onlineAssessmentRepository,
                              EligibilityChecker eligibilityChecker,
-                             OpportunityRepository opportunityRepository) {
+                             OpportunityRepository opportunityRepository,
+                             CalendarEventPublisher calendarEventPublisher) {
         this.applicationRepository = applicationRepository;
         this.onlineAssessmentRepository = onlineAssessmentRepository;
         this.eligibilityChecker = eligibilityChecker;
         this.opportunityRepository = opportunityRepository;
+        this.calendarEventPublisher = calendarEventPublisher;
     }
 
     @Transactional
@@ -83,6 +86,12 @@ public class OADispatchService {
             // ✅ Update status
             application.setStatus(ApplicationStatus.OA_SENT);
             applicationRepository.save(application);
+
+            // Observer: notify calendar that OA was added for this student
+            calendarEventPublisher.publishOaAdded(
+                    application.getStudentId().longValue(),
+                    application.getApplicationId().longValue()
+            );
 
             System.out.println("OA dispatched to studentId=" + application.getStudentId()
                     + " scheduledAt=" + opportunity.getOaDate());

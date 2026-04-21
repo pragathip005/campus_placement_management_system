@@ -17,13 +17,16 @@ public class ApplicationManager {
     private final ApplicationRepository applicationRepository;
     private final OnlineAssessmentRepository onlineAssessmentRepository;
     private final OpportunityRepository opportunityRepository;
+    private final CalendarEventPublisher calendarEventPublisher;
 
     public ApplicationManager(ApplicationRepository applicationRepository,
                               OnlineAssessmentRepository onlineAssessmentRepository,
-                              OpportunityRepository opportunityRepository) {
+                              OpportunityRepository opportunityRepository,
+                              CalendarEventPublisher calendarEventPublisher) {
         this.applicationRepository = applicationRepository;
         this.onlineAssessmentRepository = onlineAssessmentRepository;
         this.opportunityRepository = opportunityRepository;
+        this.calendarEventPublisher = calendarEventPublisher;
     }
 
     public Application submitApplication(Integer studentId, Integer opportunityId) {
@@ -57,6 +60,12 @@ public class ApplicationManager {
 
             application.setStatus(ApplicationStatus.OA_SENT);
             applicationRepository.save(application);
+
+            // Observer: notify calendar that OA was added for this student
+            calendarEventPublisher.publishOaAdded(
+                    studentId.longValue(),
+                    application.getApplicationId().longValue()
+            );
 
             System.out.println("✅ OA created for student " + studentId
                     + " scheduledAt=" + opportunity.getOaDate());
