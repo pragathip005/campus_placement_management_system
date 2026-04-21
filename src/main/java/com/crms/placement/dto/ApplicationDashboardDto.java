@@ -27,8 +27,8 @@ public class ApplicationDashboardDto {
     private String  companyName;      // company.getName()  ← your field is "name"
 
     // Timeline helpers — computed in service, never stored in DB
-    private int     statusIndex;      // 0=APPLIED, 1=ACCEPTED, 2=OFFERED
-    private int     progressPercent;  // 0 | 33 | 66 | 100
+    private int     statusIndex;      // 0=APPLIED, 1=OA_SENT, 2=OA_COMPLETED, 3=INTERVIEW, 4=SELECTED, 5=OFFER
+    private int     progressPercent;  // // 0 | 20 | 40 | 60 | 80 | 100
     private boolean rejected;
 
     public ApplicationDashboardDto() {}

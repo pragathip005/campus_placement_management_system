@@ -79,19 +79,31 @@ public class StudentDashboardService {
             // ── Timeline mapping ──────────────────────────────────
             // APPLIED → OA_SENT → OA_COMPLETED → INTERVIEW → SELECTED → OFFER OUTCOME
 
-            String status = app.getStatus() == null ? "" : app.getStatus().name();
-            int idx;
-            switch (status) {
-                case "APPLIED" -> idx = 0;
-                case "OA_SENT" -> idx = 1;
-                case "OA_COMPLETED" -> idx = 2;
-                case "INTERVIEW" -> idx = 3;
-                case "SELECTED" -> idx = 4;
-                case "OFFER_ACCEPTED", "OFFER_REJECTED", "REJECTED" -> idx = 5;
-                default -> idx = 0;
-            }
-            dto.setStatusIndex(idx);
-            dto.setProgressPercent((idx * 100) / 5);
+            ApplicationStatus st = app.getStatus();
+int idx = 0;
+
+if (st != null) {
+    switch (st) {
+        case APPLIED -> idx = 0;
+        case OA_SENT -> idx = 1;
+        case OA_COMPLETED -> idx = 2;
+        case INTERVIEW -> idx = 3;
+        case SELECTED -> idx = 4;
+        case OFFER_ACCEPTED, OFFER_REJECTED -> idx = 5;
+
+        // ❗ REJECTED should NOT look like offer
+        case REJECTED -> idx = 3;
+    }
+}
+
+dto.setStatusIndex(idx);
+dto.setProgressPercent(idx * 20);
+
+// 🔥 IMPORTANT (used by UI)
+dto.setRejected(
+    st == ApplicationStatus.REJECTED ||
+    st == ApplicationStatus.OFFER_REJECTED
+);
 
             return dto;
         }).collect(Collectors.toList());
@@ -109,7 +121,8 @@ public class StudentDashboardService {
         List.of(
             ApplicationStatus.INTERVIEW,
             ApplicationStatus.SELECTED,
-            ApplicationStatus.OFFER_ACCEPTED
+            ApplicationStatus.OFFER_ACCEPTED,
+            ApplicationStatus.OFFER_REJECTED
         )
     );
 }

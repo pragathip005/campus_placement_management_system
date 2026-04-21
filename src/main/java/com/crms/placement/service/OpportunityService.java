@@ -122,5 +122,9 @@ public class OpportunityService {
     public void updateApplicationStatus(Integer applicationId, com.crms.placement.model.ApplicationStatus status) {
         applicationManager.updateApplicationStatus(applicationId, status);
     }
+
+    public Application getApplicationById(Integer applicationId) {
+        return applicationManager.getApplicationById(applicationId);
+    }
 }
 

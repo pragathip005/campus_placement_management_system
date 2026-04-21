@@ -98,4 +98,8 @@ public class ApplicationManager {
         application.setStatus(status);
         applicationRepository.save(application);
     }
+
+    public Application getApplicationById(Integer applicationId) {
+        return applicationRepository.findById(applicationId).orElse(null);
+    }
 }

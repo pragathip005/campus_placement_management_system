@@ -139,11 +139,34 @@
 
     </div>
 
+    
     <!-- TAB CONTENT: Rank List -->
     <div id="rankList" class="tab-content">
-        
-        <div style="background: #e0f2fe; padding: 16px; border-radius: 8px; margin-bottom: 20px; color: #0284c7; font-size: 14px;">
-            ℹ️ This rank list includes only students who have completed the Online Assessment (OA_COMPLETED status).
+
+        <!-- Strategy selector -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div style="background: #e0f2fe; padding: 16px; border-radius: 8px; color: #0284c7; font-size: 14px; flex: 1; margin-right: 16px;">
+                ℹ️ Ranking strategy: <strong th:text="${strategyName}">Score Based</strong>
+            </div>
+
+            <!-- Strategy switcher -->
+            <div style="display: flex; gap: 8px; margin-right: 16px;">
+                <a th:href="@{/hr/job/{id}/applicants(id=${job.opportunity_id}, strategy='score')}"
+                   th:class="${currentStrategy == 'score'} ? 'tab-btn active' : 'tab-btn'"
+                   style="text-decoration: none; padding: 8px 12px; font-size: 13px;">Score</a>
+                <a th:href="@{/hr/job/{id}/applicants(id=${job.opportunity_id}, strategy='weighted')}"
+                   th:class="${currentStrategy == 'weighted'} ? 'tab-btn active' : 'tab-btn'"
+                   style="text-decoration: none; padding: 8px 12px; font-size: 13px;">Weighted</a>
+                <a th:href="@{/hr/job/{id}/applicants(id=${job.opportunity_id}, strategy='cgpa')}"
+                   th:class="${currentStrategy == 'cgpa'} ? 'tab-btn active' : 'tab-btn'"
+                   style="text-decoration: none; padding: 8px 12px; font-size: 13px;">CGPA First</a>
+            </div>
+
+            <!-- CSV Download -->
+            <a th:href="@{/hr/job/{id}/ranklist/download(id=${job.opportunity_id}, strategy=${currentStrategy})}"
+               style="background: #ff9500; color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600;">
+            ⬇ Download CSV
+            </a>
         </div>
 
         <div th:if="${#lists.isEmpty(rankList)}" style="text-align: center; color: #718096; padding: 40px;">
@@ -155,37 +178,45 @@
                 <tr>
                     <th>Rank</th>
                     <th>Candidate</th>
+                    <th>SRN</th>
+                    <th>Branch</th>
                     <th>OA Score</th>
                     <th>CGPA</th>
-                    <th>Action</th>
+                    <th>Composite Score</th>
+                     <th>Action</th>
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="entry, iterStat : ${rankList}">
+                <tr th:each="entry : ${rankList}">
                     <td style="font-weight: bold; color: #ff9500;">
-                        #<span th:text="${iterStat.count}">1</span>
+                        #<span th:text="${entry.rank}">1</span>
                     </td>
                     <td class="student-info">
-                        <span class="name" th:text="${entry.student.name}">Student Name</span>
-                        <span class="email" th:text="${entry.student.email != null ? entry.student.email : 'student@example.com'}">Email</span>
+                        <span class="name" th:text="${entry.studentName}">Student Name</span>
+                        <span class="email" th:text="${entry.email}">email@example.com</span>
                     </td>
+                    <td th:text="${entry.srn ?: 'N/A'}">SRN</td>
+                    <td th:text="${entry.branch ?: 'N/A'}">CSE</td>
                     <td style="font-weight: bold;" th:text="${entry.oaScore} + '/100'">85/100</td>
-                    <td th:text="${entry.student.cgpa}">9.5</td>
+                    <td th:text="${entry.cgpa}">9.5</td>
+                    <td th:text="${entry.compositeScore != null && entry.compositeScore > 0 ? entry.compositeScore : '-'}">86.35</td>
                     <td>
-                        <select class="status-select" 
-                                th:attr="data-original=${entry.application.status.name()}"
-                                th:onchange="'updateStatus(' + ${entry.application.applicationId} + ', this)'">
-                            <option value="OA_COMPLETED" th:selected="${entry.application.status.name() == 'OA_COMPLETED'}">OA Completed</option>
-                            <option value="INTERVIEW" th:selected="${entry.application.status.name() == 'INTERVIEW'}">Shortlist for Interview</option>
-                            <option value="REJECTED" th:selected="${entry.application.status.name() == 'REJECTED'}">Reject</option>
+                        <select class="status-select"
+                            th:attr="data-original='OA_COMPLETED'"
+                            th:onchange="'updateStatus(' + ${entry.applicationId} + ', this)'">
+                          <option value="OA_COMPLETED">OA Completed</option>
+                          <option value="INTERVIEW">Shortlist for Interview</option>
+                          <option value="REJECTED">Reject</option>
                         </select>
                     </td>
                 </tr>
             </tbody>
         </table>
-    </div>
-
 </div>
+        
+       
+
+            
 </th:block>
 </body>
 </html>
