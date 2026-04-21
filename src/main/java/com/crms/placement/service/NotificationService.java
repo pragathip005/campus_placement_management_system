@@ -40,4 +40,10 @@ public interface NotificationService {
     void notifySlotAssigned(String toEmail, String studentName,
                              String companyName, String role,
                              String slotTime);
+
+    void sendOfferLetter(String toEmail, String studentName,
+                            String companyName, String role);
+
+    void sendRejectionEmail(String toEmail, String studentName,
+                            String companyName);
 }

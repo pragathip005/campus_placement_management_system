@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Offer Letter', ~{::content}, ~{::styles}, ~{::scripts})}">
+
+<head>
+    <th:block th:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+        <style>
+            .offer-container {
+                padding: 40px;
+                display: flex;
+                justify-content: center;
+            }
+
+            .offer-card {
+                background: #fff;
+                border-radius: 16px;
+                padding: 40px;
+                width: 450px;
+                text-align: center;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            }
+
+            .offer-card h1 {
+                color: #ff6b00;
+                margin-bottom: 20px;
+            }
+
+            .offer-actions {
+                display: flex;
+                gap: 12px;
+                margin-top: 20px;
+            }
+
+            .offer-btn {
+                flex: 1;
+                padding: 12px;
+                border: none;
+                border-radius: 8px;
+                background: #ff6b00;
+                color: white;
+                font-weight: bold;
+                cursor: pointer;
+            }
+
+            .offer-btn.reject {
+                background: #dc3545;
+            }
+        </style>
+    </th:block>
+</head>
+
+<body>
+
+<th:block th:fragment="content">
+
+<div class="offer-container">
+
+    <div class="offer-card">
+
+        <h1>🎉 Congratulations!</h1>
+
+        <p>You have been <strong>selected</strong>.</p>
+
+        <p>Please choose an option below:</p>
+
+        <!-- ✅ FIXED FORMS -->
+        <div class="offer-actions">
+
+            <form th:action="@{/student/offer/accept}" method="post">
+                <input type="hidden" name="applicationId"
+                       th:value="${applicationId}" />
+                <button class="offer-btn">✅ Accept</button>
+            </form>
+
+            <form th:action="@{/student/offer/reject}" method="post">
+                <input type="hidden" name="applicationId"
+                       th:value="${applicationId}" />
+                <button class="offer-btn reject">❌ Reject</button>
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+</th:block>
+
+<th:block th:fragment="scripts">
+</th:block>
+
+</body>
+</html>
