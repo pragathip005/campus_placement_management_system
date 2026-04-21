@@ -7,10 +7,12 @@ import com.crms.placement.model.InterviewSlot;
 import com.crms.placement.model.Opportunity;
 import com.crms.placement.model.PendingCalendarUpdate;
 import com.crms.placement.model.Student;
+import com.crms.placement.model.User;
 import com.crms.placement.repository.ApplicationRepository;
 import com.crms.placement.repository.InterviewSlotRepository;
 import com.crms.placement.repository.PendingCalendarUpdateRepository;
 import com.crms.placement.repository.StudentRepository;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,9 +34,6 @@ import java.util.stream.Collectors;
 @Controller
 public class CalendarController {
 
-    private static final Integer HARDCODED_STUDENT_ID = 10;
-    private static final Long    HARDCODED_STUDENT_LONG_ID = 1L;
-
     private final ApplicationRepository          applicationRepository;
     private final InterviewSlotRepository        interviewSlotRepository;
     private final StudentRepository              studentRepository;
@@ -50,43 +49,33 @@ public class CalendarController {
         this.pendingRepo             = pendingRepo;
     }
 
-    /**
-     * Serves the calendar Thymeleaf page.
-     * Title "Calendar" activates the sidebar's Calendar nav item automatically
-     * (the layout fragment passes title as activePage to the sidebar).
-     */
     @GetMapping("/calendar")
-    public String calendarPage(Model model) {
-        Student student = studentRepository.findById(HARDCODED_STUDENT_LONG_ID).orElse(null);
-        String username = (student != null) ? student.getName() : "Student";
+    public String calendarPage(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) return "redirect:/login";
+        Student student = studentRepository.findById(user.getUserId()).orElse(null);
+        String username = (student != null) ? student.getName() : user.getName();
         model.addAttribute("username", username);
         return "pages/calendar";
     }
 
-    /**
-     * REST endpoint — FullCalendar.js fetches events from here via:
-     *   events: '/api/calendar/events'
-     *
-     * Returns a flat list of CalendarEventDtos (serialised to JSON by Jackson).
-     * Two event types are built:
-     *   OA events   — sourced from Application rows where status IN (OA_SENT, OA_COMPLETED)
-     *   Interview   — sourced from InterviewSlot rows for this student
-     */
     @GetMapping("/api/calendar/events")
     @ResponseBody
-    public List<CalendarEventDto> getEvents() {
+    public List<CalendarEventDto> getEvents(HttpSession session) {
         List<CalendarEventDto> events = new ArrayList<>();
+        User user = (User) session.getAttribute("user");
+        if (user == null) return events;
 
-        // ── Type 1: Online Assessment events ─────────────────────────────────────
-        // OA date lives on the Opportunity, not the Application.
-        // The JPQL query JOIN FETCHes opportunity + company to avoid LazyInitializationException.
+        Integer studentIntId = user.getUserId().intValue();
+        Long studentLongId = user.getUserId();
+
         List<ApplicationStatus> oaStatuses = List.of(
                 ApplicationStatus.OA_SENT,
                 ApplicationStatus.OA_COMPLETED
         );
 
         List<Application> oaApplications = applicationRepository
-                .findByStudentIdAndStatusIn(HARDCODED_STUDENT_ID, oaStatuses);
+                .findByStudentIdAndStatusIn(studentIntId, oaStatuses);
 
         for (Application app : oaApplications) {
             Opportunity opp = app.getOpportunity();
@@ -97,7 +86,6 @@ public class CalendarController {
             CalendarEventDto dto = new CalendarEventDto();
             dto.setTitle(companyName + " \u2014 Online Assessment");
             dto.setStart(opp.getOaDate().toString());
-            // OA events are point-in-time (no explicit end); FullCalendar renders them as all-day if no end.
             dto.setColor("#f97316");
             dto.setType("OA");
             dto.setCompanyName(companyName);
@@ -105,10 +93,8 @@ public class CalendarController {
             events.add(dto);
         }
 
-        // ── Type 2: Interview Slot events ────────────────────────────────────────
-        // The JPQL query JOIN FETCHes opportunity + company for safe access.
         List<InterviewSlot> slots = interviewSlotRepository
-                .findByStudentIdWithDetails(HARDCODED_STUDENT_LONG_ID);
+                .findByStudentIdWithDetails(studentLongId);
 
         for (InterviewSlot slot : slots) {
             Opportunity opp = slot.getOpportunity();
@@ -130,22 +116,14 @@ public class CalendarController {
         return events;
     }
 
-    /**
-     * Polling endpoint — the student's browser calls this every 30 seconds.
-     * Returns any undelivered CalendarEventDtos for the hardcoded student,
-     * then marks them delivered so they are never sent twice.
-     *
-     * Observer Pattern (delivery side): CalendarSyncListener queued the update;
-     * this endpoint is how it finally reaches the browser.
-     *
-     * DTO Pattern: PendingCalendarUpdate rows are transformed into CalendarEventDtos
-     * here — the frontend never sees the internal entity shape.
-     */
     @GetMapping("/api/calendar/updates")
     @ResponseBody
-    public List<CalendarEventDto> getPendingUpdates() {
+    public List<CalendarEventDto> getPendingUpdates(HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) return List.of();
+
         List<PendingCalendarUpdate> pending =
-                pendingRepo.findByStudentIdAndDeliveredFalse(HARDCODED_STUDENT_LONG_ID);
+                pendingRepo.findByStudentIdAndDeliveredFalse(user.getUserId());
 
         List<CalendarEventDto> events = pending.stream()
                 .map(this::buildEventFromUpdate)

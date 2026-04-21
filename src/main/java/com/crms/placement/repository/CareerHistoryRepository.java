@@ -10,4 +10,5 @@ import java.util.List;
 public interface CareerHistoryRepository extends JpaRepository<CareerHistory, Long> {
     List<CareerHistory> findByAlumniId(Long alumniId);
     long countByAlumniId(Long alumniId);
+    java.util.Optional<CareerHistory> findFirstByAlumniIdAndIsCurrentTrue(Long alumniId);
 }

@@ -39,7 +39,7 @@ public class RoleInterceptor implements HandlerInterceptor {
                 response.sendRedirect("/login?error=Access Denied (HR only)");
                 return false;
             }
-        } else if (uri.startsWith("/alumni/portal")) {
+        } else if (uri.startsWith("/alumni/dashboard")) {
             if (!"ALUMNI".equals(role) && !"ADMIN".equals(role)) {
                 response.sendRedirect("/login?error=Access Denied (Alumni only)");
                 return false;

@@ -5,8 +5,10 @@ import com.crms.placement.entity.Alumni;
 import com.crms.placement.entity.CareerHistory;
 import com.crms.placement.entity.OAPrepHistory;
 import com.crms.placement.model.Student;
+import com.crms.placement.model.User;
 import com.crms.placement.service.AlumniService;
 import com.crms.placement.repository.StudentRepository;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,8 +27,9 @@ public class AlumniPageController {
     }
 
     @GetMapping("/alumni-hub")
-    public String alumniHub(Model model) {
-        Student currentStudent = studentRepository.findById(1L).orElse(null);
+    public String alumniHub(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("user");
+        Student currentStudent = (user != null) ? studentRepository.findById(user.getUserId()).orElse(null) : null;
         boolean isStudentPlaced = currentStudent != null && Boolean.TRUE.equals(currentStudent.getIsPlaced());
         String currentStudentCompany = (isStudentPlaced && currentStudent.getPlacedCompany() != null) 
                                         ? currentStudent.getPlacedCompany().getName() : "";
@@ -36,11 +39,14 @@ public class AlumniPageController {
                     var careerHistory = alumniService.getCareerHistoryForAlumni(alumni.getId());
                     var oaPrepHistory = alumniService.getOAPrepHistoryForAlumni(alumni.getId());
 
-                    // Check if student can see contact details
-                    boolean canSeeContact = isStudentPlaced &&
-                            careerHistory.stream().anyMatch(career ->
-                                    career.getCompany() != null &&
-                                    career.getCompany().equalsIgnoreCase(currentStudentCompany));
+                    boolean sameCompanyInCareer = careerHistory.stream().anyMatch(career ->
+                            career.getCompany() != null &&
+                            career.getCompany().equalsIgnoreCase(currentStudentCompany));
+
+                    boolean sameCurrentCompany = alumni.getCurrentCompany() != null &&
+                            alumni.getCurrentCompany().equalsIgnoreCase(currentStudentCompany);
+
+                    boolean canSeeContact = isStudentPlaced && (sameCompanyInCareer || sameCurrentCompany);
 
                     return new AlumniHubView(alumni, careerHistory, oaPrepHistory, canSeeContact);
                 })

@@ -3,7 +3,10 @@ package com.crms.placement.controller;
 import com.crms.placement.entity.Alumni;
 import com.crms.placement.entity.CareerHistory;
 import com.crms.placement.entity.OAPrepHistory;
+import com.crms.placement.model.User;
+import com.crms.placement.repository.CareerHistoryRepository;
 import com.crms.placement.service.AlumniService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,39 +14,38 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Controller
-@RequestMapping("/alumni/portal")
+@RequestMapping("/alumni/dashboard")
 public class AlumniPortalController {
 
     private final AlumniService alumniService;
+    private final CareerHistoryRepository careerHistoryRepository;
 
-    public AlumniPortalController(AlumniService alumniService) {
+    public AlumniPortalController(AlumniService alumniService, CareerHistoryRepository careerHistoryRepository) {
         this.alumniService = alumniService;
+        this.careerHistoryRepository = careerHistoryRepository;
     }
 
     @GetMapping
-    public String alumniPortal(Model model) {
-        // Mock authentication for the portal. Ideally, we get email from session User.
-        // We will fetch the first alumni, or create an empty mock one if none exist.
-        Alumni currentAlumni = alumniService.getAllAlumni().stream().findFirst().orElse(new Alumni());
-        
-        if (currentAlumni.getId() == null) {
-            currentAlumni.setName("Mock Alumni");
-            currentAlumni.setEmail("mockalumni@example.com");
-            currentAlumni.setPlacementStatus("PLACED");
-        }
+    public String alumniPortal(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) return "redirect:/login";
+
+        Alumni currentAlumni = alumniService.getAlumniById(user.getUserId()).orElseGet(() -> {
+            Alumni empty = new Alumni();
+            empty.setId(user.getUserId());
+            empty.setEmail(user.getEmail());
+            return empty;
+        });
 
         model.addAttribute("alumni", currentAlumni);
-        
-        // Load partial data to show in history lists
-        if (currentAlumni.getId() != null) {
-            model.addAttribute("careerHistoryList", alumniService.getCareerHistoryForAlumni(currentAlumni.getId()));
-            model.addAttribute("oaPrepHistoryList", alumniService.getOAPrepHistoryForAlumni(currentAlumni.getId()));
-        }
-
-        // Blank objects for the forms
+        model.addAttribute("username", currentAlumni.getName() != null ? currentAlumni.getName() : user.getName());
+        model.addAttribute("careerHistoryList",
+                currentAlumni.getId() != null ? alumniService.getCareerHistoryForAlumni(currentAlumni.getId()) : java.util.List.of());
+        model.addAttribute("oaPrepHistoryList",
+                currentAlumni.getId() != null ? alumniService.getOAPrepHistoryForAlumni(currentAlumni.getId()) : java.util.List.of());
         model.addAttribute("careerHistory", new CareerHistory());
         model.addAttribute("oaPrep", new OAPrepHistory());
 
@@ -51,42 +53,105 @@ public class AlumniPortalController {
     }
 
     @PostMapping("/save")
-    public String saveAlumniProfile(@ModelAttribute Alumni alumni) {
-        // Find existing alumni by ID to merge updates securely
-        if (alumni.getId() != null) {
-            alumniService.getAlumniById(alumni.getId()).ifPresent(existing -> {
-                existing.setName(alumni.getName());
-                existing.setPhone(alumni.getPhone());
-                existing.setGraduationYear(alumni.getGraduationYear());
-                existing.setPlacementStatus(alumni.getPlacementStatus());
-                existing.setCurrentCompany(alumni.getCurrentCompany());
-                existing.setCurrentJobRole(alumni.getCurrentJobRole());
-                existing.setLinkedinUrl(alumni.getLinkedinUrl());
-                existing.setHigherStudiesUniversity(alumni.getHigherStudiesUniversity());
-                existing.setHigherStudiesCourse(alumni.getHigherStudiesCourse());
-                alumniService.saveAlumni(existing);
-            });
-        } else {
-            alumniService.saveAlumni(alumni);
+    public String saveAlumniProfile(@ModelAttribute Alumni alumni, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) return "redirect:/login";
+
+        Alumni toSave = alumniService.getAlumniById(user.getUserId()).orElseGet(() -> {
+            Alumni fresh = new Alumni();
+            fresh.setId(user.getUserId());
+            fresh.setEmail(user.getEmail());
+            return fresh;
+        });
+
+        String previousCompany = toSave.getCurrentCompany();
+
+        toSave.setName(alumni.getName());
+        toSave.setPhone(alumni.getPhone());
+        toSave.setGraduationYear(alumni.getGraduationYear());
+        toSave.setPlacementStatus(alumni.getPlacementStatus());
+        toSave.setCurrentCompany(alumni.getCurrentCompany());
+        toSave.setCurrentJobRole(alumni.getCurrentJobRole());
+        toSave.setLinkedinUrl(alumni.getLinkedinUrl());
+        toSave.setHigherStudiesUniversity(alumni.getHigherStudiesUniversity());
+        toSave.setHigherStudiesCourse(alumni.getHigherStudiesCourse());
+        alumniService.saveAlumni(toSave);
+
+        syncCurrentCareerEntry(user.getUserId(), previousCompany, alumni.getCurrentCompany(), alumni.getCurrentJobRole());
+        return "redirect:/alumni/dashboard";
+    }
+
+    private void syncCurrentCareerEntry(Long alumniId, String previousCompany, String newCompany, String newRole) {
+        CareerHistory existing = careerHistoryRepository
+                .findFirstByAlumniIdAndIsCurrentTrue(alumniId).orElse(null);
+
+        boolean companyChanged = newCompany != null && !newCompany.isBlank()
+                && !newCompany.equalsIgnoreCase(previousCompany);
+
+        if (newCompany == null || newCompany.isBlank()) {
+            // Company cleared — mark existing current entry as ended
+            if (existing != null) {
+                existing.setIsCurrent(false);
+                existing.setEndDate(LocalDate.now());
+                careerHistoryRepository.save(existing);
+            }
+            return;
         }
-        return "redirect:/alumni/portal";
+
+        if (existing != null && !companyChanged) {
+            boolean roleChanged = newRole != null && !newRole.isBlank()
+                    && !newRole.equalsIgnoreCase(existing.getRole());
+            if (!roleChanged) return; // nothing meaningful changed
+
+            // Same company, different role = promotion — close old entry, open new one
+            existing.setIsCurrent(false);
+            existing.setEndDate(LocalDate.now());
+            careerHistoryRepository.save(existing);
+
+            CareerHistory promoted = new CareerHistory();
+            promoted.setAlumniId(alumniId);
+            promoted.setCompany(newCompany);
+            promoted.setRole(newRole);
+            promoted.setIsCurrent(true);
+            promoted.setStartDate(LocalDate.now());
+            careerHistoryRepository.save(promoted);
+            return;
+        }
+
+        if (existing != null && companyChanged) {
+            // Moved to a new company — close out the old entry
+            existing.setIsCurrent(false);
+            existing.setEndDate(LocalDate.now());
+            careerHistoryRepository.save(existing);
+        }
+
+        // Create a new current entry for the new company
+        CareerHistory entry = new CareerHistory();
+        entry.setAlumniId(alumniId);
+        entry.setCompany(newCompany);
+        entry.setRole(newRole != null ? newRole : "");
+        entry.setIsCurrent(true);
+        entry.setStartDate(LocalDate.now());
+        careerHistoryRepository.save(entry);
     }
 
     @PostMapping("/career/save")
-    public String saveCareerHistory(@ModelAttribute CareerHistory careerHistory, Long alumniId) {
-        if (alumniId != null) {
-            careerHistory.setAlumniId(alumniId);
-            alumniService.saveCareerHistory(careerHistory);
-        }
-        return "redirect:/alumni/portal";
+    public String saveCareerHistory(@ModelAttribute CareerHistory careerHistory, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) return "redirect:/login";
+
+        careerHistory.setAlumniId(user.getUserId());
+        alumniService.saveCareerHistory(careerHistory);
+        return "redirect:/alumni/dashboard";
     }
 
     @PostMapping("/prep/save")
-    public String saveOAPrepHistory(@ModelAttribute OAPrepHistory oaPrep, Long alumniId) {
-        if (alumniId != null) {
-            oaPrep.setAlumniId(alumniId);
-            alumniService.saveOAPrepHistory(oaPrep);
-        }
-        return "redirect:/alumni/portal";
+    public String saveOAPrepHistory(@ModelAttribute OAPrepHistory oaPrep, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) return "redirect:/login";
+
+        oaPrep.setAlumniId(user.getUserId());
+        alumniService.saveOAPrepHistory(oaPrep);
+        return "redirect:/alumni/dashboard";
     }
 }
