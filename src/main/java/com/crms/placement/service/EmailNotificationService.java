@@ -129,4 +129,79 @@ public class EmailNotificationService implements NotificationService {
             </html>
             """.formatted(studentName, companyName, role, slotTime, companyName);
     }
+
+
+    @Override
+public void sendOfferLetter(String toEmail, String studentName,
+                            String companyName, String role) {
+    try {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+        helper.setFrom(senderEmail, companyName + " Recruitment");
+        helper.setTo(toEmail);
+        helper.setSubject("🎉 Offer Letter - " + companyName);
+        helper.setText(buildOfferEmailBody(studentName, companyName, role), true);
+
+        mailSender.send(message);
+        System.out.println("✅ Offer email sent to " + toEmail);
+
+    } catch (Exception e) {
+        System.out.println("❌ Failed to send offer email: " + e.getMessage());
+    }
+}
+
+
+    @Override
+public void sendRejectionEmail(String toEmail, String studentName,
+                                String companyName) {
+    try {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+        helper.setFrom(senderEmail, companyName + " Recruitment");
+        helper.setTo(toEmail);
+        helper.setSubject("Application Update - " + companyName);
+        helper.setText(buildRejectionEmailBody(studentName, companyName), true);
+
+        mailSender.send(message);
+        System.out.println("✅ Rejection email sent to " + toEmail);
+
+    } catch (Exception e) {
+        System.out.println("❌ Failed to send rejection email: " + e.getMessage());
+    }
+}
+
+
+private String buildOfferEmailBody(String studentName, String companyName, String role) {
+    return """
+        <html>
+        <body>
+            <p>Dear %s,</p>
+            <p>🎉 Congratulations!</p>
+            <p>You have been selected for the role of <strong>%s</strong> at <strong>%s</strong>.</p>
+            <p>Please log in to the portal to accept or reject your offer.</p>
+            <br/>
+            <p><strong>%s Recruitment Team</strong></p>
+        </body>
+        </html>
+        """.formatted(studentName, role, companyName, companyName);
+}
+
+
+
+      private String buildRejectionEmailBody(String studentName, String companyName) {
+    return """
+        <html>
+        <body>
+            <p>Dear %s,</p>
+            <p>Thank you for applying to <strong>%s</strong>.</p>
+            <p>We regret to inform you that you were not selected for this role.</p>
+            <p>We wish you all the best for your future.</p>
+            <br/>
+            <p><strong>%s Recruitment Team</strong></p>
+        </body>
+        </html>
+        """.formatted(studentName, companyName, companyName);
+}
 }

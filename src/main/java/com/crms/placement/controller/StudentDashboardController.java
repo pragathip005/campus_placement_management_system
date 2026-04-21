@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import com.crms.placement.model.ApplicationStatus;
 
 import java.util.List;
 
@@ -78,7 +79,7 @@ public String dashboard(HttpSession session, Model model) {
     boolean placed = false;
     String placedCompanyName = null;
     ApplicationDashboardDto placedApp = applications.stream()
-    .filter(app -> app.getStatus() != null && app.getStatus().name().equals("OFFER_ACCEPTED"))
+    .filter(app -> app.getStatus() == ApplicationStatus.OFFER_ACCEPTED)
     .findFirst()
     .orElse(null);
     if (placedApp != null) {

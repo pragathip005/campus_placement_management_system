@@ -47,7 +47,7 @@ public class OASchedulerService {
                 sendOAEmail(oa);
             }
 
-            if (oaDate.isBefore(today)) {
+            if (oa.getScheduledAt().isBefore(LocalDateTime.now())) {
                 markOACompleted(oa);
             }
         }
@@ -100,7 +100,14 @@ public class OASchedulerService {
     private void markOACompleted(OnlineAssessment oa) {
         try {
             oa.setCompleted(true);
-            onlineAssessmentRepository.save(oa);
+
+            // ✅ Set dummy score BEFORE saving
+            if (oa.getScore() == null) {
+               int dummyScore = 60 + new java.util.Random().nextInt(41);
+               oa.setScore(dummyScore);
+            }
+
+            onlineAssessmentRepository.save(oa); // ✅ single save with both completed=true and score set
 
             Application application = oa.getApplication();
             if (application != null) {
@@ -108,27 +115,28 @@ public class OASchedulerService {
                 applicationRepository.save(application);
 
                 Student student = studentRepository
-                        .findById(application.getStudentId().longValue())
-                        .orElse(null);
+                    .findById(application.getStudentId().longValue())
+                    .orElse(null);
 
                 Opportunity opportunity = application.getOpportunity();
 
                 if (student != null && opportunity != null && opportunity.getCompany() != null) {
                     notificationService.sendStatusUpdate(
-                            student.getEmail(),
-                            student.getName(),
-                            "OA Completed",
-                            opportunity.getCompany().getName(),
-                            opportunity.getCompany().getEmail()
-                    );
+                        student.getEmail(),
+                        student.getName(),
+                        "OA Completed",
+                        opportunity.getCompany().getName(),
+                        opportunity.getCompany().getEmail()
+                   );
                 }
             }
+        
 
             System.out.println("✅ OA marked completed for applicationId="
-                    + (oa.getApplication() != null ? oa.getApplication().getApplicationId() : "?"));
+                + (oa.getApplication() != null ? oa.getApplication().getApplicationId() : "?"));
 
-        } catch (Exception e) {
-            System.out.println("❌ Error marking OA completed: " + e.getMessage());
-        }
+    } catch (Exception e) {
+        System.out.println("❌ Error marking OA completed: " + e.getMessage());
     }
+}
 }

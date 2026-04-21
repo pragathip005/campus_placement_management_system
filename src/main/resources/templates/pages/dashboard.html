@@ -21,7 +21,6 @@
     <div th:if="${placed}" class="placed-banner" id="placedBanner">
         <div class="placed-inner">
             
-            <!-- ❌ Close button -->
             <button class="close-banner" onclick="closePlacedBanner()">×</button>
 
             <h2 class="placed-title">
@@ -35,15 +34,10 @@
         </div>
     </div>
 
-    <!-- ── Two-column grid ───────────────────────────── -->
     <div class="dash-grid">
 
-        <!-- ══════════════════════════════════════════
-             LEFT: Profile card + Stats card
-        ══════════════════════════════════════════ -->
         <aside class="dash-left">
 
-            <!-- Profile Card -->
             <div class="card profile-card">
                 <div class="profile-header">
                     <div class="avatar-box">
@@ -59,7 +53,6 @@
                     </div>
                 </div>
 
-                <!-- CGPA + Status pills -->
                 <div class="stat-pills">
                     <div class="stat-pill">
                         <span class="pill-label">CGPA</span>
@@ -79,8 +72,8 @@
                         </span>
                     </div>
                 </div>
+            </div>
 
-            <!-- Stats Card -->
             <div class="card stats-card">
                 <h3 class="card-title">
                     <i data-lucide="file-text" class="card-title-icon"></i>
@@ -104,13 +97,9 @@
 
         </aside>
 
-        <!-- ══════════════════════════════════════════
-             RIGHT: Application Tracker
-        ══════════════════════════════════════════ -->
         <section class="dash-right">
             <h2 class="section-title">Application Tracker</h2>
 
-            <!-- Empty state -->
             <div th:if="${#lists.isEmpty(applications)}" class="empty-state">
                 <div class="empty-icon-wrap">
                     <i data-lucide="inbox" class="empty-icon"></i>
@@ -120,12 +109,10 @@
                 <a th:href="@{/jobs}" class="browse-btn">Browse Jobs</a>
             </div>
 
-            <!-- Application cards -->
             <div th:unless="${#lists.isEmpty(applications)}" class="app-list">
 
                 <div th:each="app : ${applications}" class="app-card">
 
-                    <!-- Card header -->
                     <div class="app-header">
                         <div>
                             <h3 class="app-company"
@@ -152,74 +139,81 @@
                         </div>
                     </div>
 
-                    <!-- ── Status Timeline ──────────────────────── -->
                     <div class="timeline-wrap">
                         <div class="timeline-track">
                             <div class="timeline-fill"
                                  th:style="'width:' + ${app.progressPercent} + '%'"></div>
                         </div>
 
-                        <div class="timeline-wrap">
-                            <div class="timeline-track">
-                                <div class="timeline-fill"
-                                    th:style="'width:' + ${app.progressPercent} + '%'"></div>
+                        <div class="timeline-steps">
+
+                            <div th:class="'step' + (${app.statusIndex >= 0} ? ' done' : '')">
+                                <div class="step-dot"></div>
+                                <span class="step-label">Applied</span>
                             </div>
 
-                            <div class="timeline-steps">
-
-                                <!-- 0: Applied -->
-                                <div th:class="'step' + (${app.statusIndex >= 0} ? ' done' : '')">
-                                    <div class="step-dot"></div>
-                                    <span class="step-label">Applied</span>
-                                </div>
-
-                                <!-- 1: OA Sent -->
-                                <div th:class="'step' + (${app.statusIndex >= 1} ? ' done' : '')">
-                                    <div class="step-dot"></div>
-                                    <span class="step-label">OA Sent</span>
-                                </div>
-
-                                <!-- 2: OA Completed -->
-                                <div th:class="'step' + (${app.statusIndex >= 2} ? ' done' : '')">
-                                    <div class="step-dot"></div>
-                                    <span class="step-label">OA Completed</span>
-                                </div>
-
-                                <!-- 3: Interview -->
-                                <div th:class="'step' + (${app.statusIndex >= 3} ? ' done' : '')">
-                                    <div class="step-dot"></div>
-                                    <span class="step-label">Interview</span>
-                                </div>
-
-                                <!-- 4: Selected -->
-                                <div th:class="'step' + (${app.statusIndex >= 4} ? ' done' : '')">
-                                    <div class="step-dot"></div>
-                                    <span class="step-label">Selected</span>
-                                </div>
-
-                                <!-- 5: Offer -->
-                                <div th:class="'step' + (${app.statusIndex >= 5} ? ' done' : '')">
-                                    <div class="step-dot"></div>
-                                    <span class="step-label">Offer</span>
-                                </div>
-
-                                <!-- ❌ Rejected -->
-                                <div th:if="${app.status != null and (app.status.name() == 'REJECTED' or app.status.name() == 'OFFER_REJECTED')}"
-                                    class="step rejected">
-                                    <div class="step-dot rejected-dot"></div>
-                                    <span class="step-label">Rejected</span>
-                                </div>
-
+                            <div th:class="'step' + (${app.statusIndex >= 1} ? ' done' : '')">
+                                <div class="step-dot"></div>
+                                <span class="step-label">OA Sent</span>
                             </div>
+
+                            <div th:class="'step' + (${app.statusIndex >= 2} ? ' done' : '')">
+                                <div class="step-dot"></div>
+                                <span class="step-label">OA Completed</span>
+                            </div>
+
+                            <div th:class="'step' + (${app.statusIndex >= 3} ? ' done' : '')">
+                                <div class="step-dot"></div>
+                                <span class="step-label">Interview</span>
+                            </div>
+
+                            <div th:class="'step' + (${app.statusIndex >= 4} ? ' done' : '')">
+                                <div class="step-dot"></div>
+                                <span class="step-label">Selected</span>
+                            </div>
+
+                            <div th:class="'step' + (${app.statusIndex >= 5} ? ' done' : '')">
+                                <div class="step-dot"></div>
+                                <span class="step-label">Offer</span>
+                            </div>
+
+                            <div th:if="${app.status != null and (app.status.name() == 'REJECTED' or app.status.name() == 'OFFER_REJECTED')}"
+                                 class="step rejected">
+                                <div class="step-dot rejected-dot"></div>
+                                <span class="step-label">Rejected</span>
+                            </div>
+
                         </div>
                     </div>
-                </div><!-- /app-card -->
-            </div><!-- /app-list -->
+
+                    <!-- 🔥 FIXED OFFER SECTION -->
+                    <div class="offer-section"
+                         th:if="${app.status != null and app.status.name() == 'SELECTED'}">
+
+                        <a th:href="@{/student/offer(applicationId=${app.applicationId})}"
+                           class="offer-btn">
+                            🎉 View Offer
+                        </a>
+
+                    </div>
+
+                    <div th:if="${app.status != null and app.status.name() == 'OFFER_ACCEPTED'}"
+                         class="offer-status accepted">
+                        ✅ Offer Accepted
+                    </div>
+
+                    <div th:if="${app.status != null and app.status.name() == 'OFFER_REJECTED'}"
+                         class="offer-status rejected">
+                        ❌ Offer Rejected
+                    </div>
+
+                </div>
+
+            </div>
         </section>
-    </div><!-- /dash-grid -->
+    </div>
 </main>
 
-<!-- Confetti only when placed -->
 <th:block th:if="${placed}">
     <script>
     function closePlacedBanner() {

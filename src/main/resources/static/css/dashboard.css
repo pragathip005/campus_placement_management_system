@@ -524,3 +524,44 @@ body {
         transform: translateY(0);
     }
 }
+
+/* ── Offer Section ───────────────────────────── */
+
+.offer-section {
+    margin-top: 14px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.offer-btn {
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
+    transition: all 0.2s ease;
+}
+
+.offer-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(249, 115, 22, 0.35);
+}
+
+/* Offer status (accepted/rejected) */
+
+.offer-status {
+    margin-top: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.offer-status.accepted {
+    color: var(--green);
+}
+
+.offer-status.rejected {
+    color: var(--red);
+}
