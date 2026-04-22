@@ -272,6 +272,10 @@ String name = student.getName();
 
             if (newStatus == ApplicationStatus.SELECTED) {
                notificationService.sendOfferLetter(email, name, company, role);
+               // Sync student.isPlaced and student.placedCompany so alumni hub unlock works
+               student.setIsPlaced(true);
+               student.setPlacedCompany(application.getOpportunity().getCompany());
+               studentRepository.save(student);
             }
 
 
