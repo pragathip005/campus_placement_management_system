@@ -66,7 +66,14 @@ public class SupabaseService {
                     + fileName;
 
         } catch (Exception e) {
-            throw new RuntimeException("File upload failed", e);
+            System.err.println("❌ [SUPABASE] File upload failed!");
+            System.err.println("   URL: " + config.getSupabaseUrl() + "/storage/v1/object/" + (isJobDescription ? JD_BUCKET : RESUME_BUCKET));
+            System.err.println("   API Key present: " + (config.getApiKey() != null && !config.getApiKey().isBlank()));
+            System.err.println("   File name: " + (file != null ? file.getOriginalFilename() : "NULL"));
+            System.err.println("   Content type: " + (file != null ? file.getContentType() : "NULL"));
+            System.err.println("   Root cause: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("File upload failed: " + e.getMessage(), e);
         }
     }
 
