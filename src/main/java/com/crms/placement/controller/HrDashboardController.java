@@ -272,9 +272,19 @@ String name = student.getName();
 
             if (newStatus == ApplicationStatus.SELECTED) {
                notificationService.sendOfferLetter(email, name, company, role);
-               // Sync student.isPlaced and student.placedCompany so alumni hub unlock works
+            }
+
+            if (newStatus == ApplicationStatus.OFFER_ACCEPTED) {
+               // Student accepted the offer — now mark them as placed so alumni hub unlocks
                student.setIsPlaced(true);
                student.setPlacedCompany(application.getOpportunity().getCompany());
+               studentRepository.save(student);
+            }
+
+            if (newStatus == ApplicationStatus.OFFER_REJECTED) {
+               // Student rejected — ensure isPlaced stays false
+               student.setIsPlaced(false);
+               student.setPlacedCompany(null);
                studentRepository.save(student);
             }
 

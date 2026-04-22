@@ -48,7 +48,7 @@ public class AlumniPageController {
         } else if (currentStudent != null && !placedFlag) {
             List<Application> selectedApps = applicationRepository.findByStudentIdAndStatusIn(
                 currentStudent.getStudentId().intValue(),
-                List.of(ApplicationStatus.SELECTED)
+                List.of(ApplicationStatus.OFFER_ACCEPTED)
             );
             if (!selectedApps.isEmpty()) {
                 placedFlag = true;
