@@ -52,20 +52,40 @@ public class OAPrepHistory {
         return company;
     }
 
+    public void setCompany(String company) {
+        this.company = company;
+    }
+
     public String getOaDifficulty() {
         return oaDifficulty;
+    }
+
+    public void setOaDifficulty(String oaDifficulty) {
+        this.oaDifficulty = oaDifficulty;
     }
 
     public String getQuestions() {
         return questions;
     }
 
+    public void setQuestions(String questions) {
+        this.questions = questions;
+    }
+
     public String getTips() {
         return tips;
     }
 
+    public void setTips(String tips) {
+        this.tips = tips;
+    }
+
     public String getInterviewExperience() {
         return interviewExperience;
+    }
+
+    public void setInterviewExperience(String interviewExperience) {
+        this.interviewExperience = interviewExperience;
     }
 
     public LocalDateTime getCreatedAt() {
