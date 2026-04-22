@@ -1,105 +1,126 @@
 package com.crms.placement.service;
 
-import com.crms.placement.model.OAQuestion;
-import com.crms.placement.model.InterviewExperience;
-import com.crms.placement.repository.OAQuestionRepository;
-import com.crms.placement.repository.InterviewExperienceRepository;
+import com.crms.placement.entity.OAPrepHistory;
+import com.crms.placement.repository.OAPrepHistoryRepository;
+import com.crms.placement.repository.AlumniRepository;
+import com.crms.placement.entity.Alumni;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class PreparationHubService {
 
-    private final OAQuestionRepository oaQuestionRepository;
-    private final InterviewExperienceRepository interviewExperienceRepository;
+    private final OAPrepHistoryRepository oaPrepHistoryRepository;
+    private final AlumniRepository alumniRepository;
 
-    public PreparationHubService(OAQuestionRepository oaQuestionRepository,
-                                  InterviewExperienceRepository interviewExperienceRepository) {
-        this.oaQuestionRepository = oaQuestionRepository;
-        this.interviewExperienceRepository = interviewExperienceRepository;
+    public PreparationHubService(OAPrepHistoryRepository repo,
+                                 AlumniRepository alumniRepository) {
+        this.oaPrepHistoryRepository = repo;
+        this.alumniRepository = alumniRepository;
+    }
+
+    // 🔥 helper: get alumni name
+    private String getAlumniName(Long id) {
+        if (id == null) return "Alumni";
+
+        return alumniRepository.findById(id)
+                .map(Alumni::getName)
+                .orElse("Alumni");
     }
 
     /**
-     * Get all OA Questions grouped by company
+     * ✅ ALL OA QUESTIONS
      */
-    public List<OAQuestion> getAllOAQuestions() {
-        return oaQuestionRepository.findAllGroupedByCompany();
+    public List<Map<String, Object>> getAllOAQuestions() {
+        return oaPrepHistoryRepository.findAll().stream()
+                .filter(e -> e.getQuestions() != null && !e.getQuestions().isEmpty())
+                .map(e -> {
+                    Map<String, Object> m = new HashMap<>();
+                    m.put("company", e.getCompany());
+                    m.put("questions", e.getQuestions());
+                    m.put("oaDifficulty", e.getOaDifficulty());
+                    m.put("tips", e.getTips());
+                    m.put("alumniName", getAlumniName(e.getAlumniId())); // ✅ FIX
+                    return m;
+                })
+                .collect(Collectors.toList());
     }
 
     /**
-     * Get all Interview Experiences grouped by company
+     * ✅ ALL INTERVIEW EXPERIENCES
      */
-    public List<InterviewExperience> getAllInterviewExperiences() {
-        return interviewExperienceRepository.findAllGroupedByCompany();
+    public List<Map<String, Object>> getAllInterviewExperiences() {
+        return oaPrepHistoryRepository.findAll().stream()
+                .filter(e -> e.getInterviewExperience() != null && !e.getInterviewExperience().isEmpty())
+                .map(e -> {
+                    Map<String, Object> m = new HashMap<>();
+                    m.put("company", e.getCompany());
+                    m.put("interviewExperience", e.getInterviewExperience());
+                    m.put("oaDifficulty", e.getOaDifficulty());
+                    m.put("tips", e.getTips());
+                    m.put("alumniName", getAlumniName(e.getAlumniId())); // ✅ FIX
+                    return m;
+                })
+                .collect(Collectors.toList());
     }
 
     /**
-     * Get OA Questions for a specific company by ID
+     * ✅ FILTER BY COMPANY (OA)
      */
-    public List<OAQuestion> getOAQuestionsByCompany(Integer companyId) {
-        return oaQuestionRepository.findByCompanyIdOrderByAddedDateDesc(companyId);
-    }
-
-    /**
-     * Get OA Questions for a specific company by name
-     */
-    public List<OAQuestion> getOAQuestionsByCompanyName(String companyName) {
+    public List<Map<String, Object>> getOAQuestionsByCompanyName(String companyName) {
         return getAllOAQuestions().stream()
-                .filter(q -> q.getCompany().getName().equalsIgnoreCase(companyName))
+                .filter(e -> e.get("company").toString().equalsIgnoreCase(companyName))
                 .collect(Collectors.toList());
     }
 
     /**
-     * Get Interview Experiences for a specific company
+     * ✅ FILTER BY COMPANY (INTERVIEW)
      */
-    public List<InterviewExperience> getInterviewExperiencesByCompany(Integer companyId) {
-        return interviewExperienceRepository.findByCompanyIdOrderByExperienceDateDesc(companyId);
-    }
-
-    /**
-     * Get Interview Experiences for a specific company by name
-     */
-    public List<InterviewExperience> getInterviewExperiencesByCompanyName(String companyName) {
+    public List<Map<String, Object>> getInterviewExperiencesByCompanyName(String companyName) {
         return getAllInterviewExperiences().stream()
-                .filter(e -> e.getCompany().getName().equalsIgnoreCase(companyName))
+                .filter(e -> e.get("company").toString().equalsIgnoreCase(companyName))
                 .collect(Collectors.toList());
     }
 
     /**
-     * Get preparation data grouped by company
-     * Returns a map with company name as key and object containing OA questions and interview experiences
+     * ✅ MAIN HUB DATA
      */
     public Map<String, Map<String, Object>> getPreparationHubData() {
-        List<OAQuestion> allQuestions = getAllOAQuestions();
-        List<InterviewExperience> allExperiences = getAllInterviewExperiences();
 
-        // Create a combined map grouped by company
+        List<Map<String, Object>> allQuestions = getAllOAQuestions();
+        List<Map<String, Object>> allExperiences = getAllInterviewExperiences();
+
         Map<String, Map<String, Object>> result = new LinkedHashMap<>();
 
-        // Group by company
-        var questionsByCompany = allQuestions.stream()
-                .collect(Collectors.groupingBy(q -> q.getCompany().getName()));
+        Set<String> companies = new LinkedHashSet<>();
 
-        var experiencesByCompany = allExperiences.stream()
-                .collect(Collectors.groupingBy(e -> e.getCompany().getName()));
+        allQuestions.forEach(q -> companies.add(q.get("company").toString().toLowerCase()));
+        allExperiences.forEach(e -> companies.add(e.get("company").toString().toLowerCase()));
 
-        // Get all unique company names
-        var allCompanyNames = new LinkedHashMap<String, Boolean>();
-        questionsByCompany.keySet().forEach(name -> allCompanyNames.putIfAbsent(name, true));
-        experiencesByCompany.keySet().forEach(name -> allCompanyNames.putIfAbsent(name, true));
+        for (String companyKey : companies) {
 
-        // Build the result map
-        allCompanyNames.forEach((companyName, unused) -> {
-            Map<String, Object> companyData = new LinkedHashMap<>();
-            companyData.put("name", companyName);
-            companyData.put("questions", questionsByCompany.getOrDefault(companyName, List.of()));
-            companyData.put("experiences", experiencesByCompany.getOrDefault(companyName, List.of()));
-            result.put(companyName, companyData);
-        });
+            String displayName = null;
+
+            List<Map<String, Object>> qList = allQuestions.stream()
+                    .filter(q -> q.get("company").toString().equalsIgnoreCase(companyKey))
+                    .collect(Collectors.toList());
+
+            List<Map<String, Object>> eList = allExperiences.stream()
+                    .filter(e -> e.get("company").toString().equalsIgnoreCase(companyKey))
+                    .collect(Collectors.toList());
+
+            if (!qList.isEmpty()) displayName = qList.get(0).get("company").toString();
+            else if (!eList.isEmpty()) displayName = eList.get(0).get("company").toString();
+
+            Map<String, Object> data = new LinkedHashMap<>();
+            data.put("name", displayName);
+            data.put("questions", qList);
+            data.put("experiences", eList);
+
+            result.put(companyKey, data);
+        }
 
         return result;
     }

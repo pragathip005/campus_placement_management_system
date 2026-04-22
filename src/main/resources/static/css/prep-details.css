@@ -1,13 +1,18 @@
-/* PREPARATION DETAILS PAGE STYLES */
+/* ═══════════════════════════════════════════
+   PREP DETAILS — oa-questions & interview-experiences
+   ═══════════════════════════════════════════ */
 
 .prep-details {
+    padding: 32px 40px;
+    max-width: 860px;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
 }
 
-/* HEADER */
-.header {
-    margin-bottom: 30px;
+/* ── HEADER ── */
+.prep-header {
+    margin-bottom: 28px;
 }
 
 .back-btn {
@@ -17,171 +22,153 @@
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    padding: 8px 12px;
-    margin-bottom: 16px;
-    border-radius: 4px;
-    transition: background-color 0.2s ease;
+    padding: 0;
+    margin-bottom: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: opacity 0.2s;
 }
+.back-btn:hover { opacity: 0.7; }
 
-.back-btn:hover {
-    background-color: #fff5e6;
-}
-
-.header h1 {
-    margin: 0 0 8px 0;
-    font-size: 32px;
+.prep-header h1 {
+    margin: 0 0 6px 0;
+    font-size: 26px;
     font-weight: 700;
     color: #1a1a1a;
 }
 
-.company-name {
-    margin: 0;
-    font-size: 16px;
-    color: #666;
+.company-label {
+    font-size: 15px;
+    color: #888;
     font-weight: 500;
+    margin: 0;
 }
 
-/* QUESTIONS/EXPERIENCES CONTAINER */
-.questions-container,
-.experiences-container {
+/* ── COUNT BADGE ── */
+.count-badge {
+    display: inline-block;
+    background: #fff5e6;
+    color: #ff9500;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 22px;
+}
+
+/* ── CARD LIST ── */
+.cards-list {
     display: flex;
     flex-direction: column;
     gap: 16px;
 }
 
-/* QUESTION/EXPERIENCE CARD */
-.question-card,
-.experience-card {
-    background: white;
+/* ── INDIVIDUAL CARD ── */
+.prep-card {
+    background: #fff;
     border: 1px solid #e8e8e8;
-    border-radius: 8px;
-    padding: 20px;
-    transition: all 0.3s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    padding: 22px 24px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
 }
-
-.question-card:hover,
-.experience-card:hover {
+.prep-card:hover {
     border-color: #ff9500;
-    box-shadow: 0 4px 12px rgba(255, 149, 0, 0.1);
+    box-shadow: 0 4px 14px rgba(255,149,0,0.1);
 }
 
-/* CARD HEADER */
-.question-header,
-.experience-header {
+/* ── CARD TOP ROW ── */
+.prep-card-top {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 16px;
+    align-items: center;
+    margin-bottom: 14px;
     padding-bottom: 12px;
-    border-bottom: 2px solid #f0f0f0;
+    border-bottom: 1px solid #f0f0f0;
 }
 
-.question-header h2,
-.experience-header h2 {
+.prep-card-top h3 {
     margin: 0;
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 600;
     color: #1a1a1a;
-    flex: 1;
 }
 
-.batch {
-    background: #e3f2fd;
-    color: #1976d2;
-    padding: 4px 12px;
-    border-radius: 16px;
+/* ── DIFFICULTY BADGE ── */
+.difficulty-badge {
+    padding: 4px 14px;
+    border-radius: 20px;
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 600;
     white-space: nowrap;
-}
-
-.author-name {
-    background: #fff5e6;
-    color: #ff9500;
-    padding: 4px 12px;
-    border-radius: 16px;
-    font-size: 12px;
-    font-weight: 500;
-    white-space: nowrap;
-}
-
-/* CARD BODY */
-.question-body,
-.experience-body {
-    margin-bottom: 16px;
-}
-
-.question-body p,
-.experience-body p {
-    margin: 0;
-    font-size: 14px;
-    line-height: 1.6;
+    background: #f0f0f0;
     color: #555;
 }
+.difficulty-badge.Easy   { background: #e6f9f0; color: #22a05a; }
+.difficulty-badge.Medium { background: #fff8e1; color: #f59e0b; }
+.difficulty-badge.Hard   { background: #fde8e8; color: #e53e3e; }
 
-/* CARD FOOTER */
-.question-footer,
-.experience-footer {
+/* ── CARD BODY ── */
+.prep-card-body {
+    font-size: 14px;
+    line-height: 1.75;
+    color: #444;
+    margin-bottom: 14px;
+    white-space: pre-wrap;
+}
+
+/* ── TIPS BLOCK ── */
+.tips-block {
+    background: #fffbf2;
+    border-left: 3px solid #ff9500;
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 14px;
+    line-height: 1.6;
+}
+.tips-block strong { color: #ff9500; margin-right: 4px; }
+
+/* ── CARD FOOTER ── */
+.prep-card-footer {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
     padding-top: 12px;
     border-top: 1px solid #f0f0f0;
 }
 
-.date-added,
-.date-shared {
-    font-size: 12px;
-    color: #999;
+.author-tag {
+    font-size: 13px;
+    color: #ff9500;
+    font-weight: 600;
+}
+.author-tag span {
+    color: #333;
+    font-weight: 500;
 }
 
-/* NO DATA MESSAGE */
-.no-data {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 300px;
-    background: #f9f9f9;
-    border: 2px dashed #e8e8e8;
-    border-radius: 8px;
-}
-
-.no-data-content {
+/* ── EMPTY STATE ── */
+.empty-state {
     text-align: center;
+    padding: 60px 20px;
+    color: #aaa;
+    background: #fafafa;
+    border: 2px dashed #e8e8e8;
+    border-radius: 12px;
+    margin-top: 8px;
 }
+.empty-state p { margin: 0; font-size: 15px; }
 
-.no-data-content p {
-    margin: 8px 0;
-    font-size: 16px;
-    color: #999;
-}
-
-.text-muted {
-    font-size: 14px !important;
-    color: #bbb !important;
-}
-
-/* RESPONSIVE */
+/* ── RESPONSIVE ── */
 @media (max-width: 768px) {
-    .header h1 {
-        font-size: 24px;
-    }
-
-    .question-header,
-    .experience-header {
+    .prep-details { padding: 20px 16px; }
+    .prep-header h1 { font-size: 22px; }
+    .prep-card-top {
         flex-direction: column;
         align-items: flex-start;
-    }
-
-    .question-header h2,
-    .experience-header h2 {
-        font-size: 16px;
-    }
-
-    .question-card,
-    .experience-card {
-        padding: 16px;
+        gap: 8px;
     }
 }
