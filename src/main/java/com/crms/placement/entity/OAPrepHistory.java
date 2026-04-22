@@ -19,10 +19,13 @@ public class OAPrepHistory {
     @Column(name = "oa_difficulty")
     private String oaDifficulty;
 
+    @Column(columnDefinition = "TEXT")
     private String questions;
+
+    @Column(columnDefinition = "TEXT")
     private String tips;
 
-    @Column(name = "interview_experience")
+    @Column(name = "interview_experience", columnDefinition = "TEXT")
     private String interviewExperience;
 
     @Column(name = "created_at", insertable = false, updatable = false)
