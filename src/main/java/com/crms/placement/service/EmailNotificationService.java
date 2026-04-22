@@ -6,6 +6,24 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+// ============================================================
+// OBSERVER PATTERN — ROLE: CONCRETE OBSERVER (Email)
+// ============================================================
+// EmailNotificationService IS the observer that reacts to placement events
+// by sending emails to students.
+//
+// It implements NotificationService (the observer contract/interface).
+// The subjects (SlotAllocationService, OASchedulerService, HrDashboardController)
+// call methods on the interface — they have zero knowledge that it's email
+// specifically. You could replace this with SMS and nothing else changes.
+//
+// Emails sent:
+//   • OA scheduled         → sendOANotification()    (from OASchedulerService)
+//   • Status changed       → sendStatusUpdate()      (from OASchedulerService)
+//   • Interview slot given → notifySlotAssigned()    (from SlotAllocationService)
+//   • Offer letter         → sendOfferLetter()       (from HrDashboardController)
+//   • Rejection            → sendRejectionEmail()    (from HrDashboardController)
+// ============================================================
 @Service
 public class EmailNotificationService implements NotificationService {
 
