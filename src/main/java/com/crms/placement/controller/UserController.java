@@ -67,24 +67,21 @@ public class UserController {
         student.setPhone(phone);
         
         //resume upload logic
-        String contentType = resumeFile.getContentType();
-
-        if (contentType == null || 
-        (!contentType.equals("application/pdf") &&
-            !contentType.equals("application/msword") &&
-            !contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document"))) {
-            throw new IllegalArgumentException("Only PDF/DOC/DOCX allowed");
-        }
-
         System.out.println("File received: " + 
         (resumeFile != null ? resumeFile.getOriginalFilename() : "NULL"));
         if (resumeFile != null && !resumeFile.isEmpty()) {
+            String contentType = resumeFile.getContentType();
+            if (contentType == null || 
+            (!contentType.equals("application/pdf") &&
+                !contentType.equals("application/msword") &&
+                !contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document"))) {
+                throw new IllegalArgumentException("Only PDF/DOC/DOCX allowed");
+            }
             System.out.println("Uploading to Supabase...");
             String resumeUrl = supabaseService.uploadResume(resumeFile);
             System.out.println("Supabase URL: " + resumeUrl);
             student.setResumeUrl(resumeUrl);
         }
-
         System.out.println("Resume saved in DB: " + student.getResumeUrl());
         studentRepository.save(student);
 

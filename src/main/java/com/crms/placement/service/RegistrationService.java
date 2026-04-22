@@ -59,7 +59,7 @@ public class RegistrationService {
         // 2. Create role-specific entity
         if ("STUDENT".equalsIgnoreCase(request.getRole())) {
             Student student = new Student();
-            student.setStudentId(userId);
+            student.setUser(user);  // @MapsId derives student_id from user
             student.setName(request.getName());
             student.setEmail(request.getEmail());
             student.setSrn(request.getSrn());
