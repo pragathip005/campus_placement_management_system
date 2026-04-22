@@ -3,11 +3,24 @@ package com.crms.placement.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-/**
- * Stores undelivered calendar update notifications so the student's browser
- * can poll and pick them up. Once delivered, the row is kept but marked
- * delivered=true — we never delete records (audit trail).
- */
+// ============================================================
+// OBSERVER PATTERN — ROLE: MESSAGE QUEUE (DB-backed delivery)
+// ============================================================
+// Because HTTP is stateless, the server cannot push an update to
+// the browser directly. Instead, CalendarSyncListener writes a row
+// here, and the browser polls /api/calendar/updates every 30 seconds
+// to collect undelivered rows.
+//
+// This acts as a lightweight async message queue stored in the DB.
+// Once the browser picks up a row, CalendarController sets
+// delivered=true so the same update is never returned twice.
+//
+// Fields:
+//   studentId   — which student's calendar should update
+//   eventType   — "OA_ADDED" | "SLOT_ASSIGNED" | "SLOT_CANCELLED"
+//   referenceId — the DB primary key of the changed entity
+//   delivered   — false = pending, true = already sent to browser
+// ============================================================
 @Entity
 @Table(name = "pending_calendar_updates")
 public class PendingCalendarUpdate {

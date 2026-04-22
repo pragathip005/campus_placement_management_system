@@ -87,7 +87,11 @@ public class OADispatchService {
             application.setStatus(ApplicationStatus.OA_SENT);
             applicationRepository.save(application);
 
-            // Observer: notify calendar that OA was added for this student
+            // OBSERVER PATTERN — trigger point:
+            // OA is now saved. Fire an event so CalendarSyncListener
+            // writes a PendingCalendarUpdate row. The student's browser
+            // will pick it up on its next 30-second poll and show the
+            // new OA event on the calendar — without any page refresh.
             calendarEventPublisher.publishOaAdded(
                     application.getStudentId().longValue(),
                     application.getApplicationId().longValue()

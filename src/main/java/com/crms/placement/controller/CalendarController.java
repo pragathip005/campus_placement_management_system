@@ -22,15 +22,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * SRP: CalendarController only handles calendar event aggregation and serving the
- * calendar view. It does not modify any application or slot data — purely a
- * read / transform / serve responsibility.
- *
- * Observer Pattern: CalendarController observes ApplicationStatus changes and
- * InterviewSlot assignments to build the student's event feed. It does not own
- * this data — it only reads and transforms it into CalendarEventDtos.
- */
+// ============================================================
+// OBSERVER PATTERN — ROLE: DELIVERY ENDPOINT (Browser-side pull)
+// ============================================================
+// This controller is the final step in the Observer chain:
+//
+//   CalendarEventPublisher (Subject)
+//       → fires CalendarUpdateEvent
+//           → CalendarSyncListener (Observer) writes PendingCalendarUpdate to DB
+//               → /api/calendar/updates (this controller) serves undelivered rows
+//                   → FullCalendar.js re-renders the new event on the student's page
+//
+// Three endpoints:
+//   GET /calendar              → renders the calendar HTML page
+//   GET /api/calendar/events   → returns ALL events (OA + interview) for initial load
+//   GET /api/calendar/updates  → returns ONLY new (undelivered) events since last poll
+//                                Used by the 30-second polling loop in calendar.js
+//
+// SRP: This controller only reads and transforms data into CalendarEventDtos.
+//      It does NOT create, modify, or delete any applications or slots.
+// ============================================================
 @Controller
 public class CalendarController {
 
