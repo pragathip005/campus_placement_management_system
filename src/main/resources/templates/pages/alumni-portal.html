@@ -36,7 +36,6 @@
                 <div class="avatar"><span th:text="${alumni.name != null ? #strings.substring(alumni.name, 0, 1) : 'A'}">A</span></div>
                 <h3 th:text="${alumni.name != null ? alumni.name : 'Alumni Name'}">Name</h3>
                 <p class="role-desc" th:text="${alumni.currentJobRole != null ? alumni.currentJobRole : 'Not Provided'} + ' @ ' + ${alumni.currentCompany != null ? alumni.currentCompany : 'No Company'}"></p>
-                <a th:href="@{/alumni-hub}" class="btn-link">View Hub</a>
             </div>
 
             <nav class="dashboard-nav">
