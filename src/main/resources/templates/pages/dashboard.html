@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Dashboard', ~{::content}, ~{::styles}, ~{::scripts})}">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard – CRMS</title>
+    <th:block th:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    </th:block>
+
+    <th:block th:fragment="scripts">
+        <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    </th:block>
+</head>
+
+<body>
+
+<th:block th:fragment="content">
+<main class="crms-main">
+    <div th:if="${placed}" class="placed-banner" id="placedBanner">
+        <div class="placed-inner">
+            
+            <button class="close-banner" onclick="closePlacedBanner()">×</button>
+
+            <h2 class="placed-title">
+                Congratulations, <span th:text="${student.name}">Name</span>! 🎉
+            </h2>
+
+            <p class="placed-sub">
+                You have been successfully placed at
+                <strong th:text="${placedCompanyName}">Company</strong>.
+            </p>
+        </div>
+    </div>
+
+    <div class="dash-grid">
+
+        <aside class="dash-left">
+
+            <div class="card profile-card">
+                <div class="profile-header">
+                    <div class="avatar-box">
+                        <i data-lucide="graduation-cap" class="avatar-icon"></i>
+                    </div>
+                    <div>
+                        <h3 class="profile-name" th:text="${student.name}">Nishita Singh</h3>
+                        <p class="profile-meta">
+                            <span th:text="${student.branch}">CSE</span>
+                            &bull;
+                            <span th:text="${student.srn}">PES1UG22CS000</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="stat-pills">
+                    <div class="stat-pill">
+                        <span class="pill-label">CGPA</span>
+                        <span class="pill-value"
+                              th:text="${student.cgpa != null}
+                                ? ${#numbers.formatDecimal(student.cgpa, 1, 2)}
+                                : 'N/A'">
+                            9.29
+                        </span>
+                    </div>
+                    <div class="stat-pill">
+                        <span class="pill-label">Status</span>
+                        <span class="pill-value"
+                              th:classappend="${placed} ? 'status-placed' : 'status-eligible'"
+                              th:text="${placed} ? 'Placed' : 'Eligible'">
+                            Eligible
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card stats-card">
+                <h3 class="card-title">
+                    <i data-lucide="file-text" class="card-title-icon"></i>
+                    Stats
+                </h3>
+                <ul class="stats-list">
+                    <li class="stats-row">
+                        <span>Applications</span>
+                        <span class="stats-val" th:text="${totalApplications}">0</span>
+                    </li>
+                    <li class="stats-row">
+                        <span>Shortlisted</span>
+                        <span class="stats-val green" th:text="${shortlistedCount}">0</span>
+                    </li>
+                    <li class="stats-row last">
+                        <span>OA Pending</span>
+                        <span class="stats-val orange" th:text="${oaPendingCount}">0</span>
+                    </li>
+                </ul>
+            </div>
+
+        </aside>
+
+        <section class="dash-right">
+            <h2 class="section-title">Application Tracker</h2>
+
+            <div th:if="${#lists.isEmpty(applications)}" class="empty-state">
+                <div class="empty-icon-wrap">
+                    <i data-lucide="inbox" class="empty-icon"></i>
+                </div>
+                <h3>No applications yet</h3>
+                <p>Head over to the Job Board to find opportunities matching your profile.</p>
+                <a th:href="@{/job-board}" class="browse-btn">Browse Jobs</a>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(applications)}" class="app-list">
+
+                <div th:each="app : ${applications}" class="app-card">
+
+                    <div class="app-header">
+                        <div>
+                            <h3 class="app-company"
+                                th:text="${app.companyName != null ? app.companyName : 'Unknown Company'}">
+                                Google
+                            </h3>
+                            <p class="app-meta">
+                                <span th:text="${app.opportunityName != null ? app.opportunityName : ''}">
+                                    Software Engineer
+                                </span>
+                                <th:block th:if="${app.salaryDisplay != 'N/A'}">
+                                    &bull; <span th:text="${app.salaryDisplay}">45.0 LPA</span>
+                                </th:block>
+                            </p>
+                        </div>
+                        <div class="app-date">
+                            <span class="date-label">Applied On</span>
+                            <span class="date-val"
+                                  th:text="${app.appliedDate != null}
+                                    ? ${#temporals.format(app.appliedDate, 'dd MMM yyyy')}
+                                    : '—'">
+                                29 Mar 2026
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="timeline-wrap">
+                        <div class="timeline-track">
+                            <div class="timeline-fill"
+                                 th:style="'width:' + ${app.progressPercent} + '%'"></div>
+                        </div>
+
+                        <div class="timeline-steps">
+
+                            <div th:class="'step' + (${app.statusIndex >= 0} ? ' done' : '')">
+                                <div class="step-dot"></div>
+                                <span class="step-label">Applied</span>
+                            </div>
+
+                            <div th:class="'step' + (${app.statusIndex >= 1} ? ' done' : '')">
+                                <div class="step-dot"></div>
+                                <span class="step-label">OA Sent</span>
+                            </div>
+
+                            <div th:class="'step' + (${app.statusIndex >= 2} ? ' done' : '')">
+                                <div class="step-dot"></div>
+                                <span class="step-label">OA Completed</span>
+                            </div>
+
+                            <div th:class="'step' + (${app.statusIndex >= 3} ? ' done' : '')">
+                                <div class="step-dot"></div>
+                                <span class="step-label">Interview</span>
+                            </div>
+
+                            <div th:class="'step' + (${app.statusIndex >= 4} ? ' done' : '')">
+                                <div class="step-dot"></div>
+                                <span class="step-label">Selected</span>
+                            </div>
+
+                            <div th:class="'step' + (${app.statusIndex >= 5} ? ' done' : '')">
+                                <div class="step-dot"></div>
+                                <span class="step-label">Offer</span>
+                            </div>
+
+                            <div th:if="${app.status != null and (app.status.name() == 'REJECTED' or app.status.name() == 'OFFER_REJECTED')}"
+                                 class="step rejected">
+                                <div class="step-dot rejected-dot"></div>
+                                <span class="step-label">Rejected</span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- 🔥 FIXED OFFER SECTION -->
+                    <div class="offer-section"
+                         th:if="${app.status != null and app.status.name() == 'SELECTED'}">
+
+                        <a th:href="@{/student/offer(applicationId=${app.applicationId})}"
+                           class="offer-btn">
+                            🎉 View Offer
+                        </a>
+
+                    </div>
+
+                    <div th:if="${app.status != null and app.status.name() == 'OFFER_ACCEPTED'}"
+                         class="offer-status accepted">
+                        ✅ Offer Accepted
+                    </div>
+
+                    <div th:if="${app.status != null and app.status.name() == 'OFFER_REJECTED'}"
+                         class="offer-status rejected">
+                        ❌ Offer Rejected
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+    </div>
+</main>
+
+<th:block th:if="${placed}">
+    <script>
+    function closePlacedBanner() {
+        const banner = document.getElementById("placedBanner");
+        if (banner) {
+            banner.style.opacity = "0";
+            banner.style.transform = "translateY(-10px)";
+            banner.style.transition = "all 0.3s ease";
+
+            setTimeout(() => {
+                banner.style.display = "none";
+            }, 300);
+        }
+    }
+</script>
+</th:block>
+
+<script>lucide.createIcons();</script>
+</th:block>
+</body>
+</html>

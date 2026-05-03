@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:fragment="layout(title, content, styles, scripts)">
+<head>
+
+    <title th:text="${title}">Page</title>
+
+    <!-- Global CSS -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <!-- Page-specific CSS -->
+    <th:block th:replace="${styles}"></th:block>
+
+</head>
+
+<body>
+<div class="container">
+
+    <!-- Sidebar -->
+    <div th:replace="~{fragments/sidebar :: sidebar(activePage=${title})}"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <th:block th:replace="${content}"></th:block>
+    </div>
+
+</div>
+
+<!-- ✅ GLOBAL SCRIPTS SLOT (IMPORTANT) -->
+<th:block th:replace="${scripts}"></th:block>
+
+</body>
+</html>

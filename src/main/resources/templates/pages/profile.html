@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Profile', ~{::content}, ~{::styles}, ~{::scripts})}">
+
+<head>
+    <th:block th:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/profile.css(v=1)}">
+    </th:block>
+    <th:block th:fragment="scripts">
+    </th:block>
+</head>
+
+<body>
+
+<th:block th:fragment="content">
+
+    <section class="profile-page">
+        <h2>My Profile</h2>
+        <div th:if="${success}" class="alert-success">
+            <p th:text="${success}"></p>
+        </div>
+        <form action="/profile/update" method="post" enctype="multipart/form-data">
+            <div class="form-grid">
+                <div>
+                    <label>Name</label>
+                    <input type="text" th:value="${student != null ? student.name : user.name}" disabled>
+                </div>
+                <div>
+                    <label>Email</label>
+                    <input type="email" th:value="${student != null ? student.email : user.email}" disabled>
+                </div>
+                <div>
+                    <label>Role</label>
+                    <input type="text" th:value="${user.role}" disabled>
+                </div>
+                <div>
+                    <label>SRN</label>
+                    <input type="text" th:value="${student != null ? student.srn : ''}" disabled>
+                </div>
+                <div>
+                    <label>Branch</label>
+                    <input type="text" th:value="${student != null ? student.branch : ''}" disabled>
+                </div>
+                <div>
+                    <label>Batch Year</label>
+                    <input type="text" th:value="${student != null ? student.batchYear : ''}" disabled>
+                </div>
+                <div>
+                    <label>CGPA</label>
+                    <input type="text" th:value="${student != null ? student.cgpa : ''}" disabled>
+                </div>
+                <div>
+                    <label>Backlog Count</label>
+                    <input type="text" th:value="${student != null ? student.backlogCount : ''}" disabled>
+                </div>
+                <div>
+                    <label>Address</label>
+                    <input type="text" th:value="${student != null ? student.address : ''}" disabled>
+                </div>
+                <div>
+                    <label>Phone</label>
+                    <input type="text" name="phone" th:value="${student != null ? student.phone : ''}">
+                </div>
+                <div>
+                    <label>Resume</label>
+
+                    <div th:if="${student != null and student.resumeUrl != null and student.resumeUrl != ''}">
+                        <a th:href="${student.resumeUrl}" target="_blank">
+                            <button type="button">View Resume</button>
+                        </a>
+                    </div>
+
+                    <input type="file" name="resumeFile" accept=".pdf,.doc,.docx">
+                </div>
+                <div>
+                    <label>Eligible</label>
+                    <input type="text" th:value="${student != null ? (student.isEligible ? 'Yes' : 'No') : ''}" disabled>
+                </div>
+                <div class="full-width">
+                    <label>Semester GPAs</label>
+                    <div class="gpa-grid">
+                        <input type="text" th:value="${student != null ? student.sgpaSem1 : ''}" disabled placeholder="Sem 1">
+                        <input type="text" th:value="${student != null ? student.sgpaSem2 : ''}" disabled placeholder="Sem 2">
+                        <input type="text" th:value="${student != null ? student.sgpaSem3 : ''}" disabled placeholder="Sem 3">
+                        <input type="text" th:value="${student != null ? student.sgpaSem4 : ''}" disabled placeholder="Sem 4">
+                        <input type="text" th:value="${student != null ? student.sgpaSem5 : ''}" disabled placeholder="Sem 5">
+                        <input type="text" th:value="${student != null ? student.sgpaSem6 : ''}" disabled placeholder="Sem 6">
+                        <input type="text" th:value="${student != null ? student.sgpaSem7 : ''}" disabled placeholder="Sem 7">
+                    </div>
+                </div>
+                <div class="full-width">
+                    <label>New Password</label>
+                    <input type="password" name="password">
+                </div>
+            </div>
+
+            <button type="submit">Update Profile</button>
+        </form>
+    </section>
+
+</th:block>
+
+</body>
+</html>

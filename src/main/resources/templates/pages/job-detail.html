@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Job Details', ~{::content}, ~{::styles}, ~{::scripts})}">
+
+<head>
+    <th:block th:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/job-detail.css}">
+    </th:block>
+    <th:block th:fragment="scripts">
+<script>
+console.log("🔥 Job Detail JS Loaded");
+
+let currentOpportunityId = null;
+let currentButton = null;
+
+document.addEventListener('DOMContentLoaded', function () {
+    console.log("🔥 Job Detail DOM Loaded");
+
+    const applyBtn = document.querySelector('.apply-job-btn-detail');
+
+    console.log("🔍 Apply button found:", applyBtn);
+
+    if (applyBtn) {
+        applyBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            currentOpportunityId = this.getAttribute('data-opportunity-id');
+            currentButton = this;
+
+            console.log("🔥 Apply clicked for ID:", currentOpportunityId);
+
+            showApplyModal();
+        });
+    }
+});
+
+function showApplyModal() {
+    console.log("📍 Opening modal");
+    const modal = document.getElementById('applyModal');
+    modal.style.display = 'block';
+}
+
+function closeApplyModal() {
+    console.log("📍 Closing modal");
+    document.getElementById('applyModal').style.display = 'none';
+}
+
+function confirmApply() {
+    console.log("✅ Confirming apply");
+    if (currentOpportunityId) {
+        applyToJob(currentOpportunityId);
+    }
+}
+
+function applyToJob(opportunityId) {
+    console.log('🔥 Sending apply request for opportunity:', opportunityId);
+
+    fetch('/job/' + opportunityId + '/apply', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => {
+        console.log('📡 Response status:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('📦 Response data:', data);
+
+        closeApplyModal();
+
+        if (data.success) {
+            console.log('✅ Application successful! ID:', data.applicationId);
+
+            // Update the button immediately
+            if (currentButton) {
+                console.log('🔄 Updating button...');
+                currentButton.classList.add('applied');
+                currentButton.textContent = '✓ Applied Successfully';
+                currentButton.disabled = true;
+                currentButton.onclick = null;
+                console.log('✅ Button updated successfully');
+            } else {
+                console.log('❌ currentButton is null, finding button by selector');
+                const applyBtn = document.querySelector('.apply-job-btn-detail');
+
+                if (applyBtn) {
+                    applyBtn.classList.add('applied');
+                    applyBtn.textContent = '✓ Applied Successfully';
+                    applyBtn.disabled = true;
+                    applyBtn.onclick = null;
+                    console.log('✅ Button updated by selector');
+                }
+            }
+
+            alert('Application submitted successfully!');
+        } else {
+            console.log('❌ Application failed:', data.message);
+            alert(data.message || 'Failed to apply');
+        }
+    })
+    .catch(error => {
+        console.error('❌ Error:', error);
+        closeApplyModal();
+        alert('Error: ' + error.message);
+    });
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('applyModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+}
+</script>
+</th:block>
+</head>
+
+<body>
+
+<!-- DEFINE content fragment -->
+<th:block th:fragment="content">
+
+<div class="job-detail-container">
+
+    <!-- BACK BUTTON & HEADER -->
+    <div class="detail-header">
+        <a href="javascript:history.back()" class="back-btn">← Back to Job Board</a>
+
+        <div class="header-content">
+            <div class="job-header-top">
+                <div class="company-header">
+                    <div>
+                        <p class="company-label" th:text="${job.company.name}">GOOGLE</p>
+                        <h1 th:text="${job.name}">Software Engineer (Full-Stack)</h1>
+                        <p class="job-meta">
+                            📍 <span th:text="${job.location != null ? job.location : 'Not specified'}">Bangalore</span>
+                            | 💼 <span th:text="${job.role}">Software Engineer</span>
+                            | 📅 Deadline: <span class="deadline" th:text="${#temporals.format(job.applicationDeadline, 'd MMM yyyy')}">28 Apr 2026</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <div class="salary-large" th:if="${job.type == 'INTERNSHIP'}"
+                         th:text="${#numbers.formatDecimal(job.stipend / 1000, 0, 1)} + ' K'">
+                        15 K
+                    </div>
+                    <div class="salary-large" th:if="${job.type == 'FTE' || job.type == 'BOTH'}"
+                         th:text="${(job.ctc % 100000 == 0) ?
+                           (#numbers.formatDecimal(job.ctc / 100000, 0, 0)) :
+                           (#numbers.formatDecimal(job.ctc / 100000, 0, 1))} + ' LPA'">
+                        45 LPA
+                    </div>
+
+                    <!-- Status Badge -->
+                    <div class="status-badge applied-badge" th:if="${hasApplied}">
+                        ✓ Applied Successfully
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STATISTICS CARDS -->
+    <div class="stats-section">
+        <div class="stat-card alumni-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-content">
+                <p class="stat-label">ALUMNI PRESENCE</p>
+                <h3 class="stat-value" th:text="${alumniCount}">30</h3>
+                <p class="stat-desc">work here from your college</p>
+            </div>
+        </div>
+
+        <div class="stat-card shortlist-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-content">
+                <p class="stat-label">SHORTLIST SUCCESS</p>
+                <h3 class="stat-value" th:text="${job.shortlistingSuccessRate != null 
+              ? #numbers.formatDecimal(job.shortlistingSuccessRate, 0, 1) + '%' 
+              : '0%'}">
+    20%</h3>
+                <p class="stat-desc">of applicants usually shortlisted</p>
+            </div>
+        </div>
+
+        <div class="stat-card hiring-card">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-content">
+                <p class="stat-label">HIRING TREND</p>
+                <h3 class="stat-value" th:text="${job.vacancies}">10</h3>
+                <p class="stat-desc">openings for this batch</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="detail-content">
+
+        <!-- LEFT COLUMN -->
+        <div class="left-column">
+
+            <!-- JOB DESCRIPTION -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>Job Description</h2>
+                    <a th:if="${job.jdUrl}" th:href="${job.jdUrl}" target="_blank" class="jd-btn">
+                        📄 Download JD
+                    </a>
+                </div>
+                <p class="description-text" th:text="${job.description}">
+                    Work on Google's core infrastructure products...
+                </p>
+            </div>
+
+            <!-- ELIGIBILITY CRITERIA -->
+            <div class="section">
+                <h2>Eligibility Criteria</h2>
+                <div class="criteria-grid">
+                    <div class="criteria-item">
+                        <div class="criteria-icon">📊</div>
+                        <div class="criteria-content">
+                            <p class="criteria-label">Minimum CGPA</p>
+                            <p class="criteria-value" th:text="${job.minCgpa}">8.0</p>
+                        </div>
+                    </div>
+
+                    <div class="criteria-item">
+                        <div class="criteria-icon">📍</div>
+                        <div class="criteria-content">
+                            <p class="criteria-label">Open Positions</p>
+                            <p class="criteria-value" th:text="${job.vacancies}">10</p>
+                        </div>
+                    </div>
+
+                    <div class="criteria-item">
+                        <div class="criteria-icon">💰</div>
+                        <div class="criteria-content">
+                            <p class="criteria-label">CTC Package</p>
+                            <p class="criteria-value" th:if="${job.type != 'INTERNSHIP'}"
+                               th:text="${(job.ctc % 100000 == 0) ?
+                                 (#numbers.formatDecimal(job.ctc / 100000, 0, 0)) :
+                                 (#numbers.formatDecimal(job.ctc / 100000, 0, 1))} + ' LPA'">
+                                45 LPA
+                            </p>
+                            <p class="criteria-value" th:if="${job.type == 'INTERNSHIP'}"
+                               th:text="${#numbers.formatDecimal(job.stipend / 1000, 0, 1)} + ' K'">
+                                15 K
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="criteria-item">
+                        <div class="criteria-icon">📌</div>
+                        <div class="criteria-content">
+                            <p class="criteria-label">Location</p>
+                            <p class="criteria-value" th:text="${job.location != null ? job.location : 'Not specified'}">Bangalore</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MEET THE ALUMNI -->
+            <div class="section" th:if="${alumni != null and alumni.size() > 0}">
+                <h2>Meet the Alumni</h2>
+                <p class="section-subtitle">Your seniors who work at <span th:text="${job.company.name}">Google</span></p>
+
+                <div class="alumni-list">
+                    <div class="alumni-item" th:each="alum : ${alumni}">
+                        <div class="alumni-avatar">
+                            <span th:text="${#strings.substring(alum.name, 0, 1)}">N</span>
+                        </div>
+                        <div class="alumni-info">
+                            <h4 th:text="${alum.name}">Nishita Singh</h4>
+                            <p class="alumni-role" th:text="${alum.currentJobRole}">SDE</p>
+                            <p class="alumni-batch" th:text="'Batch ' + ${alum.graduationYear}">2021</p>
+                        </div>
+                        <a th:if="${alum.linkedinUrl}"
+                           th:href="${alum.linkedinUrl.startsWith('http') ? alum.linkedinUrl : 'https://www.linkedin.com/in/' + alum.linkedinUrl}"
+                           target="_blank" class="alumni-link">
+                            🔗 Link
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="right-column">
+
+            <!-- QUICK INFO -->
+            <div class="quick-info-card">
+                <h3>Quick Info</h3>
+
+                <div class="quick-info-row">
+                    <span class="quick-label">Status</span>
+                    <span class="quick-value"
+                        th:classappend="${isOpen} ? 'status-open' : 'status-closed'"
+                        th:text="${isOpen} ? 'OPEN' : 'CLOSED'">
+                        OPEN
+                    </span>
+                </div>
+
+                <div class="quick-info-row">
+                    <span class="quick-label">Applications</span>
+                    <span class="quick-value">1</span>
+                </div>
+
+                <div class="quick-info-row">
+                    <span class="quick-label">Deadline</span>
+                    <span class="quick-value" th:text="${#temporals.format(job.applicationDeadline, 'd MMM yyyy')}">28 Apr 2026</span>
+                </div>
+
+                <div class="quick-info-row">
+                    <span class="quick-label">Your CGPA</span>
+                    <span class="quick-value" th:text="${currentStudent.cgpa} + ' / 10'">9.29 / 10</span>
+                </div>
+
+                <!-- APPLY BUTTON -->
+                <button class="apply-btn-large apply-job-btn-detail"
+                        th:if="${isEligible}"
+                        th:attr="data-opportunity-id=${job.opportunity_id}">
+                    Apply Now
+                </button>
+
+                <button class="apply-btn-large disabled"
+                        th:if="${!isEligible && !hasApplied}"
+                        type="button"
+                        disabled
+                        title="You don't meet the eligibility criteria">
+                    Not Eligible
+                </button>
+
+                <button class="apply-btn-large applied"
+                        th:if="${hasApplied}"
+                        type="button"
+                        disabled>
+                    ✓ Applied Successfully
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- APPLY CONFIRMATION MODAL -->
+<div id="applyModal" class="modal" th:attr="data-opportunity-id=${job.opportunity_id}">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Confirm Application</h2>
+            <button class="close-btn" onclick="closeApplyModal()">&times;</button>
+        </div>
+
+        <div class="modal-body">
+            <p>Do you want to apply for <strong th:text="${job.name}">Software Engineer (Full-Stack)</strong> at <strong th:text="${job.company.name}">Google</strong>?</p>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-cancel" onclick="closeApplyModal()">Cancel</button>
+            <button class="btn btn-confirm" type="button" onclick="confirmApply()">Confirm Apply</button>
+        </div>
+    </div>
+</div>
+
+</th:block>
+
+</body>
+
+
+</html>
+

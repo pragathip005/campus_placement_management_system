@@ -1,0 +1,157 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #fff7ed, #ffe0b2);
+    color: #333;
+}
+
+/* Layout */
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* LEFT SIDE */
+.left {
+    width: 50%;
+    position: relative;
+    background: url('/images/auth-hero.png') center/cover no-repeat;
+    display: flex;
+    align-items: flex-end;
+    padding: 60px;
+    color: white;
+}
+
+.content {
+    position: relative;
+    z-index: 2;
+}
+
+.left h1 {
+    font-size: 42px;
+    font-weight: bold;
+    line-height: 1.2;
+}
+
+.left p {
+    margin-top: 10px;
+    color: #f1f1f1;
+}
+
+/* RIGHT SIDE */
+.right {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #ffffff;
+}
+
+/* FORM BOX */
+.form-box {
+    width: 360px;
+}
+
+/* HEADINGS */
+.form-box h2 {
+    font-size: 28px;
+    margin-bottom: 5px;
+}
+
+.form-box p {
+    color: #777;
+    margin-bottom: 20px;
+}
+
+/* INPUTS */
+input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    border: 2px solid #eee;
+    background: white;
+    color: #333;
+    transition: 0.2s;
+}
+
+input:focus {
+    outline: none;
+    border-color: #ff7a18;
+    box-shadow: 0 0 8px rgba(255, 140, 0, 0.2);
+}
+
+/* BUTTON */
+button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    background: linear-gradient(to right, #ff7a18, #ffb347);
+    color: white;
+    transition: 0.2s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(255, 140, 0, 0.3);
+}
+
+/* ROLE SELECT */
+.role-container {
+    display: flex;
+    background: #f3f3f3;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    padding: 4px;
+}
+
+.role-container input {
+    display: none;
+}
+
+.role-container label {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    border-radius: 10px;
+    color: #666;
+    transition: 0.2s;
+}
+
+.role-container label:hover {
+    color: #ff7a18;
+}
+
+/* ACTIVE ROLE */
+.role-container input:checked+label {
+    background: white;
+    color: #ff7a18;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* LINKS */
+a {
+    color: #ff7a18;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* ERROR */
+.error {
+    background: #ffe5e5;
+    color: #cc0000;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+}

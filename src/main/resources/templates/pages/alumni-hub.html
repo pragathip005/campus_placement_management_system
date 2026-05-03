@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Alumni Hub', ~{::content}, ~{::styles}, ~{::scripts})}">
+
+<head>
+    <th:block th:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/alumni-hub.css}">
+    </th:block>
+    <th:block th:fragment="scripts">
+        <script>
+            // Simple search functionality
+            document.getElementById('searchInput').addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const alumniCards = document.querySelectorAll('.alumni-card');
+
+                alumniCards.forEach(card => {
+                    const name = card.querySelector('h3').textContent.toLowerCase();
+                    const company = card.querySelector('.career-company')?.textContent.toLowerCase() || '';
+                    const role = card.querySelector('.career-role')?.textContent.toLowerCase() || '';
+
+                    if (name.includes(searchTerm) || company.includes(searchTerm) || role.includes(searchTerm)) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        </script>
+    </th:block>
+</head>
+
+<body>
+<th:block th:fragment="content">
+    <section class="alumni-hub-page">
+        <div class="page-header">
+            <div>
+                <h1>Alumni Hub</h1>
+                <p>Connect with alumni from your dream companies. Get insights on OA preparation and interview experiences.</p>
+                <div class="student-status" th:if="${isStudentPlaced}">
+                    <span class="alert-badge">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        You're placed at <span th:text="${currentStudentCompany}">Company</span>
+                    </span>
+                    <p class="status-note">You can see contact details for alumni from your company!</p>
+                </div>
+            </div>
+            <div class="search-section">
+                <div class="search-input-wrapper">
+                    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" id="searchInput" placeholder="Search by name, company, or role..." class="search-input">
+                </div>
+            </div>
+        </div>
+
+        <div class="alumni-directory">
+            <div class="alumni-card" th:each="alum : ${alumniDetails}">
+                <div class="card-header">
+                    <div class="alumni-avatar">
+                        <span th:text="${alum.alumni.name != null ? #strings.substring(alum.alumni.name, 0, 1) : 'A'}">A</span>
+                    </div>
+                    <div class="alumni-info">
+                        <h3 th:text="${alum.alumni.name}">Alumni Name</h3>
+                        <p class="graduation" th:text="'Batch ' + ${alum.alumni.graduationYear}">Batch 2024</p>
+                        <div class="placement-status">
+                            <span class="status-badge placed" th:if="${alum.alumni.placementStatus == 'PLACED'}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                Placed
+                            </span>
+                            <span class="status-badge studies" th:if="${alum.alumni.placementStatus == 'HIGHER_STUDIES'}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                                Higher Studies
+                            </span>
+                            <span class="status-badge not-placed" th:if="${alum.alumni.placementStatus == 'NOT_PLACED'}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                Seeking
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-content">
+                    <!-- Career History -->
+                    <div class="section" th:if="${alum.careerHistory != null and !#lists.isEmpty(alum.careerHistory)}">
+                        <h4>
+                            <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                            Career Journey
+                        </h4>
+                        <div class="career-timeline">
+                            <div class="career-item" th:each="career : ${alum.careerHistory}">
+                                <div class="career-company" th:text="${career.company}">Company</div>
+                                <div class="career-role" th:text="${career.role}">Role</div>
+                                <div class="career-ctc" th:if="${career.ctc != null}" th:text="${#numbers.formatDecimal(career.ctc, 0, 2)} + ' LPA'">CTC</div>
+                                <div class="career-dates">
+                                    <span th:if="${career.startDate != null}" th:text="${#temporals.format(career.startDate, 'MMM yyyy')}">Start</span>
+                                    <span th:if="${career.endDate != null}"> - </span>
+                                    <span th:if="${career.endDate != null}" th:text="${#temporals.format(career.endDate, 'MMM yyyy')}">End</span>
+                                    <span th:if="${career.isCurrent}" class="current-tag">(Current)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- OA Prep History -->
+                    <div class="section" th:if="${alum.oaPrepHistory != null and !#lists.isEmpty(alum.oaPrepHistory)}">
+                        <h4>
+                            <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            OA Preparation & Tips
+                        </h4>
+                        <div class="oa-tips">
+                            <div class="oa-item" th:each="oa : ${alum.oaPrepHistory}">
+                                <div class="oa-company" th:text="${oa.company}">Company</div>
+                                <div class="oa-difficulty" th:text="'Difficulty: ' + ${oa.oaDifficulty}">Difficulty</div>
+                                <div class="oa-questions" th:if="${oa.questions != null and oa.questions != ''}">
+                                    <strong>Key Questions:</strong> <span th:text="${oa.questions}">Questions</span>
+                                </div>
+                                <div class="oa-tips-content" th:if="${oa.tips != null and oa.tips != ''}">
+                                    <strong>Tips:</strong> <span th:text="${oa.tips}">Tips</span>
+                                </div>
+                                <div class="oa-experience" th:if="${oa.interviewExperience != null and oa.interviewExperience != ''}">
+                                    <strong>Interview Experience:</strong> <span th:text="${oa.interviewExperience}">Experience</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Details / Locked Message Container -->
+                    <div class="contact-wrapper mt-auto">
+                        <!-- Unlocked State -->
+                        <div class="mt-auto" th:if="${alum.canSeeContact}">
+                            <a th:href="${alum.alumni.linkedinUrl != null ? alum.alumni.linkedinUrl : (alum.alumni.email != null ? 'mailto:' + alum.alumni.email : '#')}" 
+                               target="_blank" class="btn-connect-unlocked">
+                                <svg th:if="${alum.alumni.linkedinUrl != null}" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+                                <svg th:if="${alum.alumni.linkedinUrl == null}" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                                Connect
+                            </a>
+                        </div>
+
+                        <!-- Locked State -->
+                        <div class="contact-locked mt-auto" th:if="${!alum.canSeeContact}"
+                             th:title="${isStudentPlaced ? 'Get placed at ' + (alum.alumni.currentCompany != null ? alum.alumni.currentCompany : 'their company') + ' to unlock.' : 'Get placed to unlock alumni contacts!'}">
+                            <button class="btn-connect-locked">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                Unlock after placement
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- No alumni message -->
+            <div class="no-alumni" th:if="${alumniDetails == null or #lists.isEmpty(alumniDetails)}">
+                <div class="empty-state">
+                    <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    <h3>No alumni profiles yet</h3>
+                    <p>Alumni will start sharing their experiences soon!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</th:block>
+</body>
+</html>

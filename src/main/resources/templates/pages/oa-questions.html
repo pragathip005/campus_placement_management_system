@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('OA Questions', ~{::content}, ~{::styles}, ~{})}">
+
+<head>
+    <th:block th:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/prep-details.css}">
+    </th:block>
+</head>
+
+<body>
+<th:block th:fragment="content">
+<section class="prep-details">
+
+    <!-- HEADER -->
+    <div class="prep-header">
+        <button class="back-btn" onclick="window.history.back()">← Back</button>
+        <h1>📋 Past OA Questions</h1>
+        <p class="company-label" th:text="${companyName}">Company</p>
+    </div>
+
+    <!-- COUNT -->
+    <div class="count-badge" th:if="${questions != null && !questions.isEmpty()}"
+         th:text="${questions.size()} + ' question(s) shared'">
+    </div>
+
+    <!-- CARDS -->
+    <div class="cards-list" th:if="${questions != null && !questions.isEmpty()}">
+
+        <div class="prep-card" th:each="q : ${questions}">
+
+            <!-- TOP: company + difficulty -->
+            <div class="prep-card-top">
+                <h3 th:text="${q.company}">Company</h3>
+                <span class="difficulty-badge"
+                      th:classappend="${q.oaDifficulty}"
+                      th:text="${q.oaDifficulty != null ? q.oaDifficulty : 'N/A'}">Medium</span>
+            </div>
+
+            <!-- BODY: questions text -->
+            <div class="prep-card-body" th:text="${q.questions}"></div>
+
+            <!-- TIPS -->
+            <div class="tips-block" th:if="${q.tips != null && !#strings.isEmpty(q.tips)}">
+                <strong>💡 Tips: </strong>
+                <span th:text="${q.tips}"></span>
+            </div>
+
+            <!-- FOOTER: author -->
+            <div class="prep-card-footer">
+                <span class="author-tag">
+                    by <span th:text="${q.alumniName != null ? q.alumniName : 'Alumni'}">Alumni</span>
+                </span>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div class="empty-state" th:if="${questions == null || questions.isEmpty()}">
+        <p>📝 No OA questions available for this company yet.</p>
+    </div>
+
+</section>
+</th:block>
+</body>
+</html>

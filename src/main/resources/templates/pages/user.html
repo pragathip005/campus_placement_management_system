@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>User Profile</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+</head>
+<body>
+
+<div class="right" style="width:100%">
+    <div class="form-box">
+
+        <h2>Your Profile</h2>
+
+        <form method="post" action="/user/update">
+
+            <input type="text" name="name" th:value="${user.name}">
+            <input type="email" name="email" th:value="${user.email}">
+            <input type="number" step="0.01" name="cgpa" th:value="${user.cgpa}">
+            <input type="number" name="backlog" th:value="${user.backlog_count}">
+
+            <button type="submit">Update</button>
+        </form>
+
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,174 @@
+/* ═══════════════════════════════════════════
+   PREP DETAILS — oa-questions & interview-experiences
+   ═══════════════════════════════════════════ */
+
+.prep-details {
+    padding: 32px 40px;
+    max-width: 860px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── HEADER ── */
+.prep-header {
+    margin-bottom: 28px;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    color: #ff9500;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: opacity 0.2s;
+}
+.back-btn:hover { opacity: 0.7; }
+
+.prep-header h1 {
+    margin: 0 0 6px 0;
+    font-size: 26px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.company-label {
+    font-size: 15px;
+    color: #888;
+    font-weight: 500;
+    margin: 0;
+}
+
+/* ── COUNT BADGE ── */
+.count-badge {
+    display: inline-block;
+    background: #fff5e6;
+    color: #ff9500;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 22px;
+}
+
+/* ── CARD LIST ── */
+.cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* ── INDIVIDUAL CARD ── */
+.prep-card {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 12px;
+    padding: 22px 24px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.prep-card:hover {
+    border-color: #ff9500;
+    box-shadow: 0 4px 14px rgba(255,149,0,0.1);
+}
+
+/* ── CARD TOP ROW ── */
+.prep-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.prep-card-top h3 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+/* ── DIFFICULTY BADGE ── */
+.difficulty-badge {
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    background: #f0f0f0;
+    color: #555;
+}
+.difficulty-badge.Easy   { background: #e6f9f0; color: #22a05a; }
+.difficulty-badge.Medium { background: #fff8e1; color: #f59e0b; }
+.difficulty-badge.Hard   { background: #fde8e8; color: #e53e3e; }
+
+/* ── CARD BODY ── */
+.prep-card-body {
+    font-size: 14px;
+    line-height: 1.75;
+    color: #444;
+    margin-bottom: 14px;
+    white-space: pre-wrap;
+}
+
+/* ── TIPS BLOCK ── */
+.tips-block {
+    background: #fffbf2;
+    border-left: 3px solid #ff9500;
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 14px;
+    line-height: 1.6;
+}
+.tips-block strong { color: #ff9500; margin-right: 4px; }
+
+/* ── CARD FOOTER ── */
+.prep-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.author-tag {
+    font-size: 13px;
+    color: #ff9500;
+    font-weight: 600;
+}
+.author-tag span {
+    color: #333;
+    font-weight: 500;
+}
+
+/* ── EMPTY STATE ── */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #aaa;
+    background: #fafafa;
+    border: 2px dashed #e8e8e8;
+    border-radius: 12px;
+    margin-top: 8px;
+}
+.empty-state p { margin: 0; font-size: 15px; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+    .prep-details { padding: 20px 16px; }
+    .prep-header h1 { font-size: 22px; }
+    .prep-card-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}

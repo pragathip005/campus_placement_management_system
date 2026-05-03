@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Interview Experiences', ~{::content}, ~{::styles}, ~{})}">
+
+<head>
+    <th:block th:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/prep-details.css}">
+    </th:block>
+</head>
+
+<body>
+<th:block th:fragment="content">
+<section class="prep-details">
+
+    <!-- HEADER -->
+    <div class="prep-header">
+        <button class="back-btn" onclick="window.history.back()">← Back</button>
+        <h1>💬 Interview Experiences</h1>
+        <p class="company-label" th:text="${companyName}">Company</p>
+    </div>
+
+    <!-- COUNT -->
+    <div class="count-badge" th:if="${experiences != null && !experiences.isEmpty()}"
+         th:text="${experiences.size()} + ' experience(s) shared'">
+    </div>
+
+    <!-- CARDS -->
+    <div class="cards-list" th:if="${experiences != null && !experiences.isEmpty()}">
+
+        <div class="prep-card" th:each="exp : ${experiences}">
+
+            <!-- TOP: company + difficulty -->
+            <div class="prep-card-top">
+                <h3 th:text="${exp.company}">Company</h3>
+                <span class="difficulty-badge"
+                      th:classappend="${exp.oaDifficulty}"
+                      th:text="${exp.oaDifficulty != null ? exp.oaDifficulty : 'N/A'}">Medium</span>
+            </div>
+
+            <!-- BODY: experience text -->
+            <div class="prep-card-body" th:text="${exp.interviewExperience}"></div>
+
+            <!-- TIPS -->
+            <div class="tips-block" th:if="${exp.tips != null && !#strings.isEmpty(exp.tips)}">
+                <strong>💡 Tips: </strong>
+                <span th:text="${exp.tips}"></span>
+            </div>
+
+            <!-- FOOTER: author -->
+            <div class="prep-card-footer">
+                <span class="author-tag">
+                    by <span th:text="${exp.alumniName != null ? exp.alumniName : 'Alumni'}">Alumni</span>
+                </span>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div class="empty-state" th:if="${experiences == null || experiences.isEmpty()}">
+        <p>💬 No interview experiences shared for this company yet.</p>
+    </div>
+
+</section>
+</th:block>
+</body>
+</html>

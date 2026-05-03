@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Register</title>
+    <link rel="stylesheet" th:href="@{/css/register.css}">
+</head>
+
+<body>
+
+<div class="card">
+
+    <h2>Create Account</h2>
+    <p class="subtitle">Join CRMS and get started</p>
+
+    <form method="post" action="/register" enctype="multipart/form-data" th:action="@{/register}">
+
+        <!-- ✅ CSRF TOKEN -->
+        <input type="hidden" name="csrfToken" th:value="${csrfToken}">
+        <div th:if="${error}" class="error" th:text="${error}"></div>
+
+        <!-- ROLE SELECT -->
+        <div class="role-btns">
+            <button type="button" onclick="setRole('student')" id="studentBtn" class="active">Student</button>
+            <button type="button" onclick="setRole('hr')" id="hrBtn">HR</button>
+            <button type="button" onclick="setRole('alumni')" id="alumniBtn">Alumni</button>
+            <button type="button" onclick="setRole('admin')" id="adminBtn">Admin</button>
+        </div>
+
+        <input type="hidden" name="role" id="roleInput" value="student">
+
+        <!-- PERSONAL INFO (STUDENT + ALUMNI + ADMIN) -->
+        <div class="section" id="personalSection">
+            <div class="section-title">Personal Information</div>
+
+            <div class="grid-2 big-inputs">
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" name="name" id="nameField" placeholder="John Doe" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email" id="emailField" placeholder="john@example.com" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" name="password" id="passwordField" placeholder="Min 6 characters" required>
+            </div>
+        </div>
+
+        <!-- STUDENT FIELDS -->
+        <div id="studentFields">
+            <!-- ACADEMIC -->
+            <div class="section">
+                <h3>Academic Details</h3>
+
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>SRN</label>
+                        <input type="text" name="srn" id="srnField">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Branch</label>
+                        <input type="text" name="branch" id="branchField">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Batch Year</label>
+                        <input type="number" name="batchYear" id="batchYearField" min="2000" max="2099">
+                    </div>
+
+                    <div class="input-group">
+                        <label>CGPA</label>
+                        <input type="number" step="0.01" name="cgpa" id="cgpaField" min="0" max="10">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Backlogs</label>
+                        <input type="number" name="backlogCount" id="backlogCountField" min="0" value="0">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SGPA -->
+            <div class="section">
+                <h3>Semester GPA</h3>
+
+                <div class="grid-3">
+                    <div class="input-group"><input type="number" step="0.01" name="sgpaSem1" placeholder="Sem 1" id="sgpaSem1Field"></div>
+                    <div class="input-group"><input type="number" step="0.01" name="sgpaSem2" placeholder="Sem 2" id="sgpaSem2Field"></div>
+                    <div class="input-group"><input type="number" step="0.01" name="sgpaSem3" placeholder="Sem 3" id="sgpaSem3Field"></div>
+                    <div class="input-group"><input type="number" step="0.01" name="sgpaSem4" placeholder="Sem 4" id="sgpaSem4Field"></div>
+                    <div class="input-group"><input type="number" step="0.01" name="sgpaSem5" placeholder="Sem 5" id="sgpaSem5Field"></div>
+                    <div class="input-group"><input type="number" step="0.01" name="sgpaSem6" placeholder="Sem 6" id="sgpaSem6Field"></div>
+                    <div class="input-group"><input type="number" step="0.01" name="sgpaSem7" placeholder="Sem 7" id="sgpaSem7Field"></div>
+                </div>
+            </div>
+
+            <!-- CONTACT -->
+            <div class="section">
+                <h3>Contact Details</h3>
+
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>Phone</label>
+                        <input type="text" name="phone" id="phoneField">
+                    </div>
+
+                    <div class="input-group full-width">
+                        <label>Address</label>
+                        <input type="text" name="address" id="addressField">
+                    </div>
+                </div>
+
+                <div class="input-group full-width">
+                    <label>Upload Resume</label>
+                    <input type="file" name="resumeFile" accept=".pdf,.doc,.docx">
+                </div>
+            </div>
+        </div>
+
+        <!-- HR FIELDS -->
+        <div id="hrFields" style="display:none;">
+            <div class="section">
+                <h3>Company Details</h3>
+
+                <div class="input-group">
+                    <label>Company Name</label>
+                    <input type="text" name="companyName" id="companyNameField" placeholder="Acme Corp">
+                </div>
+
+                <div class="input-group">
+                    <label>Company Email</label>
+                    <input type="email" name="companyEmail" id="companyEmailField" placeholder="hr@company.com">
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" name="companyPassword" id="companyPasswordField" placeholder="Min 6 characters">
+                </div>
+
+                <div class="input-group">
+                    <label>Industry</label>
+                    <input type="text" name="industry" id="industryField" placeholder="IT / Finance / Healthcare">
+                </div>
+            </div>
+        </div>
+
+        <!-- ALUMNI FIELDS -->
+        <div id="alumniFields" style="display:none;">
+    <div class="section">
+        <h3>Alumni Details</h3>
+
+        <div class="grid-2">
+            <div class="input-group">
+                <label>Graduation Year</label>
+                <input type="number" name="graduationYear" id="graduationYearField">
+            </div>
+
+            <div class="input-group">
+                <label>Phone</label>
+                <input type="text" name="phone" id="alumniPhoneField">
+            </div>
+
+            <div class="input-group">
+                <label>Current Company</label>
+                <input type="text" name="currentCompany" id="currentCompanyField">
+            </div>
+
+            <div class="input-group">
+                <label>Job Role</label>
+                <input type="text" name="currentJobRole" id="currentJobRoleField">
+            </div>
+
+            <div class="input-group">
+                <label>Placement Status</label>
+                <input type="text" name="placementStatus" id="placementStatusField">
+            </div>
+
+            <div class="input-group">
+                <label>LinkedIn</label>
+                <input type="text" name="linkedinUrl" id="linkedinUrlField">
+            </div>
+        </div>
+
+        <div class="input-group full-width">
+            <label>Company History</label>
+            <textarea name="companyHistory" id="companyHistoryField"></textarea>
+        </div>
+    </div>
+</div>
+
+        <button type="submit" class="submit-btn">Create Account</button>
+
+    </form>
+
+    <div class="footer">
+        Already have an account?
+        <a href="/login">Login</a>
+    </div>
+
+</div>
+
+<script>
+function setRole(role) {
+    document.getElementById("roleInput").value = role;
+
+    // Reset buttons
+    ["student","alumni","admin","hr"].forEach(r => {
+        document.getElementById(r + "Btn").classList.remove("active");
+    });
+    document.getElementById(role + "Btn").classList.add("active");
+
+    const personal = document.getElementById("personalSection");
+    const student = document.getElementById("studentFields");
+    const alumni = document.getElementById("alumniFields");
+    const hr = document.getElementById("hrFields");
+
+    // Hide all
+    personal.style.display = "none";
+    student.style.display = "none";
+    alumni.style.display = "none";
+    hr.style.display = "none";
+
+    // Reset required
+    document.querySelectorAll("input, textarea").forEach(f => f.required = false);
+
+    if (role === "student") {
+        personal.style.display = "block";
+        student.style.display = "block";
+
+        document.getElementById("nameField").required = true;
+        document.getElementById("emailField").required = true;
+        document.getElementById("passwordField").required = true;
+        document.getElementById("srnField").required = true;
+
+    } else if (role === "alumni") {
+        personal.style.display = "block";
+        alumni.style.display = "block";
+
+        document.getElementById("nameField").required = true;
+        document.getElementById("emailField").required = true;
+        document.getElementById("passwordField").required = true;
+        document.getElementById("graduationYearField").required = true;
+
+    } else if (role === "admin") {
+        personal.style.display = "block";
+
+        document.getElementById("nameField").required = true;
+        document.getElementById("emailField").required = true;
+        document.getElementById("passwordField").required = true;
+
+    } else if (role === "hr") {
+        hr.style.display = "block";
+
+        document.getElementById("companyNameField").required = true;
+        document.getElementById("companyEmailField").required = true;
+        document.getElementById("companyPasswordField").required = true;
+    }
+}
+
+// Initialize on page load
+setRole(document.getElementById("roleInput").value);
+</script>
+
+</body>
+</html>

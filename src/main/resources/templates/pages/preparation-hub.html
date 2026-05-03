@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Preparation Hub', ~{::content}, ~{::styles}, ~{::scripts})}">
+
+<head>
+    <!-- ✅ STYLES -->
+    <th:block th:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/preparation-hub.css}">
+    </th:block>
+</head>
+
+<body>
+
+<!-- ✅ CONTENT -->
+<th:block th:fragment="content">
+
+<section class="prep">
+
+<!-- HEADER -->
+<div class="header-banner">
+    <div class="banner-content">
+        <h1>📖 Preparation Hub</h1>
+        <p>Access past online assessment questions and interview experiences shared by alumni.</p>
+    </div>
+</div>
+
+<!-- COMPANIES -->
+<div class="companies-container">
+
+    <div class="company-section" th:each="companyEntry, iterStat : ${companies}">
+
+        <!-- COMPANY HEADER -->
+        <div class="company-header"
+             onclick="this.nextElementSibling.classList.toggle('expanded')">
+            <h2 th:text="${companyEntry.value.name}">Company</h2>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="company-content" th:classappend="${iterStat.first} ? 'expanded' : ''">
+
+            <div class="content-row">
+
+                <!-- OA QUESTIONS -->
+                <div class="category-section">
+                    <div class="category-header">
+
+                        <a class="section-header"
+                           th:href="@{/oa-questions(company=${companyEntry.value.name})}"
+                           style="display:flex; justify-content:space-between; text-decoration:none; color:inherit;">
+                            <span>📋 Past OA Questions</span>
+                            <span>View All →</span>
+                        </a>
+
+                    </div>
+
+                    <div class="cards-container">
+
+                        <div class="card" th:if="${!companyEntry.value.questions.isEmpty()}">
+                            <th:block th:with="question=${companyEntry.value.questions.get(0)}">
+
+                                <h4 th:text="${question.company}"></h4>
+
+                                <p th:text="${question.questions}"></p>
+
+                                <small th:text="${question.oaDifficulty}"></small>
+
+                                <!-- ✅ FIXED: correct variable -->
+                                <div class="author">
+                                    by <span th:text="${question.alumniName}"></span>
+                                </div>
+
+                            </th:block>
+                        </div>
+
+                        <div class="no-data" th:if="${companyEntry.value.questions.isEmpty()}">
+                            <p>No past OA questions available yet.</p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- INTERVIEW EXPERIENCES -->
+                <div class="category-section">
+                    <div class="category-header">
+
+                        <a class="section-header"
+                           th:href="@{/interview-experiences(company=${companyEntry.value.name})}"
+                           style="display:flex; justify-content:space-between; text-decoration:none; color:inherit;">
+                            <span>💬 Interview Experiences</span>
+                            <span>View All →</span>
+                        </a>
+
+                    </div>
+
+                    <div class="cards-container">
+
+                        <div class="card" th:if="${!companyEntry.value.experiences.isEmpty()}">
+                            <th:block th:with="experience=${companyEntry.value.experiences.get(0)}">
+
+                                <h4 th:text="${experience.company}"></h4>
+
+                                <p th:text="${experience.interviewExperience}"></p>
+
+                                <!-- ✅ FIXED: use alumniName (not alumni object) -->
+                                <div class="author">
+                                    by <span th:text="${experience.alumniName}"></span>
+                                </div>
+
+                            </th:block>
+                        </div>
+
+                        <div class="no-data" th:if="${companyEntry.value.experiences.isEmpty()}">
+                            <p>No interview experiences shared yet.</p>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+</section>
+
+</th:block>
+
+<!-- ✅ REQUIRED -->
+<th:block th:fragment="scripts">
+</th:block>
+
+</body>
+</html>

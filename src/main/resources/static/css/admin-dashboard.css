@@ -1,0 +1,217 @@
+/* =====================================================
+   Admin Dashboard — Placement Cell
+   ===================================================== */
+
+/* --- Stat Cards Grid (4 across) --- */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+/* --- Charts Row (side by side) --- */
+.charts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+/* --- Bottom Row: table + trend chart --- */
+.bottom-row {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+/* --- Pipeline row (full width) --- */
+.pipeline-row {
+    margin-bottom: 24px;
+}
+
+/* --- Base Card --- */
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+}
+
+/* --- Stat Card --- */
+.stat-label {
+    font-size: 12px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 600;
+    color: #0f172a;
+    line-height: 1.2;
+}
+
+.stat-sub {
+    font-size: 12px;
+    color: #22c55e;
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+.stat-sub.neutral {
+    color: #64748b;
+}
+
+.stat-icon {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+/* --- Section Headings inside cards --- */
+.card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 16px;
+}
+
+/* --- Chart containers --- */
+.chart-wrapper {
+    position: relative;
+    height: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chart-wrapper.tall {
+    height: 280px;
+}
+
+/* --- Top Hiring Companies Table --- */
+.companies-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.companies-table th {
+    text-align: left;
+    padding: 8px 10px;
+    color: #94a3b8;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.companies-table td {
+    padding: 10px 10px;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.companies-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* --- Tier Pill Badges --- */
+.tier-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.tier-dream {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.tier-1 {
+    background: #f0fdf4;
+    color: #16a34a;
+}
+
+.tier-2 {
+    background: #fff7ed;
+    color: #ea580c;
+}
+
+.tier-3 {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+/* --- Pipeline Funnel Bars --- */
+.pipeline-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.pipeline-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+}
+
+.pipeline-label {
+    width: 130px;
+    color: #64748b;
+    flex-shrink: 0;
+    text-transform: capitalize;
+}
+
+.pipeline-bar-track {
+    flex: 1;
+    background: #f1f5f9;
+    border-radius: 4px;
+    height: 8px;
+    overflow: hidden;
+}
+
+.pipeline-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: #3b82f6;
+    transition: width 0.6s ease;
+}
+
+.pipeline-count {
+    width: 36px;
+    text-align: right;
+    color: #0f172a;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+/* --- Page Header --- */
+.page-header {
+    margin-bottom: 24px;
+}
+
+.page-header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.page-header p {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-top: 4px;
+}
+
+/* --- Responsive tweaks --- */
+@media (max-width: 1100px) {
+    .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+    .charts-row, .bottom-row { grid-template-columns: 1fr; }
+}
