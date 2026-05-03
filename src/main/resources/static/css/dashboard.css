@@ -2,16 +2,6 @@
    dashboard.css — CRMS Student Dashboard
    Location: src/main/resources/static/css/dashboard.css
    ============================================================ */
-body>* {
-    width: 100%;
-    overflow-x: hidden;
-}
-
-html,
-body {
-    width: 100%;
-    overflow-x: hidden;
-}
 
 :root {
     --primary: #F97316;
@@ -119,6 +109,9 @@ body {
     display: flex;
     flex-direction: column;
     gap: 24px;
+    position: sticky;
+    top: 32px;
+    height: fit-content;
 }
 
 /* ── Profile card ────────────────────────────────────────── */

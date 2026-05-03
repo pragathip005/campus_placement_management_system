@@ -91,18 +91,18 @@ public class AlumniPageController {
     @PostMapping("/alumni/save")
     public String saveAlumni(@ModelAttribute Alumni alumni) {
         alumniService.saveAlumni(alumni);
-        return "redirect:/alumni";
+        return "redirect:/alumni-hub";
     }
 
     @PostMapping("/alumni/career/save")
     public String saveCareerHistory(@ModelAttribute CareerHistory careerHistory) {
         alumniService.saveCareerHistory(careerHistory);
-        return "redirect:/alumni";
+        return "redirect:/alumni-hub";
     }
 
     @PostMapping("/alumni/prep/save")
     public String saveOAPrepHistory(@ModelAttribute OAPrepHistory prepHistory) {
         alumniService.saveOAPrepHistory(prepHistory);
-        return "redirect:/alumni";
+        return "redirect:/alumni-hub";
     }
 }

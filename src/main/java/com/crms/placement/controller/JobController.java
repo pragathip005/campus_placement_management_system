@@ -103,7 +103,8 @@ public class JobController {
         }
 
         // ✅ Job status
-        boolean isOpen = job.getApplicationDeadline().isAfter(LocalDateTime.now());
+        boolean isOpen = job.getApplicationDeadline() != null && 
+                        job.getApplicationDeadline().isAfter(LocalDateTime.now());
 
         // ✅ Alumni data
         long alumniCount = alumniRepository

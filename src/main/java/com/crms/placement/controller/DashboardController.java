@@ -23,11 +23,19 @@ public String dashboard(HttpSession session, Model model) {
     model.addAttribute("user", user);
 
     if ("HR".equalsIgnoreCase(user.getRole())) {
-        return "pages/hr/dashboard";
+        return "redirect:/hr/dashboard";
     }
 
     if ("STUDENT".equalsIgnoreCase(user.getRole())) {
         return "redirect:/student/dashboard";
+    }
+
+    if ("ADMIN".equalsIgnoreCase(user.getRole())) {
+        return "redirect:/admin/dashboard";
+    }
+
+    if ("ALUMNI".equalsIgnoreCase(user.getRole())) {
+        return "redirect:/alumni/dashboard";
     }
 
     return "redirect:/login";
